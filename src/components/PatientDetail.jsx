@@ -449,6 +449,7 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
         <PhotoGallery
           visit={showPhotoGallery}
           patient={patient}
+          allVisits={visits}
           onClose={() => {
             setShowPhotoGallery(null)
             fetchVisits()
