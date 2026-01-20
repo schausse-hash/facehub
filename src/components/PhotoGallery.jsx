@@ -337,7 +337,7 @@ export default function PhotoGallery({ visit, patient, allVisits = [], onClose, 
           </button>
         </div>
 
-        <div className="modal-body" style={{ overflow: 'auto', maxHeight: 'calc(95vh - 200px)' }}>
+        <div className="modal-body" style={{ overflow: 'auto', maxHeight: 'calc(95vh - 220px)', paddingBottom: '1rem' }}>
           <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handleFileSelect} />
           <input type="file" ref={cameraInputRef} style={{ display: 'none' }} accept="image/*" capture="environment" onChange={handleFileSelect} />
 
@@ -362,9 +362,15 @@ export default function PhotoGallery({ visit, patient, allVisits = [], onClose, 
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '0.5rem', textAlign: 'center', gap: '0.5rem' }}>
                           {isUploading ? <div style={{ color: 'var(--accent)', fontSize: '0.8rem' }}>...</div> : (
                             <>
-                              <div style={{ display: 'flex', gap: '0.4rem' }}>
-                                <button onClick={(e) => { e.stopPropagation(); handlePhotoClick(photo, 'camera'); }} style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid var(--accent)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Caméra"><Icons.Camera /></button>
-                                <button onClick={(e) => { e.stopPropagation(); handlePhotoClick(photo, 'file'); }} style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid var(--border)', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Galerie"><Icons.Image /></button>
+                              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                <button onClick={(e) => { e.stopPropagation(); handlePhotoClick(photo, 'camera'); }} style={{ width: '50px', height: '50px', borderRadius: '12px', border: '2px solid var(--accent)', background: 'rgba(212, 165, 116, 0.15)', color: 'var(--accent)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }} title="Caméra">
+                                  <Icons.Camera />
+                                  <span style={{ fontSize: '0.5rem' }}>Photo</span>
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); handlePhotoClick(photo, 'file'); }} style={{ width: '50px', height: '50px', borderRadius: '12px', border: '2px solid var(--border)', background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }} title="Galerie">
+                                  <Icons.Image />
+                                  <span style={{ fontSize: '0.5rem' }}>Galerie</span>
+                                </button>
                               </div>
                               <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', lineHeight: '1.2' }}>{photo.label}</span>
                             </>
@@ -380,9 +386,9 @@ export default function PhotoGallery({ visit, patient, allVisits = [], onClose, 
           ))}
         </div>
 
-        <div className="modal-footer">
+        <div className="modal-footer" style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border)', background: 'var(--bg-card)', position: 'sticky', bottom: 0 }}>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{completedCount > 0 && `✅ ${completedCount} photo(s)`}</div>
-          <button className="btn btn-primary" onClick={onClose}>Fermer</button>
+          <button className="btn btn-primary" onClick={onClose} style={{ padding: '0.75rem 2rem' }}>Fermer</button>
         </div>
       </div>
 
