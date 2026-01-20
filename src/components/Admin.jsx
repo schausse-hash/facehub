@@ -8,13 +8,16 @@ const Icons = {
   Clock: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
   Trash: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
   Shield: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
-  Star: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>,
+  Edit: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+  Plus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>,
+  Phone: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>,
+  Mail: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
 }
 
 const ROLES = {
-  user: { label: 'Utilisateur', color: '#6b7280', description: 'Voir ses patients, ajouter photos' },
-  collaborator: { label: 'Collaborateur', color: '#3b82f6', description: 'Tout + approuver demandes' },
-  super_admin: { label: 'Super Admin', color: '#eab308', description: 'Tout + gérer les rôles' }
+  user: { label: 'Utilisateur', color: '#6b7280', description: 'Accès basique' },
+  collaborator: { label: 'Collaborateur', color: '#3b82f6', description: 'Peut approuver' },
+  super_admin: { label: 'Super Admin', color: '#eab308', description: 'Accès total' }
 }
 
 export default function Admin({ session }) {
@@ -26,6 +29,17 @@ export default function Admin({ session }) {
   const [filter, setFilter] = useState('pending')
   const [newEmail, setNewEmail] = useState('')
   const [adding, setAdding] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
+  const [showUserModal, setShowUserModal] = useState(false)
+  const [userForm, setUserForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    birthdate: '',
+    clinic_name: '',
+    address: '',
+    notes: ''
+  })
 
   useEffect(() => {
     checkUserRole()
@@ -34,24 +48,18 @@ export default function Admin({ session }) {
   useEffect(() => {
     if (userRole && (userRole === 'collaborator' || userRole === 'super_admin')) {
       fetchRequests()
-      if (userRole === 'super_admin') {
-        fetchUsers()
-      }
+      fetchUsers()
     }
   }, [userRole, filter])
 
   const checkUserRole = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', session.user.id)
       .single()
 
-    if (data) {
-      setUserRole(data.role)
-    } else {
-      setUserRole(null)
-    }
+    setUserRole(data?.role || null)
     setLoading(false)
   }
 
@@ -65,17 +73,28 @@ export default function Admin({ session }) {
       query = query.eq('status', filter)
     }
 
-    const { data, error } = await query
-    if (!error) setRequests(data || [])
+    const { data } = await query
+    setRequests(data || [])
   }
 
   const fetchUsers = async () => {
-    const { data, error } = await supabase
+    // Récupérer les rôles et les profils
+    const { data: rolesData } = await supabase
       .from('user_roles')
       .select('*')
       .order('created_at', { ascending: false })
 
-    if (!error) setUsers(data || [])
+    const { data: profilesData } = await supabase
+      .from('user_profiles')
+      .select('*')
+
+    // Combiner les données
+    const combined = (rolesData || []).map(role => {
+      const profile = (profilesData || []).find(p => p.user_id === role.user_id)
+      return { ...role, profile }
+    })
+
+    setUsers(combined)
   }
 
   const handleApprove = async (request) => {
@@ -88,11 +107,7 @@ export default function Admin({ session }) {
       })
       .eq('id', request.id)
 
-    if (error) {
-      alert('Erreur: ' + error.message)
-    } else {
-      fetchRequests()
-    }
+    if (!error) fetchRequests()
   }
 
   const handleReject = async (request) => {
@@ -107,18 +122,11 @@ export default function Admin({ session }) {
   }
 
   const handleDeleteRequest = async (request) => {
-    if (userRole !== 'super_admin') {
-      alert('Seul le Super Admin peut supprimer')
-      return
-    }
+    if (userRole !== 'super_admin') return
     if (!window.confirm(`Supprimer définitivement ${request.email}?`)) return
 
-    const { error } = await supabase
-      .from('user_requests')
-      .delete()
-      .eq('id', request.id)
-
-    if (!error) fetchRequests()
+    await supabase.from('user_requests').delete().eq('id', request.id)
+    fetchRequests()
   }
 
   const handleAddEmail = async (e) => {
@@ -135,13 +143,9 @@ export default function Admin({ session }) {
         approved_by: session.user.id
       }])
 
-    if (error) {
-      if (error.code === '23505') {
-        alert('Cet email existe déjà')
-      } else {
-        alert('Erreur: ' + error.message)
-      }
-    } else {
+    if (error?.code === '23505') {
+      alert('Cet email existe déjà')
+    } else if (!error) {
       setNewEmail('')
       fetchRequests()
     }
@@ -149,63 +153,74 @@ export default function Admin({ session }) {
   }
 
   const handleChangeRole = async (userId, newRole) => {
-    if (userRole !== 'super_admin') {
-      alert('Seul le Super Admin peut changer les rôles')
-      return
-    }
-
+    if (userRole !== 'super_admin') return
     if (userId === session.user.id && newRole !== 'super_admin') {
       alert('Vous ne pouvez pas réduire votre propre rôle!')
       return
     }
 
-    const { error } = await supabase
+    await supabase
       .from('user_roles')
       .update({ role: newRole, updated_by: session.user.id })
       .eq('user_id', userId)
 
-    if (error) {
-      alert('Erreur: ' + error.message)
-    } else {
-      fetchUsers()
-    }
+    fetchUsers()
   }
 
   const handleDeleteUser = async (user) => {
-    if (userRole !== 'super_admin') {
-      alert('Seul le Super Admin peut supprimer')
-      return
-    }
+    if (userRole !== 'super_admin') return
     if (user.user_id === session.user.id) {
-      alert('Vous ne pouvez pas vous supprimer vous-même!')
+      alert('Vous ne pouvez pas vous supprimer!')
       return
     }
-    if (!window.confirm(`Supprimer ${user.email} de l'équipe?`)) return
+    if (!window.confirm(`Supprimer ${user.email}?`)) return
 
-    const { error } = await supabase
-      .from('user_roles')
-      .delete()
-      .eq('user_id', user.user_id)
-
-    if (!error) fetchUsers()
+    await supabase.from('user_roles').delete().eq('user_id', user.user_id)
+    await supabase.from('user_profiles').delete().eq('user_id', user.user_id)
+    fetchUsers()
   }
 
-  const handleAddUserRole = async (email, role) => {
-    // Trouver l'utilisateur par email
-    const { data: userData } = await supabase
-      .from('user_requests')
-      .select('*')
-      .eq('email', email.toLowerCase().trim())
-      .eq('status', 'approved')
-      .single()
+  const handleEditUser = (user) => {
+    setEditingUser(user)
+    setUserForm({
+      full_name: user.profile?.full_name || '',
+      email: user.email || '',
+      phone: user.profile?.phone || '',
+      birthdate: user.profile?.birthdate || '',
+      clinic_name: user.profile?.clinic_name || '',
+      address: user.profile?.address || '',
+      notes: user.profile?.notes || ''
+    })
+    setShowUserModal(true)
+  }
 
-    if (!userData) {
-      alert('Cet email doit d\'abord être approuvé dans les demandes')
-      return
+  const handleSaveUser = async (e) => {
+    e.preventDefault()
+    
+    const profileData = {
+      user_id: editingUser.user_id,
+      email: editingUser.email,
+      full_name: userForm.full_name,
+      phone: userForm.phone,
+      birthdate: userForm.birthdate || null,
+      clinic_name: userForm.clinic_name,
+      address: userForm.address,
+      notes: userForm.notes,
+      updated_at: new Date().toISOString()
     }
 
-    // L'utilisateur doit s'être inscrit pour avoir un user_id
-    alert('L\'utilisateur doit d\'abord créer son compte. Une fois connecté, vous pourrez modifier son rôle.')
+    // Upsert le profil
+    const { error } = await supabase
+      .from('user_profiles')
+      .upsert(profileData, { onConflict: 'user_id' })
+
+    if (error) {
+      alert('Erreur: ' + error.message)
+    } else {
+      setShowUserModal(false)
+      setEditingUser(null)
+      fetchUsers()
+    }
   }
 
   // Non autorisé
@@ -235,7 +250,7 @@ export default function Admin({ session }) {
         <div>
           <h1 className="page-title">Administration</h1>
           <p className="page-subtitle">
-            Connecté en tant que <strong style={{ color: ROLES[userRole].color }}>{ROLES[userRole].label}</strong>
+            <span style={{ color: ROLES[userRole].color, fontWeight: '600' }}>{ROLES[userRole].label}</span>
           </p>
         </div>
       </div>
@@ -248,23 +263,21 @@ export default function Admin({ session }) {
         >
           <Icons.Clock /> Demandes {pendingCount > 0 && <span style={{ marginLeft: '0.5rem', background: '#ef4444', color: '#fff', borderRadius: '10px', padding: '0.1rem 0.5rem', fontSize: '0.75rem' }}>{pendingCount}</span>}
         </button>
-        {userRole === 'super_admin' && (
-          <button 
-            className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'}`}
-            onClick={() => setActiveTab('users')}
-          >
-            <Icons.Users /> Équipe
-          </button>
-        )}
+        <button 
+          className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setActiveTab('users')}
+        >
+          <Icons.Users /> Équipe ({users.length})
+        </button>
       </div>
 
-      {/* TAB: Demandes d'accès */}
+      {/* TAB: Demandes */}
       {activeTab === 'requests' && (
         <>
           {/* Ajouter un email */}
           <div className="card" style={{ marginBottom: '1.5rem' }}>
             <div className="card-header">
-              <h3 className="card-title">Ajouter un utilisateur autorisé</h3>
+              <h3 className="card-title">Ajouter un email autorisé</h3>
             </div>
             <div className="card-body">
               <form onSubmit={handleAddEmail} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -278,14 +291,14 @@ export default function Admin({ session }) {
                   required
                 />
                 <button type="submit" className="btn btn-primary" disabled={adding}>
-                  {adding ? 'Ajout...' : 'Ajouter'}
+                  {adding ? '...' : 'Ajouter'}
                 </button>
               </form>
             </div>
           </div>
 
           {/* Filtres */}
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
             {['pending', 'approved', 'rejected', 'all'].map(f => (
               <button 
                 key={f}
@@ -300,7 +313,7 @@ export default function Admin({ session }) {
             ))}
           </div>
 
-          {/* Liste des demandes */}
+          {/* Liste */}
           <div className="card">
             <div className="card-body">
               {requests.length > 0 ? (
@@ -324,7 +337,7 @@ export default function Admin({ session }) {
                             {request.full_name} {request.clinic_name && `• ${request.clinic_name}`}
                           </div>
                         )}
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                           {new Date(request.requested_at).toLocaleDateString('fr-CA')}
                         </div>
                       </div>
@@ -336,14 +349,13 @@ export default function Admin({ session }) {
                           fontSize: '0.75rem',
                           fontWeight: '500',
                           background: request.status === 'approved' ? 'rgba(34, 197, 94, 0.2)' : 
-                                      request.status === 'rejected' ? 'rgba(239, 68, 68, 0.2)' : 
-                                      'rgba(234, 179, 8, 0.2)',
+                                      request.status === 'rejected' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(234, 179, 8, 0.2)',
                           color: request.status === 'approved' ? '#22c55e' : 
                                  request.status === 'rejected' ? '#ef4444' : '#eab308'
                         }}>
-                          {request.status === 'approved' && '✓ Approuvé'}
-                          {request.status === 'rejected' && '✗ Rejeté'}
-                          {request.status === 'pending' && '⏳ En attente'}
+                          {request.status === 'approved' && '✓'}
+                          {request.status === 'rejected' && '✗'}
+                          {request.status === 'pending' && '⏳'}
                         </span>
 
                         {request.status === 'pending' && (
@@ -358,7 +370,7 @@ export default function Admin({ session }) {
                         )}
 
                         {userRole === 'super_admin' && (
-                          <button className="btn btn-outline btn-sm" onClick={() => handleDeleteRequest(request)} style={{ color: 'var(--text-muted)' }}><Icons.Trash /></button>
+                          <button className="btn btn-outline btn-sm" onClick={() => handleDeleteRequest(request)}><Icons.Trash /></button>
                         )}
                       </div>
                     </div>
@@ -375,23 +387,13 @@ export default function Admin({ session }) {
         </>
       )}
 
-      {/* TAB: Gestion de l'équipe (Super Admin seulement) */}
-      {activeTab === 'users' && userRole === 'super_admin' && (
+      {/* TAB: Équipe */}
+      {activeTab === 'users' && (
         <div className="card">
           <div className="card-header">
-            <h3 className="card-title">Équipe & Rôles</h3>
+            <h3 className="card-title">Membres de l'équipe</h3>
           </div>
           <div className="card-body">
-            <div style={{ marginBottom: '1rem', padding: '1rem', background: 'var(--bg-dark)', borderRadius: '8px', fontSize: '0.85rem' }}>
-              <div style={{ marginBottom: '0.5rem' }}><strong>Rôles disponibles :</strong></div>
-              {Object.entries(ROLES).map(([key, val]) => (
-                <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: val.color }}></span>
-                  <strong>{val.label}</strong> - {val.description}
-                </div>
-              ))}
-            </div>
-
             {users.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {users.map(user => (
@@ -407,36 +409,65 @@ export default function Admin({ session }) {
                     gap: '0.75rem'
                   }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        {user.email}
+                      <div style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {user.profile?.full_name || user.email}
                         {user.user_id === session.user.id && <span style={{ fontSize: '0.7rem', color: 'var(--accent)' }}>(vous)</span>}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        Ajouté le {new Date(user.created_at).toLocaleDateString('fr-CA')}
+                      
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginRight: '1rem' }}>
+                          <Icons.Mail /> {user.email}
+                        </span>
+                        {user.profile?.phone && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Icons.Phone /> {user.profile.phone}
+                          </span>
+                        )}
                       </div>
+
+                      {user.profile?.birthdate && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                          📅 {new Date(user.profile.birthdate).toLocaleDateString('fr-CA')}
+                          {user.profile?.clinic_name && ` • 🏥 ${user.profile.clinic_name}`}
+                        </div>
+                      )}
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <select
-                        value={user.role}
-                        onChange={(e) => handleChangeRole(user.user_id, e.target.value)}
-                        disabled={user.user_id === session.user.id}
-                        style={{
-                          padding: '0.5rem 1rem',
-                          borderRadius: '8px',
-                          border: '1px solid var(--border)',
-                          background: 'var(--bg-card)',
-                          color: ROLES[user.role].color,
-                          fontWeight: '600',
-                          cursor: user.user_id === session.user.id ? 'not-allowed' : 'pointer'
-                        }}
-                      >
-                        <option value="user">👤 Utilisateur</option>
-                        <option value="collaborator">👥 Collaborateur</option>
-                        <option value="super_admin">⭐ Super Admin</option>
-                      </select>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      {userRole === 'super_admin' ? (
+                        <select
+                          value={user.role}
+                          onChange={(e) => handleChangeRole(user.user_id, e.target.value)}
+                          disabled={user.user_id === session.user.id}
+                          style={{
+                            padding: '0.5rem',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border)',
+                            background: 'var(--bg-card)',
+                            color: ROLES[user.role].color,
+                            fontWeight: '600',
+                            fontSize: '0.85rem'
+                          }}
+                        >
+                          <option value="user">👤 Utilisateur</option>
+                          <option value="collaborator">👥 Collaborateur</option>
+                          <option value="super_admin">⭐ Super Admin</option>
+                        </select>
+                      ) : (
+                        <span style={{ color: ROLES[user.role].color, fontWeight: '600', fontSize: '0.85rem' }}>
+                          {ROLES[user.role].label}
+                        </span>
+                      )}
 
-                      {user.user_id !== session.user.id && (
+                      <button 
+                        className="btn btn-outline btn-sm" 
+                        onClick={() => handleEditUser(user)}
+                        title="Modifier le profil"
+                      >
+                        <Icons.Edit />
+                      </button>
+
+                      {userRole === 'super_admin' && user.user_id !== session.user.id && (
                         <button 
                           className="btn btn-outline btn-sm" 
                           onClick={() => handleDeleteUser(user)}
@@ -452,9 +483,111 @@ export default function Admin({ session }) {
             ) : (
               <div className="empty-state">
                 <div style={{ width: 48, height: 48, color: 'var(--text-muted)' }}><Icons.Users /></div>
-                <h3>Aucun utilisateur</h3>
+                <h3>Aucun membre</h3>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal édition utilisateur */}
+      {showUserModal && (
+        <div className="modal-overlay" onClick={() => setShowUserModal(false)}>
+          <div className="modal" style={{ maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Modifier le profil</h2>
+              <button className="modal-close" onClick={() => setShowUserModal(false)}>
+                <Icons.X />
+              </button>
+            </div>
+            <form onSubmit={handleSaveUser}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    value={editingUser?.email || ''}
+                    disabled
+                    style={{ opacity: 0.6 }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Nom complet</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={userForm.full_name}
+                    onChange={(e) => setUserForm({ ...userForm, full_name: e.target.value })}
+                    placeholder="Prénom Nom"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Téléphone</label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    value={userForm.phone}
+                    onChange={(e) => setUserForm({ ...userForm, phone: e.target.value })}
+                    placeholder="514-555-1234"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Date de naissance</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={userForm.birthdate}
+                    onChange={(e) => setUserForm({ ...userForm, birthdate: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Clinique</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={userForm.clinic_name}
+                    onChange={(e) => setUserForm({ ...userForm, clinic_name: e.target.value })}
+                    placeholder="Nom de la clinique"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Adresse</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={userForm.address}
+                    onChange={(e) => setUserForm({ ...userForm, address: e.target.value })}
+                    placeholder="Adresse complète"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Notes</label>
+                  <textarea
+                    className="form-input"
+                    value={userForm.notes}
+                    onChange={(e) => setUserForm({ ...userForm, notes: e.target.value })}
+                    placeholder="Notes additionnelles..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline" onClick={() => setShowUserModal(false)}>
+                  Annuler
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Enregistrer
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
