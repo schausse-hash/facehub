@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
+import PhotoGallery from './PhotoGallery'
 
 const Icons = {
   ArrowLeft: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
@@ -7,6 +8,7 @@ const Icons = {
   X: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>,
   Calendar: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
   Trash: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
+  Camera: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
 }
 
 const VISIT_TYPES = [
@@ -34,6 +36,7 @@ const TREATMENT_ZONES = [
 export default function PatientDetail({ patient, onBack, onRefresh, session }) {
   const [visits, setVisits] = useState([])
   const [showVisitModal, setShowVisitModal] = useState(false)
+  const [showPhotoGallery, setShowPhotoGallery] = useState(null)
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState({
     visit_type: 'treatment',
@@ -50,7 +53,11 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
     setLoading(true)
     const { data, error } = await supabase
       .from('visits')
-      .select(`*, treatments (*)`)
+      .select(`
+        *,
+        treatments (*),
+        photos (*)
+      `)
       .eq('patient_id', patient.id)
       .order('visit_date', { ascending: false })
 
@@ -241,6 +248,7 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {visits.map(visit => {
                 const typeInfo = VISIT_TYPES.find(t => t.id === visit.visit_type) || VISIT_TYPES[0]
+                const photoCount = visit.photos?.length || 0
                 return (
                   <div key={visit.id} style={{
                     background: 'var(--bg-dark)',
@@ -253,18 +261,33 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
                         <div style={{ fontWeight: '600' }}>{formatDate(visit.visit_date)}</div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{typeInfo.label}</div>
                       </div>
-                      {visit.total_units > 0 && (
-                        <span style={{
-                          padding: '0.25rem 0.75rem',
-                          background: 'var(--accent)',
-                          color: 'var(--primary)',
-                          borderRadius: '12px',
-                          fontSize: '0.8rem',
-                          fontWeight: '500'
-                        }}>
-                          {visit.total_units} unités
-                        </span>
-                      )}
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                        {visit.total_units > 0 && (
+                          <span style={{
+                            padding: '0.25rem 0.75rem',
+                            background: 'var(--accent)',
+                            color: 'var(--primary)',
+                            borderRadius: '12px',
+                            fontSize: '0.8rem',
+                            fontWeight: '500'
+                          }}>
+                            {visit.total_units} unités
+                          </span>
+                        )}
+                        <button
+                          className="btn btn-outline btn-sm"
+                          onClick={() => setShowPhotoGallery(visit)}
+                          style={{ 
+                            padding: '0.25rem 0.75rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem'
+                          }}
+                        >
+                          <Icons.Camera /> 
+                          <span>{photoCount > 0 ? `${photoCount} 📷` : 'Photos'}</span>
+                        </button>
+                      </div>
                     </div>
                     
                     {visit.treatments?.length > 0 && (
@@ -419,6 +442,19 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Photo Gallery Modal */}
+      {showPhotoGallery && (
+        <PhotoGallery
+          visit={showPhotoGallery}
+          patient={patient}
+          onClose={() => {
+            setShowPhotoGallery(null)
+            fetchVisits()
+          }}
+          onRefresh={fetchVisits}
+        />
       )}
     </div>
   )
