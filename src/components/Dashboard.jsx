@@ -4,6 +4,7 @@ import PatientList from './PatientList'
 import PatientDetail from './PatientDetail'
 import Documents from './Documents'
 import Admin from './Admin'
+import Help from './Help'
 
 // Icônes SVG
 const Icons = {
@@ -15,6 +16,7 @@ const Icons = {
   Camera: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
   AlertCircle: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
   Shield: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
+  Help: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
 }
 
 export default function Dashboard({ session }) {
@@ -181,6 +183,14 @@ export default function Dashboard({ session }) {
             <span>Admin</span>
           </div>
 
+          <div 
+            className={`nav-item ${currentView === 'help' ? 'active' : ''}`}
+            onClick={() => { setCurrentView('help'); setSelectedPatient(null); }}
+          >
+            <Icons.Help />
+            <span>Aide</span>
+          </div>
+
           <div className="nav-item" onClick={handleLogout}>
             <Icons.Logout />
             <span>Déconnexion</span>
@@ -212,6 +222,7 @@ export default function Dashboard({ session }) {
             )}
             {currentView === 'documents' && <Documents />}
             {currentView === 'admin' && <Admin session={session} />}
+            {currentView === 'help' && <Help />}
           </>
         )}
       </main>
