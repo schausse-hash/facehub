@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
+import { sendAccessApprovedEmail } from '../emailService'
 
 const Icons = {
   Check: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>,
@@ -78,7 +79,6 @@ export default function Admin({ session }) {
   }
 
   const fetchUsers = async () => {
-    // Récupérer les rôles et les profils
     const { data: rolesData } = await supabase
       .from('user_roles')
       .select('*')
@@ -88,7 +88,6 @@ export default function Admin({ session }) {
       .from('user_profiles')
       .select('*')
 
-    // Combiner les données
     const combined = (rolesData || []).map(role => {
       const profile = (profilesData || []).find(p => p.user_id === role.user_id)
       return { ...role, profile }
@@ -107,7 +106,11 @@ export default function Admin({ session }) {
       })
       .eq('id', request.id)
 
-    if (!error) fetchRequests()
+    if (!error) {
+      // Envoyer un email de confirmation à l'utilisateur
+      await sendAccessApprovedEmail(request.email, request.full_name || 'Utilisateur')
+      fetchRequests()
+    }
   }
 
   const handleReject = async (request) => {
@@ -209,7 +212,6 @@ export default function Admin({ session }) {
       updated_at: new Date().toISOString()
     }
 
-    // Upsert le profil
     const { error } = await supabase
       .from('user_profiles')
       .upsert(profileData, { onConflict: 'user_id' })

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { sendAccessRequestEmail } from '../emailService'
 
 // Générer une question mathématique simple
 const generateCaptcha = () => {
@@ -92,6 +93,13 @@ export default function Auth() {
 
       if (error) throw error
 
+      // Envoyer l'email de notification aux admins
+      await sendAccessRequestEmail({
+        name: form.fullName,
+        email: form.email.toLowerCase().trim(),
+        message: form.clinicName ? `Clinique: ${form.clinicName}` : ''
+      })
+
       setMode('requested')
     } catch (err) {
       setError(err.message)
@@ -159,7 +167,7 @@ export default function Auth() {
             </h2>
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
               Votre demande d'accès a été envoyée à l'administrateur.
-              Vous serez contacté une fois votre compte approuvé.
+              Vous recevrez un courriel une fois votre compte approuvé.
             </p>
             <button 
               className="btn btn-outline"

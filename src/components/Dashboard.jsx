@@ -6,6 +6,8 @@ import Documents from './Documents'
 import Admin from './Admin'
 import Help from './Help'
 
+// Compteur de demandes en attente (pour le badge)
+
 // Icônes SVG
 const Icons = {
   Home: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
@@ -25,10 +27,27 @@ export default function Dashboard({ session }) {
   const [selectedPatient, setSelectedPatient] = useState(null)
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ patients: 0, visits: 0, photos: 0 })
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
 
   useEffect(() => {
     fetchPatients()
+    fetchPendingRequests()
+    
+    // Rafraîchir le compteur toutes les 30 secondes
+    const interval = setInterval(fetchPendingRequests, 30000)
+    return () => clearInterval(interval)
   }, [])
+
+  const fetchPendingRequests = async () => {
+    const { data, error } = await supabase
+      .from('user_requests')
+      .select('id')
+      .eq('status', 'pending')
+    
+    if (!error) {
+      setPendingRequestsCount(data?.length || 0)
+    }
+  }
 
   const fetchPatients = async () => {
     setLoading(true)
@@ -177,10 +196,25 @@ export default function Dashboard({ session }) {
 
           <div 
             className={`nav-item ${currentView === 'admin' ? 'active' : ''}`}
-            onClick={() => { setCurrentView('admin'); setSelectedPatient(null); }}
+            onClick={() => { setCurrentView('admin'); setSelectedPatient(null); fetchPendingRequests(); }}
           >
             <Icons.Shield />
             <span>Admin</span>
+            {pendingRequestsCount > 0 && (
+              <span style={{
+                marginLeft: 'auto',
+                background: '#ef4444',
+                color: '#fff',
+                borderRadius: '10px',
+                padding: '0.1rem 0.5rem',
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                minWidth: '20px',
+                textAlign: 'center'
+              }}>
+                {pendingRequestsCount}
+              </span>
+            )}
           </div>
 
           <div 
