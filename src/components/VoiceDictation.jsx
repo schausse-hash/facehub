@@ -89,7 +89,7 @@ export default function VoiceDictation({
       recognitionRef.current = new SpeechRecognition()
       recognitionRef.current.continuous = true
       recognitionRef.current.interimResults = true
-      recognitionRef.current.lang = 'fr-CA'
+      recognitionRef.current.lang = 'fr-FR'
 
       recognitionRef.current.onresult = (event) => {
         let interimTranscript = ''
