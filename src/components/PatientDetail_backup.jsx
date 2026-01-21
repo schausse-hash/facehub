@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
 import PhotoGallery from './PhotoGallery'
-import VoiceDictation from './VoiceDictation'
 
 const Icons = {
   ArrowLeft: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
@@ -82,10 +81,6 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
   const [uploadingDoc, setUploadingDoc] = useState(false)
   const [docType, setDocType] = useState('consent')
   const fileInputRef = useRef(null)
-
-  // Voice dictation state
-  const [showDictation, setShowDictation] = useState(false)
-  const [dictationTarget, setDictationTarget] = useState('notes') // 'notes' ou 'medical'
 
   useEffect(() => {
     fetchVisits()
@@ -523,26 +518,13 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <label className="form-label" style={{ margin: 0 }}>Notes additionnelles</label>
-                  <button 
-                    type="button"
-                    className="btn btn-outline btn-sm"
-                    onClick={() => {
-                      setDictationTarget('medical_notes')
-                      setShowDictation(true)
-                    }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-                  >
-                    🎤 Dicter
-                  </button>
-                </div>
+                <label className="form-label">Notes additionnelles</label>
                 <textarea
                   className="form-input"
                   rows={4}
                   value={medicalForm.notes}
                   onChange={(e) => setMedicalForm({ ...medicalForm, notes: e.target.value })}
-                  placeholder="Autres informations importantes... Ou utilisez la dictée vocale"
+                  placeholder="Autres informations importantes..."
                 />
               </div>
             </div>
@@ -732,25 +714,12 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
                 </div>
 
                 <div className="form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <label className="form-label" style={{ margin: 0 }}>Notes</label>
-                    <button 
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={() => {
-                        setDictationTarget('notes')
-                        setShowDictation(true)
-                      }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-                    >
-                      🎤 Dicter
-                    </button>
-                  </div>
+                  <label className="form-label">Notes</label>
                   <textarea 
                     className="form-input"
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    placeholder="Observations, recommandations... Ou utilisez la dictée vocale"
+                    placeholder="Observations, recommandations..."
                   />
                 </div>
               </div>
@@ -797,36 +766,6 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
           <Icons.Trash /> Supprimer le patient
         </button>
       </div>
-
-      {/* Modal Dictée Vocale */}
-      {showDictation && (
-        <div className="modal-overlay" onClick={() => setShowDictation(false)}>
-          <div className="modal" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
-            <VoiceDictation
-              onInsertText={(text) => {
-                if (dictationTarget === 'notes') {
-                  setForm(prev => ({ 
-                    ...prev, 
-                    notes: prev.notes ? prev.notes + '\n\n' + text : text 
-                  }))
-                } else if (dictationTarget === 'medical_notes') {
-                  setMedicalForm(prev => ({ 
-                    ...prev, 
-                    notes: prev.notes ? prev.notes + '\n\n' + text : text 
-                  }))
-                }
-              }}
-              onClose={() => setShowDictation(false)}
-              initialText=""
-              apiKey={import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.VITE_CLAUDE_API_KEY || null}
-              apiProvider={
-                import.meta.env.VITE_OPENAI_API_KEY ? 'openai' : 
-                import.meta.env.VITE_CLAUDE_API_KEY ? 'claude' : 'none'
-              }
-            />
-          </div>
-        </div>
-      )}
     </div>
   )
 }
