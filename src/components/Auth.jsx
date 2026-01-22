@@ -2,6 +2,13 @@ import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { sendAccessRequestEmail } from '../emailService'
 
+// Icône de retour
+const IconArrowLeft = () => (
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 20, height: 20 }}>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+  </svg>
+)
+
 // Générer une question mathématique simple
 const generateCaptcha = () => {
   const num1 = Math.floor(Math.random() * 10) + 1
@@ -13,7 +20,7 @@ const generateCaptcha = () => {
 }
 
 export default function Auth() {
-  const [mode, setMode] = useState('login') // 'login', 'request', 'requested', 'signup'
+  const [mode, setMode] = useState('login') // 'login', 'signup', 'success'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [captcha, setCaptcha] = useState(generateCaptcha())
@@ -22,9 +29,33 @@ export default function Auth() {
     email: '',
     password: '',
     fullName: '',
+    phone: '',
+    birthdate: '',
     clinicName: ''
   })
 
+  // Reset form et erreurs
+  const resetForm = () => {
+    setForm({
+      email: '',
+      password: '',
+      fullName: '',
+      phone: '',
+      birthdate: '',
+      clinicName: ''
+    })
+    setError(null)
+    setCaptcha(generateCaptcha())
+    setCaptchaInput('')
+  }
+
+  // Changer de mode avec reset
+  const switchMode = (newMode) => {
+    resetForm()
+    setMode(newMode)
+  }
+
+  // Connexion
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -39,6 +70,8 @@ export default function Auth() {
     } catch (err) {
       if (err.message.includes('Invalid login')) {
         setError('Email ou mot de passe incorrect')
+      } else if (err.message.includes('Email not confirmed')) {
+        setError('Veuillez confirmer votre email avant de vous connecter.')
       } else {
         setError(err.message)
       }
@@ -47,67 +80,7 @@ export default function Auth() {
     }
   }
 
-  const handleRequestAccess = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    // Vérifier le captcha
-    if (parseInt(captchaInput) !== captcha.answer) {
-      setError('Réponse incorrecte au calcul anti-robot')
-      setCaptcha(generateCaptcha())
-      setCaptchaInput('')
-      setLoading(false)
-      return
-    }
-
-    try {
-      // Vérifier si l'email existe déjà
-      const { data: existing } = await supabase
-        .from('user_requests')
-        .select('status')
-        .eq('email', form.email.toLowerCase().trim())
-        .single()
-
-      if (existing) {
-        if (existing.status === 'approved') {
-          setError('Votre email est déjà approuvé. Utilisez "Créer mon compte".')
-        } else if (existing.status === 'pending') {
-          setError('Votre demande est déjà en attente d\'approbation.')
-        } else {
-          setError('Votre demande a été rejetée. Contactez l\'administrateur.')
-        }
-        setLoading(false)
-        return
-      }
-
-      // Créer la demande
-      const { error } = await supabase
-        .from('user_requests')
-        .insert([{
-          email: form.email.toLowerCase().trim(),
-          full_name: form.fullName,
-          clinic_name: form.clinicName,
-          status: 'pending'
-        }])
-
-      if (error) throw error
-
-      // Envoyer l'email de notification aux admins
-      await sendAccessRequestEmail({
-        name: form.fullName,
-        email: form.email.toLowerCase().trim(),
-        message: form.clinicName ? `Clinique: ${form.clinicName}` : ''
-      })
-
-      setMode('requested')
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
+  // Inscription (créer le compte + demande d'activation)
   const handleSignUp = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -123,35 +96,62 @@ export default function Auth() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email: form.email,
+      // 1. Créer le compte dans Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: form.email.toLowerCase().trim(),
         password: form.password,
         options: {
           data: {
             full_name: form.fullName,
+            phone: form.phone,
+            birthdate: form.birthdate,
             clinic_name: form.clinicName
           }
         }
       })
-      
-      if (error) {
-        if (error.message.includes('not yet been approved') || error.message.includes('approuvée')) {
-          setError('Votre demande d\'accès n\'a pas encore été approuvée. Veuillez patienter.')
-        } else {
-          throw error
-        }
-      } else {
-        alert('Compte créé! Vérifiez votre courriel pour confirmer votre inscription.')
+
+      if (authError) throw authError
+
+      // 2. Créer une entrée dans user_requests pour que l'admin puisse gérer
+      const { error: requestError } = await supabase
+        .from('user_requests')
+        .insert([{
+          email: form.email.toLowerCase().trim(),
+          full_name: form.fullName,
+          phone: form.phone,
+          birthdate: form.birthdate || null,
+          clinic_name: form.clinicName,
+          status: 'pending'
+        }])
+
+      // Ignorer l'erreur si la demande existe déjà
+      if (requestError && !requestError.message.includes('duplicate')) {
+        console.error('Request error:', requestError)
       }
+
+      // 3. Envoyer l'email de notification aux admins
+      await sendAccessRequestEmail({
+        name: form.fullName,
+        email: form.email.toLowerCase().trim(),
+        message: `Téléphone: ${form.phone || 'Non fourni'}\nDate de naissance: ${form.birthdate || 'Non fournie'}\nClinique souhaitée: ${form.clinicName || 'Non spécifiée'}`
+      })
+
+      // 4. Afficher le message de succès
+      setMode('success')
+
     } catch (err) {
-      setError(err.message)
+      if (err.message.includes('already registered')) {
+        setError('Cet email est déjà utilisé. Essayez de vous connecter.')
+      } else {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  // Écran de confirmation de demande
-  if (mode === 'requested') {
+  // Écran de succès après inscription
+  if (mode === 'success') {
     return (
       <div className="auth-container">
         <div className="auth-card">
@@ -161,20 +161,31 @@ export default function Auth() {
           </div>
 
           <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✉️</div>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✅</div>
             <h2 style={{ marginBottom: '1rem', color: 'var(--accent)' }}>
-              Demande envoyée!
+              Compte créé!
             </h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-              Votre demande d'accès a été envoyée à l'administrateur.
-              Vous recevrez un courriel une fois votre compte approuvé.
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>
+              Votre compte a été créé avec succès.
             </p>
+            <div style={{
+              background: 'var(--bg-dark)',
+              borderRadius: '8px',
+              padding: '1rem',
+              marginBottom: '1.5rem',
+              textAlign: 'left'
+            }}>
+              <p style={{ margin: '0 0 0.5rem', fontWeight: '600' }}>Prochaines étapes:</p>
+              <ol style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                <li style={{ marginBottom: '0.5rem' }}>Vérifiez votre courriel et cliquez sur le lien de confirmation</li>
+                <li style={{ marginBottom: '0.5rem' }}>Attendez que l'administrateur active votre compte</li>
+                <li>Vous recevrez un courriel une fois votre accès approuvé</li>
+              </ol>
+            </div>
             <button 
-              className="btn btn-outline"
-              onClick={() => {
-                setMode('login')
-                setForm({ email: '', password: '', fullName: '', clinicName: '' })
-              }}
+              className="btn btn-primary"
+              onClick={() => switchMode('login')}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               Retour à la connexion
             </button>
@@ -192,10 +203,31 @@ export default function Auth() {
           <span>Gestion Esthétique</span>
         </div>
 
+        {/* Bouton retour pour inscription */}
+        {mode === 'signup' && (
+          <button
+            type="button"
+            onClick={() => switchMode('login')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              padding: '0.5rem 0',
+              marginBottom: '1rem',
+              fontSize: '0.9rem'
+            }}
+          >
+            <IconArrowLeft /> Retour à la connexion
+          </button>
+        )}
+
         <h2 className="auth-title">
           {mode === 'login' && 'Connexion'}
-          {mode === 'request' && 'Demander l\'accès'}
-          {mode === 'signup' && 'Créer mon compte'}
+          {mode === 'signup' && 'Créer un compte'}
         </h2>
 
         {error && (
@@ -216,205 +248,4 @@ export default function Auth() {
         {mode === 'login' && (
           <form onSubmit={handleLogin}>
             <div className="form-group">
-              <label className="form-label">Courriel</label>
-              <input
-                type="email"
-                className="form-input"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Mot de passe</label>
-              <input
-                type="password"
-                className="form-input"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                required
-                minLength={6}
-              />
-            </div>
-
-            <button 
-              type="submit" 
-              className="btn btn-primary" 
-              style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem' }}
-              disabled={loading}
-            >
-              {loading ? 'Connexion...' : 'Se connecter'}
-            </button>
-          </form>
-        )}
-
-        {/* Formulaire de demande d'accès */}
-        {mode === 'request' && (
-          <form onSubmit={handleRequestAccess}>
-            <div className="form-group">
-              <label className="form-label">Nom complet *</label>
-              <input
-                type="text"
-                className="form-input"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Courriel *</label>
-              <input
-                type="email"
-                className="form-input"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Nom de la clinique</label>
-              <input
-                type="text"
-                className="form-input"
-                value={form.clinicName}
-                onChange={(e) => setForm({ ...form, clinicName: e.target.value })}
-                placeholder="Optionnel"
-              />
-            </div>
-
-            {/* Captcha anti-robot */}
-            <div className="form-group">
-              <label className="form-label">
-                🤖 Anti-robot: <strong style={{ color: 'var(--accent)' }}>{captcha.question}</strong>
-              </label>
-              <input
-                type="number"
-                className="form-input"
-                value={captchaInput}
-                onChange={(e) => setCaptchaInput(e.target.value)}
-                placeholder="Votre réponse"
-                required
-              />
-            </div>
-
-            <button 
-              type="submit" 
-              className="btn btn-primary" 
-              style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem' }}
-              disabled={loading}
-            >
-              {loading ? 'Envoi...' : 'Envoyer ma demande'}
-            </button>
-          </form>
-        )}
-
-        {/* Formulaire d'inscription (pour les emails approuvés) */}
-        {mode === 'signup' && (
-          <form onSubmit={handleSignUp}>
-            <p style={{ 
-              fontSize: '0.85rem', 
-              color: 'var(--text-muted)', 
-              marginBottom: '1rem',
-              padding: '0.75rem',
-              background: 'var(--bg-dark)',
-              borderRadius: '8px'
-            }}>
-              ℹ️ Créez votre compte seulement si votre demande a été approuvée.
-            </p>
-
-            <div className="form-group">
-              <label className="form-label">Nom complet</label>
-              <input
-                type="text"
-                className="form-input"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Courriel (approuvé)</label>
-              <input
-                type="email"
-                className="form-input"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Mot de passe</label>
-              <input
-                type="password"
-                className="form-input"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                required
-                minLength={6}
-                placeholder="Minimum 6 caractères"
-              />
-            </div>
-
-            {/* Captcha anti-robot */}
-            <div className="form-group">
-              <label className="form-label">
-                🤖 Anti-robot: <strong style={{ color: 'var(--accent)' }}>{captcha.question}</strong>
-              </label>
-              <input
-                type="number"
-                className="form-input"
-                value={captchaInput}
-                onChange={(e) => setCaptchaInput(e.target.value)}
-                placeholder="Votre réponse"
-                required
-              />
-            </div>
-
-            <button 
-              type="submit" 
-              className="btn btn-primary" 
-              style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem' }}
-              disabled={loading}
-            >
-              {loading ? 'Création...' : 'Créer mon compte'}
-            </button>
-          </form>
-        )}
-
-        {/* Liens de navigation */}
-        <div className="auth-footer" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          {mode === 'login' && (
-            <>
-              <p style={{ marginBottom: '0.5rem' }}>
-                Pas encore de compte?{' '}
-                <a onClick={() => { setMode('request'); setError(null); setCaptcha(generateCaptcha()); setCaptchaInput(''); }}>
-                  Demander l'accès
-                </a>
-              </p>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Demande approuvée?{' '}
-                <a onClick={() => { setMode('signup'); setError(null); setCaptcha(generateCaptcha()); setCaptchaInput(''); }}>
-                  Créer mon compte
-                </a>
-              </p>
-            </>
-          )}
-
-          {(mode === 'request' || mode === 'signup') && (
-            <p>
-              Déjà un compte?{' '}
-              <a onClick={() => { setMode('login'); setError(null); }}>
-                Se connecter
-              </a>
-            </p>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
+              <label className="form-labe
