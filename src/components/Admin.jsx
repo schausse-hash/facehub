@@ -13,6 +13,7 @@ const Icons = {
   Plus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>,
   Phone: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>,
   Mail: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
+  Building: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
 }
 
 const ROLES = {
@@ -21,9 +22,10 @@ const ROLES = {
   super_admin: { label: 'Super Admin', color: '#eab308', description: 'Accès total' }
 }
 
-export default function Admin({ session }) {
+export default function Admin({ session, userClinic }) {
   const [requests, setRequests] = useState([])
   const [users, setUsers] = useState([])
+  const [clinics, setClinics] = useState([])
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState(null)
   const [activeTab, setActiveTab] = useState('requests')
@@ -32,12 +34,15 @@ export default function Admin({ session }) {
   const [adding, setAdding] = useState(false)
   const [editingUser, setEditingUser] = useState(null)
   const [showUserModal, setShowUserModal] = useState(false)
+  const [showClinicModal, setShowClinicModal] = useState(false)
+  const [clinicForm, setClinicForm] = useState({ name: '', address: '', phone: '', email: '' })
   const [userForm, setUserForm] = useState({
     full_name: '',
     email: '',
     phone: '',
     birthdate: '',
     clinic_name: '',
+    clinic_id: '',
     address: '',
     notes: ''
   })
@@ -50,6 +55,7 @@ export default function Admin({ session }) {
     if (userRole && (userRole === 'collaborator' || userRole === 'super_admin')) {
       fetchRequests()
       fetchUsers()
+      fetchClinics()
     }
   }, [userRole, filter])
 
@@ -88,12 +94,67 @@ export default function Admin({ session }) {
       .from('user_profiles')
       .select('*')
 
+    const { data: clinicsData } = await supabase
+      .from('clinics')
+      .select('id, name')
+
+    const clinicsMap = {}
+    clinicsData?.forEach(c => { clinicsMap[c.id] = c.name })
+
     const combined = (rolesData || []).map(role => {
       const profile = (profilesData || []).find(p => p.user_id === role.user_id)
-      return { ...role, profile }
+      return { 
+        ...role, 
+        profile,
+        clinic_name: clinicsMap[role.clinic_id] || null
+      }
     })
 
     setUsers(combined)
+  }
+
+  const fetchClinics = async () => {
+    const { data } = await supabase
+      .from('clinics')
+      .select('*')
+      .eq('is_active', true)
+      .order('name', { ascending: true })
+    
+    setClinics(data || [])
+  }
+
+  const handleCreateClinic = async (e) => {
+    e.preventDefault()
+    const { error } = await supabase
+      .from('clinics')
+      .insert([{
+        ...clinicForm,
+        created_by: session.user.id
+      }])
+
+    if (error) {
+      alert('Erreur: ' + error.message)
+    } else {
+      setShowClinicModal(false)
+      setClinicForm({ name: '', address: '', phone: '', email: '' })
+      fetchClinics()
+    }
+  }
+
+  const handleAssignClinic = async (userId, clinicId) => {
+    // Mettre à jour user_roles
+    await supabase
+      .from('user_roles')
+      .update({ clinic_id: clinicId || null })
+      .eq('user_id', userId)
+
+    // Mettre à jour user_profiles aussi
+    await supabase
+      .from('user_profiles')
+      .update({ clinic_id: clinicId || null })
+      .eq('user_id', userId)
+
+    fetchUsers()
   }
 
   const handleApprove = async (request) => {
@@ -258,7 +319,7 @@ export default function Admin({ session }) {
       </div>
 
       {/* Onglets */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', flexWrap: 'wrap' }}>
         <button 
           className={`btn ${activeTab === 'requests' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveTab('requests')}
@@ -271,6 +332,14 @@ export default function Admin({ session }) {
         >
           <Icons.Users /> Équipe ({users.length})
         </button>
+        {userRole === 'super_admin' && (
+          <button 
+            className={`btn ${activeTab === 'clinics' ? 'btn-primary' : 'btn-outline'}`}
+            onClick={() => setActiveTab('clinics')}
+          >
+            <Icons.Building /> Cliniques ({clinics.length})
+          </button>
+        )}
       </div>
 
       {/* TAB: Demandes */}
@@ -430,7 +499,35 @@ export default function Admin({ session }) {
                       {user.profile?.birthdate && (
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                           📅 {new Date(user.profile.birthdate).toLocaleDateString('fr-CA')}
-                          {user.profile?.clinic_name && ` • 🏥 ${user.profile.clinic_name}`}
+                        </div>
+                      )}
+
+                      {/* Affichage de la clinique assignée */}
+                      {user.clinic_name && (
+                        <div style={{ 
+                          marginTop: '0.5rem',
+                          padding: '0.25rem 0.5rem',
+                          background: 'rgba(212, 175, 55, 0.15)',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                          color: 'var(--accent)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem'
+                        }}>
+                          <Icons.Building /> {user.clinic_name}
+                        </div>
+                      )}
+                      {!user.clinic_name && !user.clinic_id && (
+                        <div style={{ 
+                          marginTop: '0.5rem',
+                          padding: '0.25rem 0.5rem',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                          color: '#ef4444'
+                        }}>
+                          ⚠️ Aucune clinique
                         </div>
                       )}
                     </div>
@@ -587,6 +684,206 @@ export default function Admin({ session }) {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: Cliniques */}
+      {activeTab === 'clinics' && userRole === 'super_admin' && (
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">Gestion des cliniques</h3>
+            <button className="btn btn-primary btn-sm" onClick={() => setShowClinicModal(true)}>
+              <Icons.Plus /> Nouvelle clinique
+            </button>
+          </div>
+          <div className="card-body">
+            {clinics.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {clinics.map(clinic => {
+                  const clinicUsers = users.filter(u => u.clinic_id === clinic.id)
+                  return (
+                    <div key={clinic.id} style={{
+                      padding: '1rem',
+                      background: 'var(--bg-dark)',
+                      borderRadius: '10px',
+                      border: '1px solid var(--border)'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div>
+                          <div style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Icons.Building />
+                            {clinic.name}
+                          </div>
+                          {clinic.address && (
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                              📍 {clinic.address}
+                            </div>
+                          )}
+                          {(clinic.phone || clinic.email) && (
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                              {clinic.phone && <span>📞 {clinic.phone}</span>}
+                              {clinic.phone && clinic.email && <span> • </span>}
+                              {clinic.email && <span>✉️ {clinic.email}</span>}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ 
+                          padding: '0.25rem 0.75rem',
+                          background: 'rgba(59, 130, 246, 0.15)',
+                          color: '#3b82f6',
+                          borderRadius: '12px',
+                          fontSize: '0.8rem'
+                        }}>
+                          {clinicUsers.length} membre(s)
+                        </div>
+                      </div>
+                      
+                      {clinicUsers.length > 0 && (
+                        <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)' }}>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Membres:</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            {clinicUsers.map(u => (
+                              <span key={u.user_id} style={{
+                                padding: '0.25rem 0.5rem',
+                                background: 'var(--bg-card)',
+                                borderRadius: '6px',
+                                fontSize: '0.8rem'
+                              }}>
+                                {u.profile?.full_name || u.email}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <div style={{ width: 48, height: 48, color: 'var(--text-muted)' }}><Icons.Building /></div>
+                <h3>Aucune clinique</h3>
+                <p>Créez votre première clinique</p>
+                <button className="btn btn-primary" onClick={() => setShowClinicModal(true)} style={{ marginTop: '1rem' }}>
+                  <Icons.Plus /> Créer une clinique
+                </button>
+              </div>
+            )}
+
+            {/* Section: Assigner les utilisateurs */}
+            {clinics.length > 0 && users.length > 0 && (
+              <div style={{ marginTop: '2rem' }}>
+                <h4 style={{ marginBottom: '1rem' }}>Assigner les membres aux cliniques</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {users.map(user => (
+                    <div key={user.user_id} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0.75rem',
+                      background: 'var(--bg-dark)',
+                      borderRadius: '8px',
+                      gap: '1rem',
+                      flexWrap: 'wrap'
+                    }}>
+                      <div style={{ flex: 1, minWidth: '150px' }}>
+                        <div style={{ fontWeight: '500' }}>{user.profile?.full_name || user.email}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user.email}</div>
+                      </div>
+                      <select
+                        value={user.clinic_id || ''}
+                        onChange={(e) => handleAssignClinic(user.user_id, e.target.value || null)}
+                        style={{
+                          padding: '0.5rem',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border)',
+                          background: 'var(--bg-card)',
+                          color: 'var(--text)',
+                          minWidth: '200px'
+                        }}
+                      >
+                        <option value="">-- Aucune clinique --</option>
+                        {clinics.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal création clinique */}
+      {showClinicModal && (
+        <div className="modal-overlay" onClick={() => setShowClinicModal(false)}>
+          <div className="modal" style={{ maxWidth: '450px' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Nouvelle clinique</h2>
+              <button className="modal-close" onClick={() => setShowClinicModal(false)}>
+                <Icons.X />
+              </button>
+            </div>
+            <form onSubmit={handleCreateClinic}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Nom de la clinique *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={clinicForm.name}
+                    onChange={(e) => setClinicForm({ ...clinicForm, name: e.target.value })}
+                    placeholder="Ex: Clinique Esthétique Montréal"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Adresse</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={clinicForm.address}
+                    onChange={(e) => setClinicForm({ ...clinicForm, address: e.target.value })}
+                    placeholder="123 rue Principale, Montréal"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Téléphone</label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    value={clinicForm.phone}
+                    onChange={(e) => setClinicForm({ ...clinicForm, phone: e.target.value })}
+                    placeholder="514-555-1234"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    value={clinicForm.email}
+                    onChange={(e) => setClinicForm({ ...clinicForm, email: e.target.value })}
+                    placeholder="contact@clinique.com"
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline" onClick={() => setShowClinicModal(false)}>
+                  Annuler
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Créer la clinique
                 </button>
               </div>
             </form>

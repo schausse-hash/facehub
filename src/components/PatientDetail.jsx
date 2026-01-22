@@ -101,7 +101,34 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
       .eq('patient_id', patient.id)
       .order('visit_date', { ascending: false })
 
-    if (!error) setVisits(data || [])
+    if (!error && data) {
+      // Récupérer les noms des praticiens pour chaque visite
+      const userIds = [...new Set(data.map(v => v.user_id).filter(Boolean))]
+      
+      if (userIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('user_profiles')
+          .select('user_id, full_name')
+          .in('user_id', userIds)
+
+        const profilesMap = {}
+        profilesData?.forEach(p => {
+          profilesMap[p.user_id] = p.full_name
+        })
+
+        // Ajouter le nom du praticien à chaque visite
+        const visitsWithPractitioner = data.map(visit => ({
+          ...visit,
+          practitioner_name: profilesMap[visit.user_id] || 'Praticien non identifié'
+        }))
+        
+        setVisits(visitsWithPractitioner)
+      } else {
+        setVisits(data)
+      }
+    } else {
+      setVisits([])
+    }
     setLoading(false)
   }
 
@@ -340,7 +367,21 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                         <div>
                           <div style={{ fontWeight: '600' }}>{formatDate(visit.visit_date)}</div>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{typeInfo.label}</div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                            {typeInfo.label}
+                            {visit.practitioner_name && (
+                              <span style={{ 
+                                marginLeft: '0.5rem',
+                                padding: '0.15rem 0.5rem',
+                                background: 'rgba(59, 130, 246, 0.15)',
+                                color: '#3b82f6',
+                                borderRadius: '6px',
+                                fontSize: '0.75rem'
+                              }}>
+                                👤 {visit.practitioner_name}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                           {visit.total_units > 0 && (
