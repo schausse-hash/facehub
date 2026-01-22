@@ -392,7 +392,7 @@ export default function Admin({ session, userClinic }) {
                   {requests.map(request => (
                     <div key={request.id} style={{
                       display: 'flex',
-                      alignItems: 'center',
+                      alignItems: 'flex-start',
                       justifyContent: 'space-between',
                       padding: '1rem',
                       background: 'var(--bg-dark)',
@@ -402,14 +402,52 @@ export default function Admin({ session, userClinic }) {
                       gap: '0.75rem'
                     }}>
                       <div style={{ flex: 1, minWidth: '200px' }}>
-                        <div style={{ fontWeight: '600' }}>{request.email}</div>
-                        {request.full_name && (
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                            {request.full_name} {request.clinic_name && `• ${request.clinic_name}`}
+                        <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>
+                          {request.full_name || 'Nom non fourni'}
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                          ✉️ {request.email}
+                        </div>
+                        
+                        {/* Infos supplémentaires */}
+                        <div style={{ 
+                          display: 'flex', 
+                          flexWrap: 'wrap', 
+                          gap: '0.75rem', 
+                          fontSize: '0.8rem',
+                          color: 'var(--text-muted)'
+                        }}>
+                          {request.phone && (
+                            <span>📞 {request.phone}</span>
+                          )}
+                          {request.birthdate && (
+                            <span>📅 {new Date(request.birthdate).toLocaleDateString('fr-CA')}</span>
+                          )}
+                        </div>
+                        
+                        {/* Clinique souhaitée */}
+                        {request.clinic_name && (
+                          <div style={{ 
+                            marginTop: '0.5rem',
+                            padding: '0.35rem 0.6rem',
+                            background: 'rgba(212, 175, 55, 0.1)',
+                            borderRadius: '6px',
+                            fontSize: '0.8rem',
+                            color: 'var(--accent)',
+                            display: 'inline-block'
+                          }}>
+                            🏥 Clinique souhaitée: <strong>{request.clinic_name}</strong>
                           </div>
                         )}
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          {new Date(request.requested_at).toLocaleDateString('fr-CA')}
+                        
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                          Demande du {new Date(request.requested_at).toLocaleDateString('fr-CA', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </div>
                       </div>
 
@@ -424,9 +462,9 @@ export default function Admin({ session, userClinic }) {
                           color: request.status === 'approved' ? '#22c55e' : 
                                  request.status === 'rejected' ? '#ef4444' : '#eab308'
                         }}>
-                          {request.status === 'approved' && '✓'}
-                          {request.status === 'rejected' && '✗'}
-                          {request.status === 'pending' && '⏳'}
+                          {request.status === 'approved' && '✓ Approuvé'}
+                          {request.status === 'rejected' && '✗ Rejeté'}
+                          {request.status === 'pending' && '⏳ En attente'}
                         </span>
 
                         {request.status === 'pending' && (
