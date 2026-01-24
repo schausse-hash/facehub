@@ -248,7 +248,7 @@ export default function Auth() {
         {mode === 'login' && (
           <form onSubmit={handleLogin}>
             <div className="form-group">
-              <label className="form-label">Courriel</label>
+              <label className="form-label">Courriel ou nom d'utilisateur</label>
               <input
                 type="email"
                 className="form-input"
