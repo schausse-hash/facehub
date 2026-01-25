@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import PatientList from './PatientList'
 import PatientDetail from './PatientDetail'
+import PatientRegistration from './PatientRegistration'
 import Documents from './Documents'
 import Admin from './Admin'
 import Help from './Help'
@@ -303,8 +304,8 @@ export default function Dashboard({ session }) {
                 <span>Patient List</span>
               </div>
               <div 
-                className="nav-item sub-item"
-                onClick={() => setShowPatientModal(true)}
+                className={`nav-item sub-item ${currentView === 'patient-registration' ? 'active' : ''}`}
+                onClick={() => { setCurrentView('patient-registration'); setSelectedPatient(null); }}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <Icons.UserPlus />
@@ -426,6 +427,14 @@ export default function Dashboard({ session }) {
               />
             )}
             {currentView === 'documents' && <Documents />}
+            {currentView === 'patient-registration' && (
+              <PatientRegistration 
+                onBack={() => setCurrentView('patients')}
+                onComplete={() => { fetchPatients(); setCurrentView('patients'); }}
+                session={session}
+                userClinic={userClinic}
+              />
+            )}
             {currentView === 'admin' && <Admin session={session} userClinic={userClinic} />}
             {currentView === 'help' && <Help />}
           </>
