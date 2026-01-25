@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
 import PhotoGallery from './PhotoGallery'
+import PatientEdit from './PatientEdit'
 
 const Icons = {
   ArrowLeft: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
@@ -605,14 +606,7 @@ export default function PatientDetail({ patient, onBack, onRefresh, session, onE
             </button>
             <button 
               style={{ ...styles.profileBtn, ...styles.btnSecondary }}
-              onClick={() => {
-                console.log('Edit Profile clicked, onEditProfile:', onEditProfile)
-                if (onEditProfile) {
-                  onEditProfile(patient)
-                } else {
-                  alert('onEditProfile not defined')
-                }
-              }}
+              onClick={() => setCurrentView('edit')}
             >
               <Icons.Edit /> Edit Profile
             </button>
@@ -1010,6 +1004,21 @@ export default function PatientDetail({ patient, onBack, onRefresh, session, onE
           />
         )}
       </div>
+    )
+  }
+
+  // ==================== EDIT VIEW ====================
+  if (currentView === 'edit') {
+    return (
+      <PatientEdit 
+        patient={patient}
+        onBack={() => setCurrentView('profile')}
+        onSave={() => {
+          onRefresh && onRefresh()
+          setCurrentView('profile')
+        }}
+        session={session}
+      />
     )
   }
 
