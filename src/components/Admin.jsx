@@ -14,13 +14,27 @@ const Icons = {
   Phone: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>,
   Mail: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
   Building: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
+  User: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
+  UserPlus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>,
+  Star: () => <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>,
+  Send: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>,
 }
 
 const ROLES = {
-  user: { label: 'Utilisateur', color: '#6b7280', description: 'Accès basique' },
-  collaborator: { label: 'Collaborateur', color: '#3b82f6', description: 'Peut approuver' },
+  user: { label: 'Injecteur', color: '#6b7280', description: 'Accès aux patients de sa clinique' },
+  collaborator: { label: 'Administrateur', color: '#3b82f6', description: 'Peut gérer sa clinique' },
   super_admin: { label: 'Super Admin', color: '#eab308', description: 'Accès total' }
 }
+
+const PROFESSION_TYPES = [
+  { value: 'dentiste', label: 'Dentiste' },
+  { value: 'medecin', label: 'Médecin' },
+  { value: 'infirmier', label: 'Infirmier(ère)' },
+  { value: 'pharmacien', label: 'Pharmacien(ne)' },
+  { value: 'naturopathe', label: 'Naturopathe' },
+  { value: 'estheticien', label: 'Esthéticien(ne)' },
+  { value: 'autre', label: 'Autre' }
+]
 
 export default function Admin({ session, userClinic }) {
   const [requests, setRequests] = useState([])
@@ -28,24 +42,40 @@ export default function Admin({ session, userClinic }) {
   const [clinics, setClinics] = useState([])
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState(null)
-  const [activeTab, setActiveTab] = useState('requests')
+  const [currentUserProfile, setCurrentUserProfile] = useState(null)
+  const [currentUserClinicId, setCurrentUserClinicId] = useState(null)
+  const [activeTab, setActiveTab] = useState('profile')
   const [filter, setFilter] = useState('pending')
   const [newEmail, setNewEmail] = useState('')
   const [adding, setAdding] = useState(false)
   const [editingUser, setEditingUser] = useState(null)
   const [showUserModal, setShowUserModal] = useState(false)
   const [showClinicModal, setShowClinicModal] = useState(false)
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [selectedClinicForInvite, setSelectedClinicForInvite] = useState(null)
+  const [inviteForm, setInviteForm] = useState({ email: '', full_name: '', profession: '', role: 'user' })
   const [clinicForm, setClinicForm] = useState({ name: '', address: '', phone: '', email: '' })
+  const [profileForm, setProfileForm] = useState({
+    full_name: '',
+    first_name: '',
+    last_name: '',
+    phone: '',
+    profession: '',
+    profession_other: ''
+  })
   const [userForm, setUserForm] = useState({
     full_name: '',
     email: '',
     phone: '',
     birthdate: '',
-    clinic_name: '',
+    profession: '',
     clinic_id: '',
     address: '',
-    notes: ''
+    notes: '',
+    is_primary_contact: false
   })
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [profileMessage, setProfileMessage] = useState(null)
 
   useEffect(() => {
     checkUserRole()
@@ -60,13 +90,48 @@ export default function Admin({ session, userClinic }) {
   }, [userRole, filter])
 
   const checkUserRole = async () => {
-    const { data } = await supabase
+    // Récupérer le rôle
+    const { data: roleData } = await supabase
       .from('user_roles')
-      .select('role')
+      .select('role, clinic_id')
       .eq('user_id', session.user.id)
       .single()
 
-    setUserRole(data?.role || null)
+    setUserRole(roleData?.role || null)
+    setCurrentUserClinicId(roleData?.clinic_id || null)
+
+    // Récupérer le profil
+    const { data: profileData } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .single()
+
+    setCurrentUserProfile(profileData)
+    
+    // Initialiser le formulaire de profil
+    if (profileData) {
+      setProfileForm({
+        full_name: profileData.full_name || '',
+        first_name: profileData.first_name || '',
+        last_name: profileData.last_name || '',
+        phone: profileData.phone || '',
+        profession: profileData.profession || '',
+        profession_other: ''
+      })
+    } else {
+      // Utiliser les métadonnées de l'utilisateur si pas de profil
+      const meta = session.user.user_metadata || {}
+      setProfileForm({
+        full_name: meta.full_name || '',
+        first_name: meta.first_name || '',
+        last_name: meta.last_name || '',
+        phone: meta.phone || '',
+        profession: meta.profession || '',
+        profession_other: ''
+      })
+    }
+
     setLoading(false)
   }
 
@@ -96,17 +161,21 @@ export default function Admin({ session, userClinic }) {
 
     const { data: clinicsData } = await supabase
       .from('clinics')
-      .select('id, name')
+      .select('id, name, primary_contact_id')
 
     const clinicsMap = {}
-    clinicsData?.forEach(c => { clinicsMap[c.id] = c.name })
+    clinicsData?.forEach(c => { 
+      clinicsMap[c.id] = { name: c.name, primary_contact_id: c.primary_contact_id } 
+    })
 
     const combined = (rolesData || []).map(role => {
       const profile = (profilesData || []).find(p => p.user_id === role.user_id)
+      const clinicInfo = clinicsMap[role.clinic_id] || {}
       return { 
         ...role, 
         profile,
-        clinic_name: clinicsMap[role.clinic_id] || null
+        clinic_name: clinicInfo.name || null,
+        is_primary_contact: clinicInfo.primary_contact_id === role.user_id
       }
     })
 
@@ -123,38 +192,181 @@ export default function Admin({ session, userClinic }) {
     setClinics(data || [])
   }
 
+  // Sauvegarder le profil
+  const handleSaveProfile = async (e) => {
+    e.preventDefault()
+    setSavingProfile(true)
+    setProfileMessage(null)
+
+    const fullName = profileForm.first_name && profileForm.last_name 
+      ? `${profileForm.first_name} ${profileForm.last_name}` 
+      : profileForm.full_name
+
+    const profession = PROFESSION_TYPES.find(p => p.value === profileForm.profession)
+      ? profileForm.profession 
+      : profileForm.profession_other || profileForm.profession
+
+    const profileData = {
+      user_id: session.user.id,
+      email: session.user.email,
+      full_name: fullName,
+      first_name: profileForm.first_name,
+      last_name: profileForm.last_name,
+      phone: profileForm.phone,
+      profession: profession,
+      updated_at: new Date().toISOString()
+    }
+
+    const { error } = await supabase
+      .from('user_profiles')
+      .upsert(profileData, { onConflict: 'user_id' })
+
+    if (error) {
+      setProfileMessage({ type: 'error', text: 'Erreur: ' + error.message })
+    } else {
+      setProfileMessage({ type: 'success', text: 'Profil enregistré avec succès!' })
+      setCurrentUserProfile(profileData)
+    }
+
+    setSavingProfile(false)
+  }
+
   const handleCreateClinic = async (e) => {
     e.preventDefault()
-    const { error } = await supabase
+    
+    const { data, error } = await supabase
       .from('clinics')
       .insert([{
         ...clinicForm,
-        created_by: session.user.id
+        created_by: session.user.id,
+        primary_contact_id: session.user.id // Le créateur devient personne ressource
       }])
+      .select()
+      .single()
 
     if (error) {
       alert('Erreur: ' + error.message)
     } else {
+      // Assigner automatiquement le créateur à cette clinique
+      await supabase
+        .from('user_roles')
+        .update({ clinic_id: data.id })
+        .eq('user_id', session.user.id)
+
+      await supabase
+        .from('user_profiles')
+        .update({ clinic_id: data.id, is_primary_contact: true })
+        .eq('user_id', session.user.id)
+
       setShowClinicModal(false)
       setClinicForm({ name: '', address: '', phone: '', email: '' })
+      setCurrentUserClinicId(data.id)
       fetchClinics()
+      fetchUsers()
+    }
+  }
+
+  const handleSetPrimaryContact = async (clinicId, userId) => {
+    const { error } = await supabase
+      .from('clinics')
+      .update({ primary_contact_id: userId })
+      .eq('id', clinicId)
+
+    if (!error) {
+      fetchClinics()
+      fetchUsers()
     }
   }
 
   const handleAssignClinic = async (userId, clinicId) => {
-    // Mettre à jour user_roles
     await supabase
       .from('user_roles')
       .update({ clinic_id: clinicId || null })
       .eq('user_id', userId)
 
-    // Mettre à jour user_profiles aussi
     await supabase
       .from('user_profiles')
       .update({ clinic_id: clinicId || null })
       .eq('user_id', userId)
 
     fetchUsers()
+  }
+
+  // Supprimer une clinique
+  const handleDeleteClinic = async (clinic) => {
+    const clinicUsers = users.filter(u => u.clinic_id === clinic.id)
+    
+    if (clinicUsers.length > 0) {
+      const confirmMsg = `Cette clinique a ${clinicUsers.length} membre(s). Voulez-vous vraiment la supprimer?\n\nLes membres seront désassignés mais pas supprimés.`
+      if (!window.confirm(confirmMsg)) return
+      
+      // Désassigner tous les membres de cette clinique
+      for (const user of clinicUsers) {
+        await handleAssignClinic(user.user_id, null)
+      }
+    } else {
+      if (!window.confirm(`Supprimer la clinique "${clinic.name}"?`)) return
+    }
+
+    // Désactiver la clinique (soft delete)
+    const { error } = await supabase
+      .from('clinics')
+      .update({ is_active: false })
+      .eq('id', clinic.id)
+
+    if (error) {
+      alert('Erreur: ' + error.message)
+    } else {
+      // Si c'était ma clinique, la retirer
+      if (currentUserClinicId === clinic.id) {
+        setCurrentUserClinicId(null)
+      }
+      fetchClinics()
+      fetchUsers()
+    }
+  }
+
+  // Inviter un injecteur à une clinique
+  const handleInvite = async (e) => {
+    e.preventDefault()
+    if (!selectedClinicForInvite) return
+
+    setAdding(true)
+
+    // Créer une demande pré-approuvée avec la clinique assignée
+    const { error } = await supabase
+      .from('user_requests')
+      .insert([{
+        email: inviteForm.email.toLowerCase().trim(),
+        full_name: inviteForm.full_name,
+        profession: inviteForm.profession,
+        clinic_id: selectedClinicForInvite.id,
+        company_name: selectedClinicForInvite.name,
+        status: 'approved',
+        approved_at: new Date().toISOString(),
+        approved_by: session.user.id,
+        invited_by: session.user.id
+      }])
+
+    if (error?.code === '23505') {
+      alert('Cet email existe déjà dans le système')
+    } else if (error) {
+      alert('Erreur: ' + error.message)
+    } else {
+      // Envoyer email d'invitation
+      await sendAccessApprovedEmail(
+        inviteForm.email, 
+        inviteForm.full_name || 'Nouveau membre',
+        `Vous avez été invité(e) à rejoindre ${selectedClinicForInvite.name} sur FaceHub.`
+      )
+      
+      setShowInviteModal(false)
+      setInviteForm({ email: '', full_name: '', profession: '', role: 'user' })
+      setSelectedClinicForInvite(null)
+      fetchRequests()
+    }
+
+    setAdding(false)
   }
 
   const handleApprove = async (request) => {
@@ -168,7 +380,6 @@ export default function Admin({ session, userClinic }) {
       .eq('id', request.id)
 
     if (!error) {
-      // Envoyer un email de confirmation à l'utilisateur
       await sendAccessApprovedEmail(request.email, request.full_name || 'Utilisateur')
       fetchRequests()
     }
@@ -251,9 +462,11 @@ export default function Admin({ session, userClinic }) {
       email: user.email || '',
       phone: user.profile?.phone || '',
       birthdate: user.profile?.birthdate || '',
-      clinic_name: user.profile?.clinic_name || '',
+      profession: user.profile?.profession || '',
+      clinic_id: user.clinic_id || '',
       address: user.profile?.address || '',
-      notes: user.profile?.notes || ''
+      notes: user.profile?.notes || '',
+      is_primary_contact: user.is_primary_contact || false
     })
     setShowUserModal(true)
   }
@@ -267,7 +480,7 @@ export default function Admin({ session, userClinic }) {
       full_name: userForm.full_name,
       phone: userForm.phone,
       birthdate: userForm.birthdate || null,
-      clinic_name: userForm.clinic_name,
+      profession: userForm.profession,
       address: userForm.address,
       notes: userForm.notes,
       updated_at: new Date().toISOString()
@@ -280,11 +493,20 @@ export default function Admin({ session, userClinic }) {
     if (error) {
       alert('Erreur: ' + error.message)
     } else {
+      // Mettre à jour la clinique si changée
+      if (userForm.clinic_id !== editingUser.clinic_id) {
+        await handleAssignClinic(editingUser.user_id, userForm.clinic_id || null)
+      }
+      
       setShowUserModal(false)
       setEditingUser(null)
       fetchUsers()
     }
   }
+
+  // Obtenir la clinique actuelle de l'utilisateur
+  const myClinic = clinics.find(c => c.id === currentUserClinicId)
+  const myClinicMembers = users.filter(u => u.clinic_id === currentUserClinicId)
 
   // Non autorisé
   if (loading) {
@@ -314,12 +536,29 @@ export default function Admin({ session, userClinic }) {
           <h1 className="page-title">Administration</h1>
           <p className="page-subtitle">
             <span style={{ color: ROLES[userRole].color, fontWeight: '600' }}>{ROLES[userRole].label}</span>
+            {myClinic && (
+              <span style={{ marginLeft: '1rem', color: 'var(--text-muted)' }}>
+                • {myClinic.name}
+              </span>
+            )}
           </p>
         </div>
       </div>
 
       {/* Onglets */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', flexWrap: 'wrap' }}>
+        <button 
+          className={`btn ${activeTab === 'profile' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          <Icons.User /> Mon profil
+        </button>
+        <button 
+          className={`btn ${activeTab === 'myClinic' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setActiveTab('myClinic')}
+        >
+          <Icons.Building /> Ma clinique
+        </button>
         <button 
           className={`btn ${activeTab === 'requests' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveTab('requests')}
@@ -337,10 +576,305 @@ export default function Admin({ session, userClinic }) {
             className={`btn ${activeTab === 'clinics' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setActiveTab('clinics')}
           >
-            <Icons.Building /> Cliniques ({clinics.length})
+            <Icons.Building /> Toutes les cliniques ({clinics.length})
           </button>
         )}
       </div>
+
+      {/* TAB: Mon profil */}
+      {activeTab === 'profile' && (
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">Mon profil professionnel</h3>
+          </div>
+          <div className="card-body">
+            {profileMessage && (
+              <div style={{
+                padding: '0.75rem 1rem',
+                borderRadius: '8px',
+                marginBottom: '1rem',
+                background: profileMessage.type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                color: profileMessage.type === 'success' ? '#22c55e' : '#ef4444',
+                border: `1px solid ${profileMessage.type === 'success' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+              }}>
+                {profileMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveProfile}>
+              <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Prénom</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={profileForm.first_name}
+                    onChange={(e) => setProfileForm({ ...profileForm, first_name: e.target.value })}
+                    placeholder="Votre prénom"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Nom</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={profileForm.last_name}
+                    onChange={(e) => setProfileForm({ ...profileForm, last_name: e.target.value })}
+                    placeholder="Votre nom"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Courriel</label>
+                <input
+                  type="email"
+                  className="form-input"
+                  value={session.user.email}
+                  disabled
+                  style={{ opacity: 0.6 }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Téléphone</label>
+                <input
+                  type="tel"
+                  className="form-input"
+                  value={profileForm.phone}
+                  onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                  placeholder="514-555-1234"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Profession</label>
+                <select
+                  className="form-input"
+                  value={profileForm.profession}
+                  onChange={(e) => setProfileForm({ ...profileForm, profession: e.target.value })}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <option value="">Sélectionnez votre profession</option>
+                  {PROFESSION_TYPES.map(type => (
+                    <option key={type.value} value={type.value}>{type.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {profileForm.profession === 'autre' && (
+                <div className="form-group">
+                  <label className="form-label">Précisez votre profession</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={profileForm.profession_other}
+                    onChange={(e) => setProfileForm({ ...profileForm, profession_other: e.target.value })}
+                    placeholder="Votre profession"
+                  />
+                </div>
+              )}
+
+              {/* Infos sur la clinique */}
+              <div style={{ 
+                marginTop: '1.5rem', 
+                padding: '1rem', 
+                background: 'var(--bg-dark)', 
+                borderRadius: '12px',
+                border: '1px solid var(--border)'
+              }}>
+                <h4 style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Icons.Building /> Ma clinique
+                </h4>
+                {myClinic ? (
+                  <div>
+                    <p style={{ fontWeight: '600', color: 'var(--accent)' }}>{myClinic.name}</p>
+                    {myClinic.primary_contact_id === session.user.id && (
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        marginTop: '0.5rem',
+                        padding: '0.25rem 0.75rem',
+                        background: 'rgba(234, 179, 8, 0.15)',
+                        color: '#eab308',
+                        borderRadius: '20px',
+                        fontSize: '0.8rem'
+                      }}>
+                        <Icons.Star /> Personne ressource
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p style={{ color: 'var(--text-muted)' }}>
+                    Aucune clinique assignée. {userRole === 'super_admin' && 'Créez-en une dans l\'onglet "Ma clinique".'}
+                  </p>
+                )}
+              </div>
+
+              <button 
+                type="submit" 
+                className="btn btn-primary"
+                disabled={savingProfile}
+                style={{ marginTop: '1.5rem' }}
+              >
+                {savingProfile ? 'Enregistrement...' : 'Enregistrer mon profil'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: Ma clinique */}
+      {activeTab === 'myClinic' && (
+        <div>
+          {myClinic ? (
+            <>
+              {/* Infos de la clinique */}
+              <div className="card" style={{ marginBottom: '1.5rem' }}>
+                <div className="card-header">
+                  <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Icons.Building /> {myClinic.name}
+                  </h3>
+                  {myClinic.primary_contact_id === session.user.id && (
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      padding: '0.25rem 0.75rem',
+                      background: 'rgba(234, 179, 8, 0.15)',
+                      color: '#eab308',
+                      borderRadius: '20px',
+                      fontSize: '0.8rem'
+                    }}>
+                      <Icons.Star /> Personne ressource
+                    </span>
+                  )}
+                </div>
+                <div className="card-body">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                    {myClinic.address && (
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Adresse</div>
+                        <div>📍 {myClinic.address}</div>
+                      </div>
+                    )}
+                    {myClinic.phone && (
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Téléphone</div>
+                        <div>📞 {myClinic.phone}</div>
+                      </div>
+                    )}
+                    {myClinic.email && (
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Email</div>
+                        <div>✉️ {myClinic.email}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Membres de ma clinique */}
+              <div className="card" style={{ marginBottom: '1.5rem' }}>
+                <div className="card-header">
+                  <h3 className="card-title">Membres de la clinique ({myClinicMembers.length})</h3>
+                  <button 
+                    className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      setSelectedClinicForInvite(myClinic)
+                      setShowInviteModal(true)
+                    }}
+                  >
+                    <Icons.UserPlus /> Inviter un injecteur
+                  </button>
+                </div>
+                <div className="card-body">
+                  {myClinicMembers.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      {myClinicMembers.map(member => (
+                        <div key={member.user_id} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '1rem',
+                          background: 'var(--bg-dark)',
+                          borderRadius: '12px',
+                          border: member.user_id === session.user.id ? '2px solid var(--accent)' : '1px solid var(--border)',
+                          flexWrap: 'wrap',
+                          gap: '0.75rem'
+                        }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                              {member.profile?.full_name || member.email}
+                              {member.user_id === session.user.id && <span style={{ fontSize: '0.7rem', color: 'var(--accent)' }}>(vous)</span>}
+                              {member.is_primary_contact && (
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.25rem',
+                                  padding: '0.15rem 0.5rem',
+                                  background: 'rgba(234, 179, 8, 0.15)',
+                                  color: '#eab308',
+                                  borderRadius: '12px',
+                                  fontSize: '0.7rem'
+                                }}>
+                                  <Icons.Star /> Ressource
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                              {member.email}
+                              {member.profile?.profession && (
+                                <span style={{ marginLeft: '0.75rem' }}>
+                                  • {PROFESSION_TYPES.find(p => p.value === member.profile.profession)?.label || member.profile.profession}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span style={{ 
+                            color: ROLES[member.role]?.color || '#6b7280', 
+                            fontWeight: '600', 
+                            fontSize: '0.85rem',
+                            padding: '0.25rem 0.75rem',
+                            background: 'var(--bg-card)',
+                            borderRadius: '8px'
+                          }}>
+                            {ROLES[member.role]?.label || 'Injecteur'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="empty-state">
+                      <div style={{ width: 48, height: 48, color: 'var(--text-muted)' }}><Icons.Users /></div>
+                      <h3>Aucun membre</h3>
+                      <p>Invitez des injecteurs à rejoindre votre clinique</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="card">
+              <div className="card-body">
+                <div className="empty-state">
+                  <div style={{ width: 64, height: 64, color: 'var(--text-muted)' }}><Icons.Building /></div>
+                  <h3>Aucune clinique</h3>
+                  <p>Créez votre clinique pour commencer à gérer vos patients et votre équipe</p>
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={() => setShowClinicModal(true)} 
+                    style={{ marginTop: '1rem' }}
+                  >
+                    <Icons.Plus /> Créer ma clinique
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* TAB: Demandes */}
       {activeTab === 'requests' && (
@@ -420,13 +954,13 @@ export default function Admin({ session, userClinic }) {
                           {request.phone && (
                             <span>📞 {request.phone}</span>
                           )}
-                          {request.birthdate && (
-                            <span>📅 {new Date(request.birthdate).toLocaleDateString('fr-CA')}</span>
+                          {request.profession && (
+                            <span>👤 {PROFESSION_TYPES.find(p => p.value === request.profession)?.label || request.profession}</span>
                           )}
                         </div>
                         
                         {/* Clinique souhaitée */}
-                        {request.clinic_name && (
+                        {(request.company_name || request.clinic_name) && (
                           <div style={{ 
                             marginTop: '0.5rem',
                             padding: '0.35rem 0.6rem',
@@ -436,7 +970,22 @@ export default function Admin({ session, userClinic }) {
                             color: 'var(--accent)',
                             display: 'inline-block'
                           }}>
-                            🏥 Clinique souhaitée: <strong>{request.clinic_name}</strong>
+                            🏥 {request.company_name || request.clinic_name}
+                          </div>
+                        )}
+
+                        {request.is_primary_contact && (
+                          <div style={{ 
+                            marginTop: '0.5rem',
+                            marginLeft: '0.5rem',
+                            padding: '0.35rem 0.6rem',
+                            background: 'rgba(234, 179, 8, 0.1)',
+                            borderRadius: '6px',
+                            fontSize: '0.8rem',
+                            color: '#eab308',
+                            display: 'inline-block'
+                          }}>
+                            ⭐ Personne ressource
                           </div>
                         )}
                         
@@ -521,6 +1070,20 @@ export default function Admin({ session, userClinic }) {
                       <div style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                         {user.profile?.full_name || user.email}
                         {user.user_id === session.user.id && <span style={{ fontSize: '0.7rem', color: 'var(--accent)' }}>(vous)</span>}
+                        {user.is_primary_contact && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            padding: '0.15rem 0.5rem',
+                            background: 'rgba(234, 179, 8, 0.15)',
+                            color: '#eab308',
+                            borderRadius: '12px',
+                            fontSize: '0.7rem'
+                          }}>
+                            <Icons.Star /> Ressource
+                          </span>
+                        )}
                       </div>
                       
                       <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
@@ -534,9 +1097,9 @@ export default function Admin({ session, userClinic }) {
                         )}
                       </div>
 
-                      {user.profile?.birthdate && (
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                          📅 {new Date(user.profile.birthdate).toLocaleDateString('fr-CA')}
+                      {user.profile?.profession && (
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                          👤 {PROFESSION_TYPES.find(p => p.value === user.profile.profession)?.label || user.profile.profession}
                         </div>
                       )}
 
@@ -571,6 +1134,29 @@ export default function Admin({ session, userClinic }) {
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      {/* Sélecteur de clinique (Super Admin) */}
+                      {userRole === 'super_admin' && (
+                        <select
+                          value={user.clinic_id || ''}
+                          onChange={(e) => handleAssignClinic(user.user_id, e.target.value || null)}
+                          style={{
+                            padding: '0.5rem',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border)',
+                            background: 'var(--bg-card)',
+                            color: user.clinic_id ? 'var(--accent)' : '#ef4444',
+                            fontSize: '0.8rem',
+                            minWidth: '150px'
+                          }}
+                        >
+                          <option value="">⚠️ Aucune clinique</option>
+                          {clinics.map(c => (
+                            <option key={c.id} value={c.id}>🏥 {c.name}</option>
+                          ))}
+                        </select>
+                      )}
+
+                      {/* Sélecteur de rôle (Super Admin) */}
                       {userRole === 'super_admin' ? (
                         <select
                           value={user.role}
@@ -586,8 +1172,8 @@ export default function Admin({ session, userClinic }) {
                             fontSize: '0.85rem'
                           }}
                         >
-                          <option value="user">👤 Utilisateur</option>
-                          <option value="collaborator">👥 Collaborateur</option>
+                          <option value="user">👤 Injecteur</option>
+                          <option value="collaborator">👥 Administrateur</option>
                           <option value="super_admin">⭐ Super Admin</option>
                         </select>
                       ) : (
@@ -673,36 +1259,34 @@ export default function Admin({ session, userClinic }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Date de naissance</label>
-                  <input
-                    type="date"
+                  <label className="form-label">Profession</label>
+                  <select
                     className="form-input"
-                    value={userForm.birthdate}
-                    onChange={(e) => setUserForm({ ...userForm, birthdate: e.target.value })}
-                  />
+                    value={userForm.profession}
+                    onChange={(e) => setUserForm({ ...userForm, profession: e.target.value })}
+                  >
+                    <option value="">Sélectionnez</option>
+                    {PROFESSION_TYPES.map(type => (
+                      <option key={type.value} value={type.value}>{type.label}</option>
+                    ))}
+                  </select>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Clinique</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={userForm.clinic_name}
-                    onChange={(e) => setUserForm({ ...userForm, clinic_name: e.target.value })}
-                    placeholder="Nom de la clinique"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Adresse</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={userForm.address}
-                    onChange={(e) => setUserForm({ ...userForm, address: e.target.value })}
-                    placeholder="Adresse complète"
-                  />
-                </div>
+                {userRole === 'super_admin' && (
+                  <div className="form-group">
+                    <label className="form-label">Clinique</label>
+                    <select
+                      className="form-input"
+                      value={userForm.clinic_id}
+                      onChange={(e) => setUserForm({ ...userForm, clinic_id: e.target.value })}
+                    >
+                      <option value="">-- Aucune clinique --</option>
+                      {clinics.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label className="form-label">Notes</label>
@@ -729,7 +1313,7 @@ export default function Admin({ session, userClinic }) {
         </div>
       )}
 
-      {/* TAB: Cliniques */}
+      {/* TAB: Cliniques (Super Admin seulement) */}
       {activeTab === 'clinics' && userRole === 'super_admin' && (
         <div className="card">
           <div className="card-header">
@@ -743,6 +1327,7 @@ export default function Admin({ session, userClinic }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {clinics.map(clinic => {
                   const clinicUsers = users.filter(u => u.clinic_id === clinic.id)
+                  const primaryContact = clinicUsers.find(u => u.user_id === clinic.primary_contact_id)
                   return (
                     <div key={clinic.id} style={{
                       padding: '1rem',
@@ -768,15 +1353,50 @@ export default function Admin({ session, userClinic }) {
                               {clinic.email && <span>✉️ {clinic.email}</span>}
                             </div>
                           )}
+                          {primaryContact && (
+                            <div style={{ 
+                              marginTop: '0.5rem',
+                              padding: '0.25rem 0.5rem',
+                              background: 'rgba(234, 179, 8, 0.1)',
+                              borderRadius: '6px',
+                              fontSize: '0.8rem',
+                              color: '#eab308',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.25rem'
+                            }}>
+                              <Icons.Star /> {primaryContact.profile?.full_name || primaryContact.email}
+                            </div>
+                          )}
                         </div>
-                        <div style={{ 
-                          padding: '0.25rem 0.75rem',
-                          background: 'rgba(59, 130, 246, 0.15)',
-                          color: '#3b82f6',
-                          borderRadius: '12px',
-                          fontSize: '0.8rem'
-                        }}>
-                          {clinicUsers.length} membre(s)
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <span style={{ 
+                            padding: '0.25rem 0.75rem',
+                            background: 'rgba(59, 130, 246, 0.15)',
+                            color: '#3b82f6',
+                            borderRadius: '12px',
+                            fontSize: '0.8rem'
+                          }}>
+                            {clinicUsers.length} membre(s)
+                          </span>
+                          <button 
+                            className="btn btn-outline btn-sm"
+                            onClick={() => {
+                              setSelectedClinicForInvite(clinic)
+                              setShowInviteModal(true)
+                            }}
+                            title="Inviter un membre"
+                          >
+                            <Icons.UserPlus />
+                          </button>
+                          <button 
+                            className="btn btn-outline btn-sm"
+                            onClick={() => handleDeleteClinic(clinic)}
+                            title="Supprimer la clinique"
+                            style={{ color: '#ef4444' }}
+                          >
+                            <Icons.Trash />
+                          </button>
                         </div>
                       </div>
                       
@@ -789,9 +1409,15 @@ export default function Admin({ session, userClinic }) {
                                 padding: '0.25rem 0.5rem',
                                 background: 'var(--bg-card)',
                                 borderRadius: '6px',
-                                fontSize: '0.8rem'
+                                fontSize: '0.8rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem'
                               }}>
                                 {u.profile?.full_name || u.email}
+                                {u.user_id === clinic.primary_contact_id && (
+                                  <span style={{ color: '#eab308' }}><Icons.Star /></span>
+                                )}
                               </span>
                             ))}
                           </div>
@@ -870,6 +1496,18 @@ export default function Admin({ session, userClinic }) {
             </div>
             <form onSubmit={handleCreateClinic}>
               <div className="modal-body">
+                <div style={{
+                  padding: '0.75rem 1rem',
+                  background: 'rgba(234, 179, 8, 0.1)',
+                  border: '1px solid rgba(234, 179, 8, 0.3)',
+                  borderRadius: '8px',
+                  marginBottom: '1rem',
+                  fontSize: '0.85rem',
+                  color: '#eab308'
+                }}>
+                  ⭐ Vous deviendrez automatiquement la personne ressource de cette clinique.
+                </div>
+
                 <div className="form-group">
                   <label className="form-label">Nom de la clinique *</label>
                   <input
@@ -922,6 +1560,85 @@ export default function Admin({ session, userClinic }) {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   Créer la clinique
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal invitation injecteur */}
+      {showInviteModal && selectedClinicForInvite && (
+        <div className="modal-overlay" onClick={() => { setShowInviteModal(false); setSelectedClinicForInvite(null); }}>
+          <div className="modal" style={{ maxWidth: '450px' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Inviter un injecteur</h2>
+              <button className="modal-close" onClick={() => { setShowInviteModal(false); setSelectedClinicForInvite(null); }}>
+                <Icons.X />
+              </button>
+            </div>
+            <form onSubmit={handleInvite}>
+              <div className="modal-body">
+                <div style={{
+                  padding: '0.75rem 1rem',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  borderRadius: '8px',
+                  marginBottom: '1rem',
+                  fontSize: '0.85rem'
+                }}>
+                  <Icons.Building /> Clinique: <strong>{selectedClinicForInvite.name}</strong>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Courriel *</label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    value={inviteForm.email}
+                    onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+                    placeholder="collegue@email.com"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Nom complet</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={inviteForm.full_name}
+                    onChange={(e) => setInviteForm({ ...inviteForm, full_name: e.target.value })}
+                    placeholder="Prénom Nom"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Profession</label>
+                  <select
+                    className="form-input"
+                    value={inviteForm.profession}
+                    onChange={(e) => setInviteForm({ ...inviteForm, profession: e.target.value })}
+                  >
+                    <option value="">Sélectionnez</option>
+                    {PROFESSION_TYPES.map(type => (
+                      <option key={type.value} value={type.value}>{type.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '1rem' }}>
+                  La personne recevra un courriel d'invitation et pourra créer son compte.
+                  Elle sera automatiquement ajoutée à votre clinique.
+                </p>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline" onClick={() => { setShowInviteModal(false); setSelectedClinicForInvite(null); }}>
+                  Annuler
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={adding}>
+                  <Icons.Send /> {adding ? 'Envoi...' : 'Envoyer l\'invitation'}
                 </button>
               </div>
             </form>
