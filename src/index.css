@@ -1,26 +1,25 @@
 :root {
-  /* Thème clair style FaceTec */
-  --primary: #4a7c7e;
-  --primary-dark: #3d6668;
-  --primary-light: #5a9a9c;
-  --primary-bg: rgba(74, 124, 126, 0.1);
+  /* Thème sombre élégant - Style FaceTec Dark */
+  --primary: #5a9a9c;
+  --primary-dark: #4a8a8c;
+  --primary-light: #6aacae;
+  --primary-bg: rgba(90, 154, 156, 0.12);
   
-  /* Backgrounds */
-  --bg-main: #f5f7f8;
-  --bg-sidebar: #ffffff;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f8fafa;
-  --bg-input: #f5f7f8;
+  /* Backgrounds - Gris anthracite */
+  --bg-main: #1e2428;
+  --bg-sidebar: #262d32;
+  --bg-card: #2a3238;
+  --bg-card-hover: #323a42;
+  --bg-input: #1e2428;
   
   /* Texte */
-  --text-primary: #1a2b2b;
-  --text-secondary: #4a5e5e;
-  --text-muted: #7a8f8f;
-  --text-light: #ffffff;
+  --text-primary: #e8edef;
+  --text-secondary: #a8b4ba;
+  --text-muted: #6e7a82;
   
   /* Bordures */
-  --border: #e2e8e8;
-  --border-light: #eef2f2;
+  --border: #3a444c;
+  --border-light: #424e56;
   
   /* Couleur d'accent secondaire (or/doré pour FaceHub) */
   --gold: #d4a574;
@@ -29,18 +28,18 @@
   
   /* États */
   --success: #4caf50;
-  --success-bg: rgba(76, 175, 80, 0.1);
-  --warning: #ff9800;
-  --warning-bg: rgba(255, 152, 0, 0.1);
-  --danger: #f44336;
-  --danger-bg: rgba(244, 67, 54, 0.1);
-  --info: #2196f3;
-  --info-bg: rgba(33, 150, 243, 0.1);
+  --success-bg: rgba(76, 175, 80, 0.15);
+  --warning: #ffa726;
+  --warning-bg: rgba(255, 167, 38, 0.15);
+  --danger: #ef5350;
+  --danger-bg: rgba(239, 83, 80, 0.15);
+  --info: #42a5f5;
+  --info-bg: rgba(66, 165, 245, 0.15);
   
   /* Ombres */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -60,7 +59,7 @@ body {
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-main); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
 
 /* ==================== LAYOUT ==================== */
 .app-container { 
@@ -78,7 +77,6 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow);
 }
 
 .logo {
@@ -115,8 +113,8 @@ body {
 .sidebar-clinic-card {
   margin: 1rem;
   padding: 0.875rem;
-  background: var(--primary-bg);
-  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -124,19 +122,20 @@ body {
 }
 
 .sidebar-clinic-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--primary);
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  background: var(--primary-bg);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--primary);
+  border: 1px solid var(--primary);
 }
 
 .sidebar-clinic-icon svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .sidebar-clinic-info {
@@ -188,7 +187,7 @@ body {
 
 .nav-item:hover {
   background: var(--primary-bg);
-  color: var(--primary);
+  color: var(--primary-light);
 }
 
 .nav-item.active {
@@ -302,7 +301,7 @@ body {
 
 /* ==================== WELCOME CARD ==================== */
 .welcome-card {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, #3d7a7c 100%);
   border-radius: 12px;
   padding: 1.5rem;
   color: white;
@@ -318,9 +317,8 @@ body {
   right: 0;
   width: 50%;
   height: 100%;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="80" cy="20" r="40" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="30" fill="rgba(255,255,255,0.05)"/></svg>');
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="80" cy="20" r="40" fill="rgba(255,255,255,0.08)"/><circle cx="90" cy="80" r="30" fill="rgba(255,255,255,0.04)"/></svg>');
   background-size: cover;
-  opacity: 0.5;
 }
 
 .welcome-card h2 {
@@ -376,14 +374,14 @@ body {
 }
 
 .btn-secondary {
-  background: var(--bg-input);
+  background: var(--bg-card);
   color: var(--text-secondary);
   border: 1px solid var(--border);
 }
 
 .btn-secondary:hover { 
-  background: var(--border-light);
-  border-color: var(--text-muted);
+  background: var(--bg-card-hover);
+  border-color: var(--border-light);
 }
 
 .btn-outline {
@@ -404,7 +402,7 @@ body {
 }
 
 .btn-danger:hover {
-  background: #d32f2f;
+  background: #e53935;
 }
 
 .btn-ghost {
@@ -432,18 +430,17 @@ body {
 .card {
   background: var(--bg-card);
   border-radius: 12px;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
 }
 
 .card-header {
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--bg-card);
+  background: var(--bg-sidebar);
 }
 
 .card-title {
@@ -466,18 +463,18 @@ body {
 
 .stat-card {
   background: var(--bg-card);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 
 .stat-card:hover {
-  box-shadow: var(--shadow);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-content {
@@ -515,7 +512,7 @@ body {
 }
 
 .stat-icon.gold { 
-  background: rgba(212, 165, 116, 0.1); 
+  background: rgba(212, 165, 116, 0.15); 
   color: var(--gold); 
   border-color: var(--gold);
 }
@@ -555,7 +552,7 @@ body {
   border-radius: 6px;
   font-size: 0.875rem;
   font-family: inherit;
-  background: var(--bg-card);
+  background: var(--bg-input);
   color: var(--text-primary);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -630,16 +627,15 @@ textarea.form-input {
   align-items: center;
   padding: 1rem;
   background: var(--bg-card);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: var(--shadow-sm);
 }
 
 .patient-card:hover {
   border-color: var(--primary);
-  box-shadow: var(--shadow);
+  background: var(--bg-card-hover);
 }
 
 .patient-avatar {
@@ -692,7 +688,7 @@ textarea.form-input {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -708,15 +704,17 @@ textarea.form-input {
   max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--border);
   box-shadow: var(--shadow-lg);
 }
 
 .modal-header {
   padding: 1.25rem;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: var(--bg-sidebar);
 }
 
 .modal-title {
@@ -739,7 +737,7 @@ textarea.form-input {
 
 .modal-close:hover {
   color: var(--text-primary);
-  background: var(--bg-input);
+  background: var(--bg-card-hover);
 }
 
 .modal-close svg {
@@ -753,11 +751,11 @@ textarea.form-input {
 
 .modal-footer {
   padding: 1rem 1.25rem;
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-  background: var(--bg-input);
+  background: var(--bg-sidebar);
 }
 
 /* ==================== EMPTY STATE ==================== */
@@ -865,7 +863,6 @@ textarea.form-input {
 }
 
 /* ==================== AUTH STYLES ==================== */
-/* Note: Auth uses inline styles for split-screen layout */
 .auth-container {
   min-height: 100vh;
   display: flex;
@@ -877,7 +874,7 @@ textarea.form-input {
 
 .auth-card {
   background: var(--bg-card);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 2rem;
   width: 100%;
@@ -968,7 +965,7 @@ table {
 th, td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border);
 }
 
 th {
@@ -977,7 +974,7 @@ th {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-muted);
-  background: var(--bg-input);
+  background: var(--bg-sidebar);
 }
 
 td {
@@ -985,7 +982,7 @@ td {
 }
 
 tr:hover td {
-  background: var(--bg-input);
+  background: var(--bg-card-hover);
 }
 
 /* ==================== UTILITIES ==================== */
@@ -996,8 +993,11 @@ tr:hover td {
 .text-primary { color: var(--primary); }
 .text-gold { color: var(--gold); }
 
+/* Keep backward compatibility with old var names */
 .bg-dark { background: var(--bg-main); }
 .bg-card { background: var(--bg-card); }
+--accent: var(--primary);
+--accent-bg: var(--primary-bg);
 
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
