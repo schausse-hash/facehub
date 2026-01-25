@@ -427,7 +427,11 @@ export default function Dashboard({ session }) {
                 onBack={() => { setCurrentView('patients'); setSelectedPatient(null); }}
                 onRefresh={fetchPatients}
                 session={session}
-                onEditProfile={(patient) => { setSelectedPatient(patient); setCurrentView('patient-edit'); }}
+                onEditProfile={(patient) => { 
+                  console.log('onEditProfile called, switching to patient-edit')
+                  setSelectedPatient(patient)
+                  setCurrentView('patient-edit')
+                }}
               />
             )}
             {currentView === 'patient-edit' && selectedPatient && (

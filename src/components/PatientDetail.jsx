@@ -605,7 +605,14 @@ export default function PatientDetail({ patient, onBack, onRefresh, session, onE
             </button>
             <button 
               style={{ ...styles.profileBtn, ...styles.btnSecondary }}
-              onClick={() => onEditProfile && onEditProfile(patient)}
+              onClick={() => {
+                console.log('Edit Profile clicked, onEditProfile:', onEditProfile)
+                if (onEditProfile) {
+                  onEditProfile(patient)
+                } else {
+                  alert('onEditProfile not defined')
+                }
+              }}
             >
               <Icons.Edit /> Edit Profile
             </button>
