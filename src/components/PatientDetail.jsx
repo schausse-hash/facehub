@@ -50,9 +50,9 @@ const DOCUMENT_TYPES = [
   { id: 'other', label: 'Autre' },
 ]
 
-export default function PatientDetail({ patient, onBack, onRefresh, session, onEditProfile }) {
+export default function PatientDetail({ patient, onBack, onRefresh, session, onEditProfile, defaultView = 'profile' }) {
   // View: 'profile' (default), 'visits', 'edit'
-  const [currentView, setCurrentView] = useState('profile')
+  const [currentView, setCurrentView] = useState(defaultView)
   const [visits, setVisits] = useState([])
   const [showVisitModal, setShowVisitModal] = useState(false)
   const [showPhotoGallery, setShowPhotoGallery] = useState(null)

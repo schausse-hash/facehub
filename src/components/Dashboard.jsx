@@ -417,8 +417,33 @@ export default function Dashboard({ session }) {
                 patients={patients} 
                 onRefresh={fetchPatients}
                 onSelectPatient={handleSelectPatient}
+                onEditPatient={(patient) => { 
+                  setSelectedPatient(patient)
+                  setCurrentView('patient-edit')
+                }}
+                onViewVisits={(patient) => { 
+                  setSelectedPatient(patient)
+                  setCurrentView('patient-visits')
+                }}
                 onRegisterInOffice={() => setCurrentView('patient-registration')}
                 onRegisterByEmail={() => setCurrentView('send-registration-link')}
+              />
+            )}
+            {currentView === 'patient-edit' && selectedPatient && (
+              <PatientEdit 
+                patient={selectedPatient}
+                onBack={() => { setCurrentView('patients'); setSelectedPatient(null); }}
+                onSave={() => { fetchPatients(); setCurrentView('patients'); }}
+                session={session}
+              />
+            )}
+            {currentView === 'patient-visits' && selectedPatient && (
+              <PatientDetail 
+                patient={selectedPatient}
+                onBack={() => { setCurrentView('patients'); setSelectedPatient(null); }}
+                onRefresh={fetchPatients}
+                session={session}
+                defaultView="visits"
               />
             )}
             {currentView === 'patient-detail' && selectedPatient && (

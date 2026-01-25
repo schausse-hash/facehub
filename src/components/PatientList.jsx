@@ -9,7 +9,7 @@ const Icons = {
   Users: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="48" height="48"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
 }
 
-export default function PatientList({ patients, onRefresh, onSelectPatient, onRegisterInOffice, onRegisterByEmail }) {
+export default function PatientList({ patients, onRefresh, onSelectPatient, onEditPatient, onViewVisits, onRegisterInOffice, onRegisterByEmail }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('active')
   const [entriesPerPage, setEntriesPerPage] = useState(10)
@@ -496,14 +496,14 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onRe
                           </button>
                           <button 
                             style={{ ...styles.actionBtn, ...styles.actionBtnEdit }}
-                            onClick={() => onSelectPatient(patient)}
+                            onClick={() => onEditPatient ? onEditPatient(patient) : onSelectPatient(patient)}
                             title="Edit Profile"
                           >
                             <Icons.Edit />
                           </button>
                           <button 
                             style={{ ...styles.actionBtn, ...styles.actionBtnVisits }}
-                            onClick={() => onSelectPatient(patient)}
+                            onClick={() => onViewVisits ? onViewVisits(patient) : onSelectPatient(patient)}
                             title="View Visits"
                           >
                             <Icons.Clipboard />
