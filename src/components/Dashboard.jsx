@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import PatientList from './PatientList'
 import PatientDetail from './PatientDetail'
+import PatientEdit from './PatientEdit'
 import PatientRegistration from './PatientRegistration'
 import SendRegistrationLink from './SendRegistrationLink'
 import Documents from './Documents'
@@ -425,6 +426,15 @@ export default function Dashboard({ session }) {
                 patient={selectedPatient}
                 onBack={() => { setCurrentView('patients'); setSelectedPatient(null); }}
                 onRefresh={fetchPatients}
+                session={session}
+                onEditProfile={(patient) => { setSelectedPatient(patient); setCurrentView('patient-edit'); }}
+              />
+            )}
+            {currentView === 'patient-edit' && selectedPatient && (
+              <PatientEdit 
+                patient={selectedPatient}
+                onBack={() => { setCurrentView('patient-detail'); }}
+                onSave={() => { fetchPatients(); setCurrentView('patient-detail'); }}
                 session={session}
               />
             )}
