@@ -4,17 +4,17 @@ import PhotoGallery from './PhotoGallery'
 import VoiceDictation from './VoiceDictation'
 
 const Icons = {
-  ArrowLeft: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
-  Plus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>,
-  X: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>,
-  Calendar: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
-  Trash: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
-  Camera: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
-  Heart: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>,
-  Document: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
-  Upload: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>,
-  Download: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>,
-  Save: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>,
+  ArrowLeft: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
+  Plus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>,
+  X: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>,
+  Calendar: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
+  Trash: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
+  Camera: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+  Heart: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>,
+  Document: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+  Upload: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>,
+  Clipboard: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>,
+  CalendarEmpty: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="64" height="64"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
 }
 
 const TREATMENT_ZONES = [
@@ -85,7 +85,7 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
 
   // Voice dictation state
   const [showDictation, setShowDictation] = useState(false)
-  const [dictationTarget, setDictationTarget] = useState('notes') // 'notes' ou 'medical'
+  const [dictationTarget, setDictationTarget] = useState('notes')
 
   useEffect(() => {
     fetchVisits()
@@ -102,7 +102,6 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
       .order('visit_date', { ascending: false })
 
     if (!error && data) {
-      // Récupérer les noms des praticiens pour chaque visite
       const userIds = [...new Set(data.map(v => v.user_id).filter(Boolean))]
       
       if (userIds.length > 0) {
@@ -116,7 +115,6 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
           profilesMap[p.user_id] = p.full_name
         })
 
-        // Ajouter le nom du praticien à chaque visite
         const visitsWithPractitioner = data.map(visit => ({
           ...visit,
           practitioner_name: profilesMap[visit.user_id] || 'Praticien non identifié'
@@ -166,6 +164,39 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
     setDocuments(data || [])
   }
 
+  // Helper functions
+  const getInitials = (name) => {
+    if (!name) return '?'
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  }
+
+  const getPatientName = () => {
+    if (patient.metadata?.firstName && patient.metadata?.lastName) {
+      return `${patient.metadata.firstName} ${patient.metadata.lastName}`
+    }
+    return patient.name || 'Patient'
+  }
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '-'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('fr-CA', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
+
+  const toggleTreatment = (zone) => {
+    setTreatments(prev => {
+      if (prev[zone.id]) {
+        const { [zone.id]: _, ...rest } = prev
+        return rest
+      }
+      return { ...prev, [zone.id]: { zone_name: zone.label, units: zone.defaultUnits } }
+    })
+  }
+
   const handleAddVisit = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -185,524 +216,589 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
       .select()
       .single()
 
-    if (visitError) {
-      alert('Erreur: ' + visitError.message)
-      setLoading(false)
-      return
-    }
+    if (!visitError && visitData) {
+      const treatmentInserts = Object.entries(treatments).map(([zoneId, data]) => ({
+        visit_id: visitData.id,
+        zone_name: data.zone_name,
+        units: data.units
+      }))
 
-    const treatmentInserts = Object.entries(treatments).map(([zoneId, data]) => ({
-      visit_id: visitData.id,
-      zone_id: zoneId,
-      zone_label: data.label,
-      units: data.units
-    }))
-
-    if (treatmentInserts.length > 0) {
-      await supabase.from('treatments').insert(treatmentInserts)
-    }
-
-    setShowVisitModal(false)
-    setForm({ visit_type: 'treatment', notes: '', total_units: 0 })
-    setTreatments({})
-    fetchVisits()
-    onRefresh()
-  }
-
-  const toggleTreatment = (zone) => {
-    setTreatments(prev => {
-      if (prev[zone.id]) {
-        const { [zone.id]: _, ...rest } = prev
-        return rest
+      if (treatmentInserts.length > 0) {
+        await supabase.from('treatments').insert(treatmentInserts)
       }
-      return { ...prev, [zone.id]: { label: zone.label, units: zone.defaultUnits } }
-    })
+
+      setShowVisitModal(false)
+      setForm({ visit_type: 'treatment', notes: '', total_units: 0 })
+      setTreatments({})
+      fetchVisits()
+    }
+    setLoading(false)
   }
 
-  const handleSaveMedicalHistory = async () => {
+  const handleSaveMedical = async () => {
     setSavingMedical(true)
 
-    const dataToSave = {
-      patient_id: patient.id,
-      ...medicalForm,
-      last_updated: new Date().toISOString(),
-      updated_by: session.user.id
-    }
-
-    const { error } = await supabase
-      .from('patient_medical_history')
-      .upsert(dataToSave, { onConflict: 'patient_id' })
-
-    if (error) {
-      alert('Erreur: ' + error.message)
+    if (medicalHistory) {
+      await supabase
+        .from('patient_medical_history')
+        .update(medicalForm)
+        .eq('id', medicalHistory.id)
     } else {
-      fetchMedicalHistory()
+      await supabase
+        .from('patient_medical_history')
+        .insert([{ ...medicalForm, patient_id: patient.id }])
     }
+
+    await fetchMedicalHistory()
     setSavingMedical(false)
+    alert('Dossier médical sauvegardé!')
   }
 
-  const handleUploadDocument = async (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     setUploadingDoc(true)
 
-    try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${patient.id}/docs/${Date.now()}_${file.name}`
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${patient.id}/${Date.now()}.${fileExt}`
 
-      const { error: uploadError } = await supabase.storage
-        .from('patient-photos')
-        .upload(fileName, file, { cacheControl: '3600', upsert: true })
+    const { error: uploadError } = await supabase.storage
+      .from('patient-documents')
+      .upload(fileName, file)
 
-      if (uploadError) throw uploadError
-
+    if (!uploadError) {
       const { data: { publicUrl } } = supabase.storage
-        .from('patient-photos')
+        .from('patient-documents')
         .getPublicUrl(fileName)
 
-      const { error: dbError } = await supabase
-        .from('patient_documents')
-        .insert([{
-          patient_id: patient.id,
-          document_name: file.name,
-          document_type: docType,
-          document_url: publicUrl,
-          storage_path: fileName,
-          uploaded_by: session.user.id
-        }])
-
-      if (dbError) throw dbError
+      await supabase.from('patient_documents').insert([{
+        patient_id: patient.id,
+        document_type: docType,
+        file_name: file.name,
+        file_url: publicUrl,
+        file_size: file.size
+      }])
 
       fetchDocuments()
-    } catch (error) {
-      alert('Erreur: ' + error.message)
-    } finally {
-      setUploadingDoc(false)
-      if (fileInputRef.current) fileInputRef.current.value = ''
     }
+
+    setUploadingDoc(false)
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const handleDeleteDocument = async (doc) => {
     if (!window.confirm('Supprimer ce document?')) return
 
-    await supabase.storage.from('patient-photos').remove([doc.storage_path])
+    const fileName = doc.file_url.split('/').pop()
+    await supabase.storage.from('patient-documents').remove([`${patient.id}/${fileName}`])
     await supabase.from('patient_documents').delete().eq('id', doc.id)
     fetchDocuments()
   }
 
-  const formatDate = (date) => new Date(date).toLocaleDateString('fr-CA', {
-    year: 'numeric', month: 'long', day: 'numeric'
-  })
+  const handleDeletePatient = async () => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce patient?\n\nCette action est IRRÉVERSIBLE et supprimera TOUTES les données du patient.')) return
+    
+    const confirmText = window.prompt("Tapez 'supprimer' pour confirmer:")
+    if (confirmText?.toLowerCase() !== 'supprimer') {
+      alert('Suppression annulée')
+      return
+    }
 
-  const getInitials = (name) => name.split(' ').map(n => n[0]).join('').toUpperCase()
+    await supabase.from('patients').delete().eq('id', patient.id)
+    onBack()
+    onRefresh()
+  }
+
+  // Styles
+  const styles = {
+    container: {
+      padding: '0'
+    },
+    backButton: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.5rem 1rem',
+      background: '#2d3436',
+      color: 'white',
+      border: 'none',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      fontSize: '0.9rem',
+      marginBottom: '1.5rem'
+    },
+    headerCard: {
+      background: 'var(--bg-card)',
+      borderRadius: '12px',
+      padding: '1.5rem 2rem',
+      marginBottom: '1.5rem',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    },
+    headerLeft: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1.5rem'
+    },
+    avatar: {
+      width: '60px',
+      height: '60px',
+      borderRadius: '50%',
+      background: 'var(--primary)',
+      color: 'white',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '1.5rem',
+      fontWeight: '600'
+    },
+    patientInfo: {
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    patientName: {
+      fontSize: '1.5rem',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '0.25rem'
+    },
+    visitCount: {
+      fontSize: '0.9rem',
+      color: 'var(--text-muted)'
+    },
+    newVisitBtn: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.75rem 1.25rem',
+      background: 'var(--primary)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      fontSize: '0.9rem',
+      fontWeight: '500'
+    },
+    tabsContainer: {
+      display: 'flex',
+      gap: '0.5rem',
+      marginBottom: '1.5rem'
+    },
+    tab: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.75rem 1.25rem',
+      background: 'transparent',
+      border: '1px solid var(--border)',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      fontSize: '0.9rem',
+      color: 'var(--text-secondary)',
+      transition: 'all 0.2s'
+    },
+    tabActive: {
+      background: 'var(--primary)',
+      color: 'white',
+      borderColor: 'var(--primary)'
+    },
+    contentCard: {
+      background: 'var(--bg-card)',
+      borderRadius: '12px',
+      padding: '1.5rem',
+      minHeight: '400px'
+    },
+    sectionTitle: {
+      fontSize: '1.1rem',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '1.5rem',
+      paddingBottom: '0.75rem',
+      borderBottom: '1px solid var(--border)'
+    },
+    emptyState: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '4rem 2rem',
+      textAlign: 'center'
+    },
+    emptyIcon: {
+      color: 'var(--text-muted)',
+      marginBottom: '1rem'
+    },
+    emptyTitle: {
+      fontSize: '1.25rem',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '0.5rem'
+    },
+    emptySubtitle: {
+      fontSize: '0.9rem',
+      color: 'var(--text-muted)',
+      marginBottom: '1.5rem'
+    },
+    addVisitBtnLarge: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '0.5rem',
+      padding: '1rem 2rem',
+      background: 'var(--primary)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      fontSize: '1rem',
+      fontWeight: '500'
+    },
+    deletePatientBtn: {
+      position: 'fixed',
+      bottom: '2rem',
+      right: '2rem',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.75rem 1.25rem',
+      background: '#dc3545',
+      color: 'white',
+      border: 'none',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      fontSize: '0.9rem',
+      fontWeight: '500',
+      boxShadow: '0 4px 12px rgba(220, 53, 69, 0.4)'
+    },
+    visitCard: {
+      background: 'var(--bg-dark)',
+      borderRadius: '8px',
+      padding: '1rem',
+      marginBottom: '1rem',
+      border: '1px solid var(--border)'
+    },
+    visitHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: '0.75rem'
+    },
+    visitDate: {
+      fontSize: '1rem',
+      fontWeight: '600',
+      color: 'var(--text-primary)'
+    },
+    visitType: {
+      fontSize: '0.8rem',
+      padding: '0.25rem 0.75rem',
+      borderRadius: '20px',
+      background: 'var(--primary)',
+      color: 'white'
+    },
+    visitInfo: {
+      fontSize: '0.85rem',
+      color: 'var(--text-secondary)',
+      marginBottom: '0.5rem'
+    },
+    visitActions: {
+      display: 'flex',
+      gap: '0.5rem',
+      marginTop: '0.75rem'
+    },
+    visitActionBtn: {
+      padding: '0.4rem 0.75rem',
+      fontSize: '0.8rem',
+      borderRadius: '4px',
+      border: '1px solid var(--border)',
+      background: 'transparent',
+      color: 'var(--text-secondary)',
+      cursor: 'pointer'
+    }
+  }
 
   return (
-    <div>
-      {/* Header */}
-      <div className="page-header">
-        <button className="btn btn-outline" onClick={onBack}>
-          <Icons.ArrowLeft /> Retour
-        </button>
-      </div>
+    <div style={styles.container}>
+      {/* Back Button */}
+      <button style={styles.backButton} onClick={onBack}>
+        <Icons.ArrowLeft /> Retour
+      </button>
 
-      {/* Patient Info Card */}
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
-        <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          <div style={{
-            width: '70px', height: '70px', borderRadius: '50%',
-            background: 'var(--accent)', color: 'var(--primary)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.5rem', fontWeight: '600'
-          }}>
-            {getInitials(patient.name)}
+      {/* Header Card */}
+      <div style={styles.headerCard}>
+        <div style={styles.headerLeft}>
+          <div style={styles.avatar}>
+            {getInitials(getPatientName())}
           </div>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ margin: 0 }}>{patient.name}</h2>
-            <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              {patient.phone} • {patient.email}
-            </p>
-            <span className="badge">{visits.length} visite(s)</span>
+          <div style={styles.patientInfo}>
+            <div style={styles.patientName}>{getPatientName()}</div>
+            <div style={styles.visitCount}>{visits.length} visite(s)</div>
           </div>
-          <button className="btn btn-primary" onClick={() => setShowVisitModal(true)}>
-            <Icons.Plus /> Nouvelle visite
-          </button>
         </div>
+        <button style={styles.newVisitBtn} onClick={() => setShowVisitModal(true)}>
+          <Icons.Plus /> Nouvelle visite
+        </button>
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', overflowX: 'auto' }}>
-        <button className={`btn ${activeTab === 'visits' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('visits')}>
-          <Icons.Calendar /> Visites
+      <div style={styles.tabsContainer}>
+        <button 
+          style={{ ...styles.tab, ...(activeTab === 'visits' ? styles.tabActive : {}) }}
+          onClick={() => setActiveTab('visits')}
+        >
+          <Icons.Clipboard /> Visites
         </button>
-        <button className={`btn ${activeTab === 'medical' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('medical')}>
+        <button 
+          style={{ ...styles.tab, ...(activeTab === 'medical' ? styles.tabActive : {}) }}
+          onClick={() => setActiveTab('medical')}
+        >
           <Icons.Heart /> Dossier médical
         </button>
-        <button className={`btn ${activeTab === 'documents' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('documents')}>
+        <button 
+          style={{ ...styles.tab, ...(activeTab === 'documents' ? styles.tabActive : {}) }}
+          onClick={() => setActiveTab('documents')}
+        >
           <Icons.Document /> Documents ({documents.length})
         </button>
       </div>
 
-      {/* TAB: Visits */}
-      {activeTab === 'visits' && (
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">Historique des visites</h3>
-          </div>
-          <div className="card-body">
+      {/* Content */}
+      <div style={styles.contentCard}>
+        {/* Visits Tab */}
+        {activeTab === 'visits' && (
+          <div>
+            <h3 style={styles.sectionTitle}>Historique des visites</h3>
+            
             {loading ? (
-              <p>Chargement...</p>
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                Chargement...
+              </div>
             ) : visits.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {visits.map(visit => {
-                  const typeInfo = VISIT_TYPES.find(t => t.id === visit.visit_type) || VISIT_TYPES[0]
-                  const photoCount = visit.photos?.length || 0
-                  return (
-                    <div key={visit.id} style={{
-                      background: 'var(--bg-dark)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '12px',
-                      padding: '1.25rem'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                        <div>
-                          <div style={{ fontWeight: '600' }}>{formatDate(visit.visit_date)}</div>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                            {typeInfo.label}
-                            {visit.practitioner_name && (
-                              <span style={{ 
-                                marginLeft: '0.5rem',
-                                padding: '0.15rem 0.5rem',
-                                background: 'rgba(59, 130, 246, 0.15)',
-                                color: '#3b82f6',
-                                borderRadius: '6px',
-                                fontSize: '0.75rem'
-                              }}>
-                                👤 {visit.practitioner_name}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                          {visit.total_units > 0 && (
-                            <span style={{
-                              padding: '0.25rem 0.75rem',
-                              background: 'var(--accent)',
-                              color: 'var(--primary)',
-                              borderRadius: '12px',
-                              fontSize: '0.8rem',
-                              fontWeight: '500'
-                            }}>
-                              {visit.total_units} unités
-                            </span>
-                          )}
-                          <button
-                            className="btn btn-outline btn-sm"
-                            onClick={() => setShowPhotoGallery(visit)}
-                            style={{ padding: '0.25rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-                          >
-                            <Icons.Camera /> 
-                            <span>{photoCount > 0 ? `${photoCount} 📷` : 'Photos'}</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      {visit.treatments?.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                          {visit.treatments.map(t => (
-                            <span key={t.id} style={{
-                              padding: '0.25rem 0.5rem',
-                              background: 'var(--bg-card)',
-                              borderRadius: '6px',
-                              fontSize: '0.75rem'
-                            }}>
-                              {t.zone_label}: {t.units}u
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {visit.notes && (
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-                          {visit.notes}
-                        </p>
-                      )}
+              <div>
+                {visits.map(visit => (
+                  <div key={visit.id} style={styles.visitCard}>
+                    <div style={styles.visitHeader}>
+                      <div style={styles.visitDate}>{formatDate(visit.visit_date)}</div>
+                      <span style={styles.visitType}>
+                        {VISIT_TYPES.find(t => t.id === visit.visit_type)?.label || visit.visit_type}
+                      </span>
                     </div>
-                  )
-                })}
+                    <div style={styles.visitInfo}>
+                      Praticien: {visit.practitioner_name || 'Non spécifié'}
+                    </div>
+                    {visit.total_units > 0 && (
+                      <div style={styles.visitInfo}>
+                        Total: {visit.total_units} unités
+                      </div>
+                    )}
+                    {visit.notes && (
+                      <div style={{ ...styles.visitInfo, fontStyle: 'italic' }}>
+                        "{visit.notes}"
+                      </div>
+                    )}
+                    <div style={styles.visitActions}>
+                      <button 
+                        style={styles.visitActionBtn}
+                        onClick={() => setShowPhotoGallery(visit)}
+                      >
+                        <Icons.Camera /> Photos ({visit.photos?.length || 0})
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="empty-state">
-                <div style={{ width: 48, height: 48, color: 'var(--text-muted)' }}><Icons.Calendar /></div>
-                <h3>Aucune visite</h3>
-                <p>Ajoutez la première consultation</p>
-                <button className="btn btn-primary" onClick={() => setShowVisitModal(true)}>
+              <div style={styles.emptyState}>
+                <div style={styles.emptyIcon}>
+                  <Icons.CalendarEmpty />
+                </div>
+                <div style={styles.emptyTitle}>Aucune visite</div>
+                <div style={styles.emptySubtitle}>Ajoutez la première consultation</div>
+                <button style={styles.addVisitBtnLarge} onClick={() => setShowVisitModal(true)}>
                   <Icons.Plus /> Ajouter une visite
                 </button>
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* TAB: Medical History */}
-      {activeTab === 'medical' && (
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">Dossier médical</h3>
-            <button className="btn btn-primary btn-sm" onClick={handleSaveMedicalHistory} disabled={savingMedical}>
-              <Icons.Save /> {savingMedical ? 'Sauvegarde...' : 'Sauvegarder'}
-            </button>
-          </div>
-          <div className="card-body">
+        {/* Medical Tab */}
+        {activeTab === 'medical' && (
+          <div>
+            <h3 style={styles.sectionTitle}>Dossier médical</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
               <div className="form-group">
                 <label className="form-label">Conditions médicales</label>
-                <textarea
+                <textarea 
                   className="form-input"
-                  rows={3}
                   value={medicalForm.medical_conditions}
                   onChange={(e) => setMedicalForm({ ...medicalForm, medical_conditions: e.target.value })}
                   placeholder="Diabète, hypertension, etc."
                 />
               </div>
-
               <div className="form-group">
                 <label className="form-label">Allergies</label>
-                <textarea
+                <textarea 
                   className="form-input"
-                  rows={3}
                   value={medicalForm.allergies}
                   onChange={(e) => setMedicalForm({ ...medicalForm, allergies: e.target.value })}
                   placeholder="Médicaments, latex, etc."
                 />
               </div>
-
               <div className="form-group">
                 <label className="form-label">Médicaments actuels</label>
-                <textarea
+                <textarea 
                   className="form-input"
-                  rows={3}
                   value={medicalForm.current_medications}
                   onChange={(e) => setMedicalForm({ ...medicalForm, current_medications: e.target.value })}
                   placeholder="Liste des médicaments"
                 />
               </div>
-
               <div className="form-group">
                 <label className="form-label">Chirurgies antérieures</label>
-                <textarea
+                <textarea 
                   className="form-input"
-                  rows={3}
                   value={medicalForm.previous_surgeries}
                   onChange={(e) => setMedicalForm({ ...medicalForm, previous_surgeries: e.target.value })}
-                  placeholder="Chirurgies esthétiques ou autres"
+                  placeholder="Interventions passées"
                 />
               </div>
-
               <div className="form-group">
                 <label className="form-label">Conditions cutanées</label>
-                <textarea
+                <textarea 
                   className="form-input"
-                  rows={3}
                   value={medicalForm.skin_conditions}
                   onChange={(e) => setMedicalForm({ ...medicalForm, skin_conditions: e.target.value })}
                   placeholder="Eczéma, psoriasis, etc."
                 />
               </div>
-
               <div className="form-group">
                 <label className="form-label">Contre-indications</label>
-                <textarea
+                <textarea 
                   className="form-input"
-                  rows={3}
                   value={medicalForm.contraindications}
                   onChange={(e) => setMedicalForm({ ...medicalForm, contraindications: e.target.value })}
                   placeholder="Grossesse, allaitement, etc."
                 />
               </div>
-
               <div className="form-group">
-                <label className="form-label">Groupe sanguin</label>
-                <select
-                  className="form-select"
-                  value={medicalForm.blood_type}
-                  onChange={(e) => setMedicalForm({ ...medicalForm, blood_type: e.target.value })}
-                >
-                  <option value="">Non spécifié</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Contact d'urgence - Nom</label>
-                <input
-                  type="text"
+                <label className="form-label">Notes supplémentaires</label>
+                <textarea 
                   className="form-input"
-                  value={medicalForm.emergency_contact_name}
-                  onChange={(e) => setMedicalForm({ ...medicalForm, emergency_contact_name: e.target.value })}
-                  placeholder="Nom du contact"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Contact d'urgence - Téléphone</label>
-                <input
-                  type="tel"
-                  className="form-input"
-                  value={medicalForm.emergency_contact_phone}
-                  onChange={(e) => setMedicalForm({ ...medicalForm, emergency_contact_phone: e.target.value })}
-                  placeholder="514-555-1234"
-                />
-              </div>
-
-              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <label className="form-label" style={{ margin: 0 }}>Notes additionnelles</label>
-                  <button 
-                    type="button"
-                    className="btn btn-outline btn-sm"
-                    onClick={() => {
-                      setDictationTarget('medical_notes')
-                      setShowDictation(true)
-                    }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-                  >
-                    🎤 Dicter
-                  </button>
-                </div>
-                <textarea
-                  className="form-input"
-                  rows={4}
                   value={medicalForm.notes}
                   onChange={(e) => setMedicalForm({ ...medicalForm, notes: e.target.value })}
-                  placeholder="Autres informations importantes... Ou utilisez la dictée vocale"
+                  placeholder="Autres informations pertinentes"
                 />
               </div>
             </div>
-
-            {medicalHistory?.last_updated && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '1rem' }}>
-                Dernière mise à jour: {formatDate(medicalHistory.last_updated)}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* TAB: Documents */}
-      {activeTab === 'documents' && (
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">Documents</h3>
-          </div>
-          <div className="card-body">
-            {/* Upload section */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '1rem', 
-              marginBottom: '1.5rem', 
-              padding: '1rem',
-              background: 'var(--bg-dark)',
-              borderRadius: '12px',
-              flexWrap: 'wrap',
-              alignItems: 'center'
-            }}>
-              <select
-                className="form-select"
-                value={docType}
-                onChange={(e) => setDocType(e.target.value)}
-                style={{ width: 'auto' }}
-              >
-                {DOCUMENT_TYPES.map(t => (
-                  <option key={t.id} value={t.id}>{t.label}</option>
-                ))}
-              </select>
-
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleUploadDocument}
-                style={{ display: 'none' }}
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              />
-
+            <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
               <button 
                 className="btn btn-primary"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingDoc}
+                onClick={handleSaveMedical}
+                disabled={savingMedical}
               >
-                <Icons.Upload /> {uploadingDoc ? 'Upload...' : 'Ajouter un document'}
+                {savingMedical ? 'Sauvegarde...' : 'Sauvegarder le dossier médical'}
               </button>
             </div>
+          </div>
+        )}
 
-            {/* Documents list */}
+        {/* Documents Tab */}
+        {activeTab === 'documents' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ ...styles.sectionTitle, marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
+                Documents
+              </h3>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <select 
+                  className="form-select"
+                  value={docType}
+                  onChange={(e) => setDocType(e.target.value)}
+                  style={{ width: 'auto' }}
+                >
+                  {DOCUMENT_TYPES.map(t => (
+                    <option key={t.id} value={t.id}>{t.label}</option>
+                  ))}
+                </select>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  style={{ display: 'none' }}
+                  onChange={handleFileUpload}
+                />
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingDoc}
+                >
+                  <Icons.Upload /> {uploadingDoc ? 'Upload...' : 'Ajouter'}
+                </button>
+              </div>
+            </div>
+
             {documents.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {documents.map(doc => {
-                  const typeInfo = DOCUMENT_TYPES.find(t => t.id === doc.document_type) || { label: doc.document_type }
-                  return (
-                    <div key={doc.id} style={{
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {documents.map(doc => (
+                  <div 
+                    key={doc.id}
+                    style={{
                       display: 'flex',
-                      alignItems: 'center',
                       justifyContent: 'space-between',
+                      alignItems: 'center',
                       padding: '1rem',
                       background: 'var(--bg-dark)',
-                      borderRadius: '12px',
-                      border: '1px solid var(--border)',
-                      flexWrap: 'wrap',
-                      gap: '0.75rem'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
-                        <div style={{ width: 40, height: 40, color: 'var(--accent)' }}>
-                          <Icons.Document />
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <Icons.Document />
+                      <div>
+                        <div style={{ fontWeight: '500' }}>{doc.file_name}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                          {DOCUMENT_TYPES.find(t => t.id === doc.document_type)?.label} • {formatDate(doc.uploaded_at)}
                         </div>
-                        <div>
-                          <div style={{ fontWeight: '600' }}>{doc.document_name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            {typeInfo.label} • {formatDate(doc.uploaded_at)}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <a 
-                          href={doc.document_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="btn btn-outline btn-sm"
-                        >
-                          <Icons.Download /> Voir
-                        </a>
-                        <button 
-                          className="btn btn-outline btn-sm"
-                          onClick={() => handleDeleteDocument(doc)}
-                          style={{ color: '#ef4444' }}
-                        >
-                          <Icons.Trash />
-                        </button>
                       </div>
                     </div>
-                  )
-                })}
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <a 
+                        href={doc.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="btn btn-outline btn-sm"
+                      >
+                        Voir
+                      </a>
+                      <button 
+                        className="btn btn-outline btn-sm"
+                        onClick={() => handleDeleteDocument(doc)}
+                        style={{ color: '#dc3545' }}
+                      >
+                        <Icons.Trash />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="empty-state">
-                <div style={{ width: 48, height: 48, color: 'var(--text-muted)' }}><Icons.Document /></div>
-                <h3>Aucun document</h3>
-                <p>Ajoutez des consentements, formulaires, etc.</p>
+              <div style={styles.emptyState}>
+                <div style={styles.emptyIcon}>
+                  <Icons.Document />
+                </div>
+                <div style={styles.emptyTitle}>Aucun document</div>
+                <div style={styles.emptySubtitle}>Ajoutez des consentements, formulaires, etc.</div>
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* Delete Patient Button */}
+      <button style={styles.deletePatientBtn} onClick={handleDeletePatient}>
+        <Icons.Trash /> Supprimer le patient
+      </button>
 
       {/* Modal Nouvelle Visite */}
       {showVisitModal && (
@@ -738,10 +834,10 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
                         onClick={() => toggleTreatment(zone)}
                         style={{
                           padding: '1rem',
-                          border: `1px solid ${treatments[zone.id] ? 'var(--accent)' : 'var(--border)'}`,
+                          border: `1px solid ${treatments[zone.id] ? 'var(--primary)' : 'var(--border)'}`,
                           borderRadius: '10px',
                           cursor: 'pointer',
-                          background: treatments[zone.id] ? 'rgba(212, 165, 116, 0.1)' : 'var(--bg-dark)',
+                          background: treatments[zone.id] ? 'rgba(90, 154, 156, 0.1)' : 'var(--bg-dark)',
                         }}
                       >
                         <div style={{ fontSize: '0.85rem', fontWeight: '500' }}>{zone.label}</div>
@@ -773,25 +869,12 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
                 </div>
 
                 <div className="form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <label className="form-label" style={{ margin: 0 }}>Notes</label>
-                    <button 
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={() => {
-                        setDictationTarget('notes')
-                        setShowDictation(true)
-                      }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-                    >
-                      🎤 Dicter
-                    </button>
-                  </div>
+                  <label className="form-label">Notes</label>
                   <textarea 
                     className="form-input"
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    placeholder="Observations, recommandations... Ou utilisez la dictée vocale"
+                    placeholder="Observations, recommandations..."
                   />
                 </div>
               </div>
@@ -821,52 +904,6 @@ export default function PatientDetail({ patient, onBack, onRefresh, session }) {
           }}
           onRefresh={fetchVisits}
         />
-      )}
-
-      {/* Delete Patient Button */}
-      <div style={{ marginTop: '2rem', textAlign: 'right' }}>
-        <button 
-          className="btn btn-danger"
-          onClick={async () => {
-            if (window.confirm('Supprimer ce patient et toutes ses données?')) {
-              await supabase.from('patients').delete().eq('id', patient.id)
-              onBack()
-              onRefresh()
-            }
-          }}
-        >
-          <Icons.Trash /> Supprimer le patient
-        </button>
-      </div>
-
-      {/* Modal Dictée Vocale */}
-      {showDictation && (
-        <div className="modal-overlay" onClick={() => setShowDictation(false)}>
-          <div className="modal" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
-            <VoiceDictation
-              onInsertText={(text) => {
-                if (dictationTarget === 'notes') {
-                  setForm(prev => ({ 
-                    ...prev, 
-                    notes: prev.notes ? prev.notes + '\n\n' + text : text 
-                  }))
-                } else if (dictationTarget === 'medical_notes') {
-                  setMedicalForm(prev => ({ 
-                    ...prev, 
-                    notes: prev.notes ? prev.notes + '\n\n' + text : text 
-                  }))
-                }
-              }}
-              onClose={() => setShowDictation(false)}
-              initialText=""
-              apiKey={import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.VITE_CLAUDE_API_KEY || null}
-              apiProvider={
-                import.meta.env.VITE_OPENAI_API_KEY ? 'openai' : 
-                import.meta.env.VITE_CLAUDE_API_KEY ? 'claude' : 'none'
-              }
-            />
-          </div>
-        </div>
       )}
     </div>
   )
