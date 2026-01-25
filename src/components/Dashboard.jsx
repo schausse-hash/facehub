@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient'
 import PatientList from './PatientList'
 import PatientDetail from './PatientDetail'
 import PatientRegistration from './PatientRegistration'
+import SendRegistrationLink from './SendRegistrationLink'
 import Documents from './Documents'
 import Admin from './Admin'
 import Help from './Help'
@@ -312,8 +313,9 @@ export default function Dashboard({ session }) {
                 <span>Register Patient Internally</span>
               </div>
               <div 
-                className="nav-item sub-item"
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem', opacity: 0.5, cursor: 'not-allowed' }}
+                className={`nav-item sub-item ${currentView === 'send-registration-link' ? 'active' : ''}`}
+                onClick={() => { setCurrentView('send-registration-link'); setSelectedPatient(null); }}
+                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <Icons.Link />
                 <span>Send Registration Link</span>
@@ -431,6 +433,13 @@ export default function Dashboard({ session }) {
               <PatientRegistration 
                 onBack={() => setCurrentView('patients')}
                 onComplete={() => { fetchPatients(); setCurrentView('patients'); }}
+                session={session}
+                userClinic={userClinic}
+              />
+            )}
+            {currentView === 'send-registration-link' && (
+              <SendRegistrationLink 
+                onBack={() => setCurrentView('patients')}
                 session={session}
                 userClinic={userClinic}
               />
