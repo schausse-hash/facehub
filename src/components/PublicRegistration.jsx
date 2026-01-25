@@ -274,6 +274,7 @@ export default function PublicRegistration({ token }) {
         phone: formData.cellPhone || null,
         birthdate: formData.birthday || null,
         clinic_id: linkData?.clinic_id || null,
+        user_id: linkData?.created_by || null,  // Utilise le créateur du lien comme user_id
         metadata: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -402,7 +403,8 @@ export default function PublicRegistration({ token }) {
       alignItems: 'center',
       gap: '0.5rem',
       cursor: 'pointer',
-      fontSize: '0.95rem'
+      fontSize: '0.95rem',
+      color: '#333'
     },
     twoColumn: {
       display: 'grid',
@@ -704,7 +706,7 @@ export default function PublicRegistration({ token }) {
 
         {/* Type Selector */}
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ marginRight: '1rem', fontWeight: '500' }}>Type:</label>
+          <label style={{ marginRight: '1rem', fontWeight: '500', color: '#333' }}>Type:</label>
           <div style={styles.typeSelector}>
             <label style={styles.radioLabel}>
               <input
