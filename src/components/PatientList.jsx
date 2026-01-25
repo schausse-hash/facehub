@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { supabase } from '../supabaseClient'
 
 const Icons = {
   Search: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
   Eye: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
   Edit: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
-  Trash: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
+  Clipboard: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>,
   Question: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
   Users: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="48" height="48"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
 }
@@ -85,12 +84,24 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onRe
   const endIndex = startIndex + entriesPerPage
   const paginatedPatients = sortedPatients.slice(startIndex, endIndex)
 
-  // Vérifier si l'inscription est complète
+  // Vérifier si l'inscription est complète (Full = Complete, Quick = Incomplete)
   function isRegistrationComplete(patient) {
-    if (!patient.metadata) return false
+    // Si registrationType est 'quick', c'est toujours Incomplete
+    if (patient.metadata?.registrationType === 'quick') return false
+    
+    // Pour Full registration, vérifier les champs essentiels
     const m = patient.metadata
+    if (!m) return false
+    
+    // Vérifier les consentements si présents
+    const hasConsents = m.consents && (
+      m.consents.botox !== undefined || 
+      m.consents.filler !== undefined || 
+      m.consents.photo !== undefined
+    )
+    
     return !!(m.firstName && m.lastName && patient.birthdate && 
-              (m.registrationType === 'quick' || (m.email || patient.email)))
+              (m.contact?.email || patient.email) && hasConsents)
   }
 
   // Formater la date
@@ -106,11 +117,45 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onRe
 
   // Extraire prénom/nom
   function getFirstName(patient) {
-    return patient.metadata?.firstName || patient.name?.split(' ')[0] || '-'
+    if (patient.metadata?.firstName) return patient.metadata.firstName
+    if (patient.name) return patient.name.split(' ')[0]
+    return '-'
   }
 
   function getLastName(patient) {
-    return patient.metadata?.lastName || patient.name?.split(' ').slice(1).join(' ') || '-'
+    if (patient.metadata?.lastName) return patient.metadata.lastName
+    if (patient.name) {
+      const parts = patient.name.split(' ')
+      return parts.length > 1 ? parts.slice(1).join(' ') : '-'
+    }
+    return '-'
+  }
+
+  // Extraire téléphone
+  function getPhone(patient) {
+    return patient.phone || 
+           patient.metadata?.contact?.cellPhone || 
+           patient.metadata?.cellPhone || 
+           '-'
+  }
+
+  // Extraire ville
+  function getCity(patient) {
+    return patient.metadata?.address?.city || 
+           patient.metadata?.city || 
+           '-'
+  }
+
+  // Extraire province
+  function getProvince(patient) {
+    return patient.metadata?.address?.province || 
+           patient.metadata?.province || 
+           '-'
+  }
+
+  // Extraire date de naissance
+  function getBirthday(patient) {
+    return patient.birthdate || patient.metadata?.birthday || null
   }
 
   // Gérer le tri
@@ -120,23 +165,6 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onRe
     } else {
       setSortField(field)
       setSortDirection('asc')
-    }
-  }
-
-  // Supprimer un patient (désactiver)
-  async function handleDelete(patient, e) {
-    e.stopPropagation()
-    if (!confirm(`Are you sure you want to deactivate ${patient.name}?`)) return
-    
-    const { error } = await supabase
-      .from('patients')
-      .update({ is_active: false })
-      .eq('id', patient.id)
-    
-    if (error) {
-      alert('Error: ' + error.message)
-    } else {
-      onRefresh()
     }
   }
 
@@ -256,15 +284,25 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onRe
       width: '32px',
       height: '32px',
       borderRadius: '50%',
-      border: '1px solid var(--border)',
-      background: 'var(--bg-card)',
+      border: 'none',
       cursor: 'pointer',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: '0.25rem',
-      color: 'var(--text-secondary)',
       transition: 'all 0.2s'
+    },
+    actionBtnView: {
+      background: '#d4edda',
+      color: '#155724'
+    },
+    actionBtnEdit: {
+      background: '#fff3cd',
+      color: '#856404'
+    },
+    actionBtnVisits: {
+      background: '#e2e3e5',
+      color: '#383d41'
     },
     pagination: {
       display: 'flex',
@@ -436,14 +474,10 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onRe
                             {getLastName(patient)}
                           </span>
                         </td>
-                        <td style={styles.td}>{patient.phone || '-'}</td>
-                        <td style={styles.td}>
-                          {patient.metadata?.address?.city || patient.metadata?.city || '-'}
-                        </td>
-                        <td style={styles.td}>
-                          {patient.metadata?.address?.province || patient.metadata?.province || '-'}
-                        </td>
-                        <td style={styles.td}>{formatDate(patient.birthdate)}</td>
+                        <td style={styles.td}>{getPhone(patient)}</td>
+                        <td style={styles.td}>{getCity(patient)}</td>
+                        <td style={styles.td}>{getProvince(patient)}</td>
+                        <td style={styles.td}>{formatDate(getBirthday(patient))}</td>
                         <td style={styles.td}>
                           {isRegistrationComplete(patient) ? (
                             <span style={{ ...styles.badge, ...styles.badgeComplete }}>Complete</span>
@@ -454,25 +488,25 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onRe
                         <td style={styles.td}>{formatDate(patient.created_at)}</td>
                         <td style={styles.td}>
                           <button 
-                            style={styles.actionBtn}
+                            style={{ ...styles.actionBtn, ...styles.actionBtnView }}
                             onClick={() => onSelectPatient(patient)}
-                            title="View"
+                            title="View Profile"
                           >
                             <Icons.Eye />
                           </button>
                           <button 
-                            style={styles.actionBtn}
+                            style={{ ...styles.actionBtn, ...styles.actionBtnEdit }}
                             onClick={() => onSelectPatient(patient)}
-                            title="Edit"
+                            title="Edit Profile"
                           >
                             <Icons.Edit />
                           </button>
                           <button 
-                            style={styles.actionBtn}
-                            onClick={(e) => handleDelete(patient, e)}
-                            title="Delete"
+                            style={{ ...styles.actionBtn, ...styles.actionBtnVisits }}
+                            onClick={() => onSelectPatient(patient)}
+                            title="View Visits"
                           >
-                            <Icons.Trash />
+                            <Icons.Clipboard />
                           </button>
                         </td>
                       </tr>
