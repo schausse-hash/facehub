@@ -1,693 +1,505 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../supabaseClient'
 
 // Icônes
 const Icons = {
   X: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>,
   Check: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>,
-  ArrowLeft: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
-  ArrowRight: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>,
   Zap: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
   FileText: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
-  Syringe: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>,
-  Camera: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
-  User: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
+  ChevronDown: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 16, height: 16 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>,
 }
+
+// Options pour les selects
+const GENDER_OPTIONS = [
+  { value: 'female', label: 'Female' },
+  { value: 'male', label: 'Male' },
+  { value: 'transgender_female', label: 'Transgender Female' },
+  { value: 'transgender_male', label: 'Transgender Male' },
+  { value: 'gender_queer', label: 'Gender Queer' },
+  { value: 'other', label: 'Other' },
+]
+
+const SEX_OPTIONS = [
+  { value: 'female', label: 'Female' },
+  { value: 'male', label: 'Male' },
+  { value: 'other', label: 'Other' },
+]
+
+const ETHNICITY_OPTIONS = [
+  { value: 'caucasian', label: 'Caucasian' },
+  { value: 'african_american', label: 'African American/Black' },
+  { value: 'hispanic', label: 'Hispanic/Latino' },
+  { value: 'asian', label: 'Asian' },
+  { value: 'middle_eastern', label: 'Middle Eastern' },
+  { value: 'pacific_islander', label: 'Pacific Islander' },
+  { value: 'native_american', label: 'Native American/Alaskan' },
+  { value: 'other', label: 'Other' },
+]
+
+const COUNTRY_OPTIONS = [
+  { value: 'CA', label: 'Canada' },
+  { value: 'US', label: 'United States' },
+]
+
+const PROVINCE_OPTIONS = [
+  { group: 'Provinces', options: [
+    { value: 'AB', label: 'Alberta' },
+    { value: 'BC', label: 'British Columbia' },
+    { value: 'MB', label: 'Manitoba' },
+    { value: 'NB', label: 'New Brunswick' },
+    { value: 'NL', label: 'Newfoundland and Labrador' },
+    { value: 'NS', label: 'Nova Scotia' },
+    { value: 'ON', label: 'Ontario' },
+    { value: 'PE', label: 'Prince Edward Island' },
+    { value: 'QC', label: 'Quebec' },
+    { value: 'SK', label: 'Saskatchewan' },
+  ]},
+  { group: 'Territories', options: [
+    { value: 'NT', label: 'Northwest Territories' },
+    { value: 'NU', label: 'Nunavut' },
+    { value: 'YT', label: 'Yukon' },
+  ]},
+]
+
+const REFERRAL_OPTIONS = [
+  "Doctor's referral",
+  "Friend or current patient",
+  "Seminar or Tradeshow",
+  "Newspaper",
+  "Website or Internet",
+  "Promotion or Coupon",
+  "Yellow Pages",
+  "Magazine",
+  "Walk by",
+]
+
+const INTEREST_OPTIONS = [
+  "Treating fine lines & wrinkles",
+  "Treating facial volume loss",
+  "Treating gummy smiles",
+  "Treating uneven lip position",
+  "Treating migraine/headaches",
+  "Treating TMD/TMJ",
+  "Treatment of age spots",
+  "Improving skin tone",
+  "Treating stubborn body fat",
+  "Hair removal",
+  "Smile makeover",
+]
+
+const MEDICAL_CONDITIONS = [
+  "Acne", "Allergies", "ALS", "Arthritis", "Asthma", "Autoimmune disorder",
+  "Blood disorder", "Cancer (or radiation therapy)", "Cow's milk protein allergy",
+  "Diabetes (or diabetic neuropathy)", "Epilepsy", "Guillain barre syndrome",
+  "Herpes (or cold sores)", "Hirsutism", "Hormonal imbalance",
+  "Keloid scars (or other scars)", "Kidney disease", "Local anesthetic sensitivity",
+  "Melanoma", "Myasthenia gravis", "Polycystic ovarian syndrome", "Port wine stain",
+  "Psoriasis", "Severe allergic reactions", "Steroids (or hormonal therapy)",
+  "Shingles", "Significant neurological disease", "Skin pigmentation", "Vitiligo"
+]
+
+const SUN_EXPOSURE_OPTIONS = [
+  "Always burn, never tan",
+  "Usually burn, tan with difficulty",
+  "Almost never burn, tan very easily",
+  "Sometimes burn, tan about average",
+  "Rarely burn, tan easily",
+  "Never burn, always tan",
+]
+
+// Configuration des champs selon le type d'inscription
+const QUICK_REG_SECTIONS = ['personal-details']
+const FULL_REG_SECTIONS = [
+  'personal-details', 'contact-information', 'mailing-address',
+  'about-visit', 'skin-history', 'medical-history', 'medical-conditions', 'sun-history'
+]
 
 export default function PatientRegistration({ onBack, onComplete, session, userClinic }) {
   // États
   const [showTypeModal, setShowTypeModal] = useState(true)
-  const [registrationType, setRegistrationType] = useState(null) // 'quick' ou 'full'
-  const [currentStep, setCurrentStep] = useState(0)
+  const [registrationType, setRegistrationType] = useState('full') // 'quick' ou 'full'
+  const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState([])
   
-  // Consentements
-  const [consents, setConsents] = useState({
-    botox: {
-      agreed: false,
-      signature: '',
-      date: new Date().toISOString().split('T')[0]
-    },
-    filler: {
-      agreed: false,
-      signature: '',
-      date: new Date().toISOString().split('T')[0]
-    },
-    photo: {
-      agreed: false,
-      signature: '',
-      date: new Date().toISOString().split('T')[0]
-    }
+  // Consentements sélectionnés
+  const [selectedConsents, setSelectedConsents] = useState({
+    botox: true,
+    filler: true,
+    photo: true
   })
 
-  // Données patient (pour plus tard)
-  const [patientData, setPatientData] = useState({
+  // Données du formulaire
+  const [formData, setFormData] = useState({
+    // Personal Details
     firstName: '',
     lastName: '',
+    genderIdentity: '',
+    genderOther: '',
+    sexAtBirth: '',
+    sexOther: '',
+    birthday: '',
+    ethnicity: '',
+    
+    // Contact Information
     email: '',
-    phone: '',
-    birthdate: '',
+    cellPhone: '',
+    homePhone: '',
+    workPhone: '',
+    
+    // Mailing Address
+    country: 'CA',
+    province: 'QC',
     address: '',
     city: '',
     postalCode: '',
-    allergies: '',
-    medicalHistory: '',
-    medications: ''
+    
+    // About Your Visit
+    referrals: [],
+    referralOther: '',
+    interests: [],
+    
+    // Skin History
+    skinProducts: '',
+    skinSensitivities: false,
+    skinSensitivitiesText: '',
+    vitaminA: false,
+    vitaminAText: '',
+    accutane: false,
+    accutaneText: '',
+    chemicalPeel: false,
+    chemicalPeelText: '',
+    laserTreatments: false,
+    laserTreatmentsText: '',
+    botoxDermal: false,
+    botoxDermalText: '',
+    waxDepilatory: false,
+    waxDepilatoryText: '',
+    
+    // Medical History
+    familyPhysician: '',
+    weight: '',
+    height: '',
+    pastIllnessSurgery: '',
+    medications: '',
+    currentConditions: '',
+    specialistTreatment: false,
+    specialistTreatmentText: '',
+    pregnant: false,
+    pregnantText: '',
+    smoker: false,
+    cigarettesPerDay: '',
+    
+    // Medical Conditions
+    medicalConditions: [],
+    allergiesDetail: '',
+    severeAllergicDetail: '',
+    neurologicalDetail: '',
+    otherMedical: false,
+    otherMedicalText: '',
+    
+    // Sun History
+    sunExposure: '',
+    tanning: false,
+    tanningText: '',
+    sunscreen: false,
+    sunscreenSPF: '',
+    
+    // Consents
+    botoxConsent: '',
+    fillerConsent: '',
+    photoConsent: '',
   })
 
-  const steps = [
-    { id: 'botox', title: 'Botox Consent', icon: Icons.Syringe },
-    { id: 'filler', title: 'Filler Consent', icon: Icons.Syringe },
-    { id: 'photo', title: 'Photo Consent', icon: Icons.Camera },
-    { id: 'registration', title: 'Patient Registration', icon: Icons.User }
-  ]
+  const updateField = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
 
-  const handleSelectType = (type) => {
-    setRegistrationType(type)
+  const toggleArrayField = (field, value) => {
+    setFormData(prev => {
+      const arr = prev[field] || []
+      if (arr.includes(value)) {
+        return { ...prev, [field]: arr.filter(v => v !== value) }
+      } else {
+        return { ...prev, [field]: [...arr, value] }
+      }
+    })
+  }
+
+  const handleContinue = () => {
     setShowTypeModal(false)
   }
 
-  const handleConsentChange = (type, field, value) => {
-    setConsents(prev => ({
-      ...prev,
-      [type]: {
-        ...prev[type],
-        [field]: value
+  const validateForm = () => {
+    const errs = []
+    
+    // Required fields for both types
+    if (!formData.firstName.trim()) errs.push('First name is required')
+    if (!formData.lastName.trim()) errs.push('Last name is required')
+    if (!formData.birthday) errs.push('Birthday is required')
+    
+    // Additional required fields for full registration
+    if (registrationType === 'full') {
+      if (!formData.genderIdentity) errs.push('Gender identity is required')
+      if (!formData.sexAtBirth) errs.push('Sex assigned at birth is required')
+      if (!formData.ethnicity) errs.push('Ethnicity is required')
+      if (!formData.email.trim()) errs.push('Email is required')
+      if (!formData.cellPhone.trim()) errs.push('Cell phone is required')
+      if (!formData.country) errs.push('Country is required')
+      if (!formData.province) errs.push('Province/State is required')
+      if (!formData.address.trim()) errs.push('Address is required')
+      if (!formData.city.trim()) errs.push('City is required')
+      if (!formData.postalCode.trim()) errs.push('Postal code is required')
+      
+      // Consent validation
+      if (selectedConsents.botox && !formData.botoxConsent) errs.push('Please accept or decline Botox consent')
+      if (selectedConsents.filler && !formData.fillerConsent) errs.push('Please accept or decline Filler consent')
+      if (selectedConsents.photo && !formData.photoConsent) errs.push('Please accept or decline Photo consent')
+    }
+    
+    setErrors(errs)
+    return errs.length === 0
+  }
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+    
+    setSaving(true)
+    
+    try {
+      // Préparer les données patient
+      const patientData = {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email || null,
+        phone: formData.cellPhone || null,
+        birthdate: formData.birthday || null,
+        user_id: session.user.id,
+        clinic_id: userClinic?.id || null,
+        // Stocker les données additionnelles en JSON
+        metadata: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          genderIdentity: formData.genderIdentity,
+          sexAtBirth: formData.sexAtBirth,
+          ethnicity: formData.ethnicity,
+          homePhone: formData.homePhone,
+          workPhone: formData.workPhone,
+          address: formData.address,
+          city: formData.city,
+          province: formData.province,
+          country: formData.country,
+          postalCode: formData.postalCode,
+          referrals: formData.referrals,
+          interests: formData.interests,
+          skinHistory: {
+            products: formData.skinProducts,
+            sensitivities: formData.skinSensitivities ? formData.skinSensitivitiesText : null,
+            vitaminA: formData.vitaminA ? formData.vitaminAText : null,
+            accutane: formData.accutane ? formData.accutaneText : null,
+            chemicalPeel: formData.chemicalPeel ? formData.chemicalPeelText : null,
+            laser: formData.laserTreatments ? formData.laserTreatmentsText : null,
+            botoxDermal: formData.botoxDermal ? formData.botoxDermalText : null,
+            waxDepilatory: formData.waxDepilatory ? formData.waxDepilatoryText : null,
+          },
+          medicalHistory: {
+            physician: formData.familyPhysician,
+            weight: formData.weight,
+            height: formData.height,
+            pastIllness: formData.pastIllnessSurgery,
+            medications: formData.medications,
+            conditions: formData.currentConditions,
+            specialistTreatment: formData.specialistTreatment ? formData.specialistTreatmentText : null,
+            pregnant: formData.pregnant ? formData.pregnantText : null,
+            smoker: formData.smoker ? formData.cigarettesPerDay : null,
+          },
+          medicalConditions: formData.medicalConditions,
+          sunHistory: {
+            exposure: formData.sunExposure,
+            tanning: formData.tanning ? formData.tanningText : null,
+            sunscreen: formData.sunscreen ? formData.sunscreenSPF : null,
+          },
+          consents: {
+            botox: formData.botoxConsent === 'accept',
+            filler: formData.fillerConsent === 'accept',
+            photo: formData.photoConsent === 'accept',
+            timestamp: new Date().toISOString(),
+          },
+          registrationType: registrationType,
+        }
       }
-    }))
-  }
-
-  const canProceed = () => {
-    const currentStepId = steps[currentStep].id
-    if (currentStepId === 'botox') {
-      return consents.botox.agreed && consents.botox.signature.length > 0
-    }
-    if (currentStepId === 'filler') {
-      return consents.filler.agreed && consents.filler.signature.length > 0
-    }
-    if (currentStepId === 'photo') {
-      return consents.photo.agreed && consents.photo.signature.length > 0
-    }
-    return true
-  }
-
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1)
+      
+      const { error } = await supabase
+        .from('patients')
+        .insert([patientData])
+      
+      if (error) throw error
+      
+      alert('Patient registered successfully!')
+      onComplete()
+      
+    } catch (error) {
+      console.error('Error:', error)
+      setErrors([error.message])
+    } finally {
+      setSaving(false)
     }
   }
 
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
-    }
+  // Styles communs
+  const cardStyle = {
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border)',
+    borderRadius: '12px',
+    marginBottom: '1rem',
+    overflow: 'hidden'
+  }
+  
+  const cardHeaderStyle = {
+    padding: '1rem 1.25rem',
+    borderBottom: '1px solid var(--border)',
+    background: 'var(--bg-sidebar)'
+  }
+  
+  const cardBodyStyle = {
+    padding: '1.25rem'
+  }
+  
+  const sectionTitleStyle = {
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    color: 'var(--text-primary)',
+    margin: 0
   }
 
-  // Modal choix du type d'inscription
+  const inputStyle = {
+    width: '100%',
+    padding: '0.625rem 0.875rem',
+    border: '1px solid var(--border)',
+    borderRadius: '6px',
+    fontSize: '0.875rem',
+    background: 'var(--bg-input)',
+    color: 'var(--text-primary)'
+  }
+
+  const selectStyle = {
+    ...inputStyle,
+    cursor: 'pointer'
+  }
+
+  const labelStyle = {
+    display: 'block',
+    marginBottom: '0.5rem',
+    fontSize: '0.875rem',
+    fontWeight: '500',
+    color: 'var(--text-secondary)'
+  }
+
+  const requiredStyle = {
+    color: 'var(--danger)',
+    marginLeft: '4px'
+  }
+
+  const checkboxLabelStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    cursor: 'pointer',
+    fontSize: '0.875rem',
+    color: 'var(--text-primary)',
+    marginBottom: '0.5rem'
+  }
+
+  const isFullReg = registrationType === 'full'
+  const showSection = (section) => {
+    if (registrationType === 'quick') {
+      return QUICK_REG_SECTIONS.includes(section)
+    }
+    return FULL_REG_SECTIONS.includes(section)
+  }
+
+  // Modal de sélection du type
   const renderTypeModal = () => (
     <div className="modal-overlay">
-      <div className="modal" style={{ maxWidth: '550px' }}>
+      <div className="modal" style={{ maxWidth: '600px' }}>
         <div className="modal-header">
-          <h2 className="modal-title">Registration Type</h2>
-          <button className="modal-close" onClick={onBack}><Icons.X /></button>
+          <h2 className="modal-title">Patient Registration</h2>
         </div>
-        <div className="modal-body" style={{ padding: '2rem' }}>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', textAlign: 'center' }}>
-            Please select the registration type for this patient
-          </p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            {/* Quick Register */}
-            <div 
-              onClick={() => handleSelectType('quick')}
-              style={{
-                border: '2px solid var(--border)',
-                borderRadius: '12px',
-                padding: '1.5rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                textAlign: 'center',
-                background: 'var(--bg-card-hover)'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: 'var(--primary-bg)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 1rem',
-                color: 'var(--primary)'
-              }}>
-                <Icons.Zap />
-              </div>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-                Quick Register
-              </h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Basic information only. Consent forms and full details can be completed later.
-              </p>
-            </div>
-
-            {/* Full Register */}
-            <div 
-              onClick={() => handleSelectType('full')}
-              style={{
-                border: '2px solid var(--border)',
-                borderRadius: '12px',
-                padding: '1.5rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                textAlign: 'center',
-                background: 'var(--bg-card-hover)'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: 'var(--primary-bg)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 1rem',
-                color: 'var(--primary)'
-              }}>
-                <Icons.FileText />
-              </div>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+        <div className="modal-body" style={{ padding: '1.5rem' }}>
+          {/* Registration Type */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ fontWeight: '600', marginBottom: '0.75rem', display: 'block' }}>
+              Registration Type:
+            </label>
+            <div style={{ display: 'flex', gap: '1.5rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name="regType"
+                  checked={registrationType === 'full'}
+                  onChange={() => setRegistrationType('full')}
+                />
                 Full Register
-              </h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Complete registration with all consent forms and detailed patient information.
-              </p>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name="regType"
+                  checked={registrationType === 'quick'}
+                  onChange={() => setRegistrationType('quick')}
+                />
+                Quick Register
+              </label>
             </div>
           </div>
+
+          {/* Consent Forms Selection */}
+          <div>
+            <label style={{ fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>
+              Consent Forms:
+            </label>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+              Select which consent forms to attach to the patient's in-take.
+            </p>
+            
+            <label style={checkboxLabelStyle}>
+              <input
+                type="checkbox"
+                checked={selectedConsents.botox}
+                onChange={(e) => setSelectedConsents(prev => ({ ...prev, botox: e.target.checked }))}
+              />
+              Botulinum Toxin Consent
+            </label>
+            
+            <label style={checkboxLabelStyle}>
+              <input
+                type="checkbox"
+                checked={selectedConsents.filler}
+                onChange={(e) => setSelectedConsents(prev => ({ ...prev, filler: e.target.checked }))}
+              />
+              Dermal Filler Consent
+            </label>
+            
+            <label style={checkboxLabelStyle}>
+              <input
+                type="checkbox"
+                checked={selectedConsents.photo}
+                onChange={(e) => setSelectedConsents(prev => ({ ...prev, photo: e.target.checked }))}
+              />
+              Photo Consent
+            </label>
+          </div>
+        </div>
+        <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <button className="btn btn-outline" onClick={onBack}>Cancel</button>
+          <button className="btn btn-primary" onClick={handleContinue}>Continue</button>
         </div>
       </div>
     </div>
   )
 
-  // Formulaire de consentement Botox
-  const renderBotoxConsent = () => (
-    <div className="card">
-      <div className="card-header">
-        <h2 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Icons.Syringe /> Botox Consent Form
-        </h2>
-      </div>
-      <div className="card-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-        <div style={{ 
-          background: 'var(--bg-input)', 
-          borderRadius: '8px', 
-          padding: '1.5rem', 
-          marginBottom: '1.5rem',
-          fontSize: '0.9rem',
-          lineHeight: '1.7',
-          color: 'var(--text-secondary)'
-        }}>
-          <h3 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>BOTULINUM TOXIN (BOTOX®, DYSPORT®, XEOMIN®) INFORMED CONSENT</h3>
-          
-          <p><strong>INTRODUCTION:</strong></p>
-          <p style={{ marginBottom: '1rem' }}>
-            Botulinum Toxin is a protein complex produced by the bacterium Clostridium botulinum. 
-            It is used to temporarily improve the appearance of moderate to severe lines and wrinkles.
-          </p>
-
-          <p><strong>TREATMENT AREAS MAY INCLUDE:</strong></p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>Forehead lines</li>
-            <li>Frown lines (between the eyebrows)</li>
-            <li>Crow's feet (lines around the eyes)</li>
-            <li>Bunny lines (on the nose)</li>
-            <li>Lip lines and lip flip</li>
-            <li>Chin dimpling</li>
-            <li>Neck bands</li>
-            <li>Masseter (jaw) reduction</li>
-            <li>Hyperhidrosis (excessive sweating)</li>
-          </ul>
-
-          <p><strong>RISKS AND COMPLICATIONS:</strong></p>
-          <p style={{ marginBottom: '1rem' }}>
-            As with any medical procedure, there are potential risks and side effects. These may include:
-          </p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>Pain, bruising, swelling, or redness at injection sites</li>
-            <li>Headache or flu-like symptoms</li>
-            <li>Temporary drooping of the eyelid or eyebrow</li>
-            <li>Asymmetry or uneven results</li>
-            <li>Allergic reactions (rare)</li>
-            <li>Spread of toxin effects (rare)</li>
-          </ul>
-
-          <p><strong>CONTRAINDICATIONS:</strong></p>
-          <p style={{ marginBottom: '1rem' }}>
-            Treatment is not recommended if you:
-          </p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>Are pregnant or breastfeeding</li>
-            <li>Have a neuromuscular disease (e.g., ALS, myasthenia gravis)</li>
-            <li>Have an infection at the injection site</li>
-            <li>Are allergic to any botulinum toxin product</li>
-            <li>Are taking certain medications (aminoglycosides, blood thinners)</li>
-          </ul>
-
-          <p><strong>POST-TREATMENT INSTRUCTIONS:</strong></p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>Do not rub or massage treated areas for 24 hours</li>
-            <li>Remain upright for 4 hours after treatment</li>
-            <li>Avoid strenuous exercise for 24 hours</li>
-            <li>Results typically appear within 3-7 days</li>
-            <li>Full effects may take up to 14 days</li>
-            <li>Results typically last 3-4 months</li>
-          </ul>
-
-          <p><strong>ACKNOWLEDGEMENT:</strong></p>
-          <p>
-            I have read and understand the above information. I have had the opportunity to ask questions 
-            and all my questions have been answered to my satisfaction. I understand the risks, benefits, 
-            and alternatives to this treatment. I consent to the administration of Botulinum Toxin injections.
-          </p>
-        </div>
-
-        {/* Checkbox d'accord */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'flex-start', 
-            gap: '0.75rem',
-            cursor: 'pointer',
-            padding: '1rem',
-            background: consents.botox.agreed ? 'var(--success-bg)' : 'var(--bg-card-hover)',
-            borderRadius: '8px',
-            border: `1px solid ${consents.botox.agreed ? 'var(--success)' : 'var(--border)'}`
-          }}>
-            <input
-              type="checkbox"
-              checked={consents.botox.agreed}
-              onChange={(e) => handleConsentChange('botox', 'agreed', e.target.checked)}
-              style={{ width: '20px', height: '20px', marginTop: '2px' }}
-            />
-            <span style={{ color: 'var(--text-primary)' }}>
-              I have read, understood, and agree to the terms outlined in this Botox consent form. 
-              I acknowledge that I have been given the opportunity to ask questions and that all 
-              my questions have been answered satisfactorily.
-            </span>
-          </label>
-        </div>
-
-        {/* Signature */}
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Patient Signature (Type Full Name) *</label>
-            <input
-              type="text"
-              className="form-input"
-              value={consents.botox.signature}
-              onChange={(e) => handleConsentChange('botox', 'signature', e.target.value)}
-              placeholder="Type your full legal name"
-              style={{ fontFamily: "'Brush Script MT', cursive", fontSize: '1.2rem' }}
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Date</label>
-            <input
-              type="date"
-              className="form-input"
-              value={consents.botox.date}
-              onChange={(e) => handleConsentChange('botox', 'date', e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  // Formulaire de consentement Filler
-  const renderFillerConsent = () => (
-    <div className="card">
-      <div className="card-header">
-        <h2 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Icons.Syringe /> Dermal Filler Consent Form
-        </h2>
-      </div>
-      <div className="card-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-        <div style={{ 
-          background: 'var(--bg-input)', 
-          borderRadius: '8px', 
-          padding: '1.5rem', 
-          marginBottom: '1.5rem',
-          fontSize: '0.9rem',
-          lineHeight: '1.7',
-          color: 'var(--text-secondary)'
-        }}>
-          <h3 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>DERMAL FILLER INFORMED CONSENT</h3>
-          
-          <p><strong>INTRODUCTION:</strong></p>
-          <p style={{ marginBottom: '1rem' }}>
-            Dermal fillers are injectable gels used to restore volume, smooth lines, soften creases, 
-            and enhance facial contours. Common fillers include Hyaluronic Acid (Juvederm®, Restylane®, 
-            Belotero®), Calcium Hydroxylapatite (Radiesse®), and Poly-L-lactic Acid (Sculptra®).
-          </p>
-
-          <p><strong>TREATMENT AREAS MAY INCLUDE:</strong></p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>Nasolabial folds (smile lines)</li>
-            <li>Marionette lines</li>
-            <li>Lips (volume and definition)</li>
-            <li>Cheeks and midface</li>
-            <li>Under-eye hollows (tear troughs)</li>
-            <li>Jawline and chin</li>
-            <li>Temples</li>
-            <li>Nose (non-surgical rhinoplasty)</li>
-            <li>Hands</li>
-          </ul>
-
-          <p><strong>RISKS AND COMPLICATIONS:</strong></p>
-          <p style={{ marginBottom: '1rem' }}>
-            As with any medical procedure, there are potential risks and side effects:
-          </p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>Pain, bruising, swelling, redness at injection sites</li>
-            <li>Lumps, bumps, or irregularities</li>
-            <li>Asymmetry</li>
-            <li>Infection</li>
-            <li>Allergic reaction</li>
-            <li>Migration of filler material</li>
-            <li>Nodules or granulomas</li>
-            <li>Skin necrosis (tissue death) - rare but serious</li>
-            <li>Vascular occlusion (blocked blood vessel) - rare but serious</li>
-            <li>Blindness (extremely rare)</li>
-          </ul>
-
-          <p><strong>CONTRAINDICATIONS:</strong></p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>Pregnancy or breastfeeding</li>
-            <li>Active skin infection or inflammation in treatment area</li>
-            <li>History of severe allergies or anaphylaxis</li>
-            <li>Autoimmune diseases</li>
-            <li>Bleeding disorders or use of blood thinners</li>
-            <li>Previous adverse reaction to fillers</li>
-          </ul>
-
-          <p><strong>POST-TREATMENT INSTRUCTIONS:</strong></p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>Apply ice to reduce swelling</li>
-            <li>Avoid touching or massaging the area for 24-48 hours</li>
-            <li>Avoid strenuous exercise for 24-48 hours</li>
-            <li>Avoid extreme heat (sauna, hot tub) for 2 weeks</li>
-            <li>Avoid dental procedures for 2 weeks</li>
-            <li>Results are immediate but may take 2 weeks to fully settle</li>
-            <li>Duration varies by product (6 months to 2 years)</li>
-          </ul>
-
-          <p><strong>EMERGENCY PROTOCOL:</strong></p>
-          <p style={{ marginBottom: '1rem' }}>
-            If you experience severe pain, blanching (whitening) of the skin, or changes in vision 
-            after treatment, contact our clinic immediately or go to the emergency room. These could 
-            be signs of vascular compromise requiring immediate treatment.
-          </p>
-
-          <p><strong>ACKNOWLEDGEMENT:</strong></p>
-          <p>
-            I have read and understand the above information regarding dermal filler treatment. 
-            I have had the opportunity to ask questions and all my questions have been answered. 
-            I understand the risks, benefits, and alternatives. I consent to dermal filler treatment.
-          </p>
-        </div>
-
-        {/* Checkbox d'accord */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'flex-start', 
-            gap: '0.75rem',
-            cursor: 'pointer',
-            padding: '1rem',
-            background: consents.filler.agreed ? 'var(--success-bg)' : 'var(--bg-card-hover)',
-            borderRadius: '8px',
-            border: `1px solid ${consents.filler.agreed ? 'var(--success)' : 'var(--border)'}`
-          }}>
-            <input
-              type="checkbox"
-              checked={consents.filler.agreed}
-              onChange={(e) => handleConsentChange('filler', 'agreed', e.target.checked)}
-              style={{ width: '20px', height: '20px', marginTop: '2px' }}
-            />
-            <span style={{ color: 'var(--text-primary)' }}>
-              I have read, understood, and agree to the terms outlined in this Dermal Filler consent form. 
-              I acknowledge that I have been informed of the risks including vascular occlusion and 
-              understand the emergency protocol.
-            </span>
-          </label>
-        </div>
-
-        {/* Signature */}
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Patient Signature (Type Full Name) *</label>
-            <input
-              type="text"
-              className="form-input"
-              value={consents.filler.signature}
-              onChange={(e) => handleConsentChange('filler', 'signature', e.target.value)}
-              placeholder="Type your full legal name"
-              style={{ fontFamily: "'Brush Script MT', cursive", fontSize: '1.2rem' }}
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Date</label>
-            <input
-              type="date"
-              className="form-input"
-              value={consents.filler.date}
-              onChange={(e) => handleConsentChange('filler', 'date', e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  // Formulaire de consentement Photo
-  const renderPhotoConsent = () => (
-    <div className="card">
-      <div className="card-header">
-        <h2 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Icons.Camera /> Photo Consent Form
-        </h2>
-      </div>
-      <div className="card-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-        <div style={{ 
-          background: 'var(--bg-input)', 
-          borderRadius: '8px', 
-          padding: '1.5rem', 
-          marginBottom: '1.5rem',
-          fontSize: '0.9rem',
-          lineHeight: '1.7',
-          color: 'var(--text-secondary)'
-        }}>
-          <h3 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>PHOTOGRAPH AND VIDEO CONSENT FORM</h3>
-          
-          <p><strong>PURPOSE:</strong></p>
-          <p style={{ marginBottom: '1rem' }}>
-            Photographs and/or videos are taken as part of your medical record to document your condition 
-            before, during, and after treatment. These images help us track your progress and provide 
-            the best possible care.
-          </p>
-
-          <p><strong>USE OF PHOTOGRAPHS/VIDEOS:</strong></p>
-          <p style={{ marginBottom: '1rem' }}>
-            Your photographs and/or videos may be used for the following purposes:
-          </p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li><strong>Medical Records:</strong> Documentation of your treatment progress (required)</li>
-            <li><strong>Educational Purposes:</strong> Training of medical staff and students</li>
-            <li><strong>Marketing/Promotional:</strong> Website, social media, brochures, presentations</li>
-            <li><strong>Scientific Publications:</strong> Medical journals, conferences, research</li>
-          </ul>
-
-          <p><strong>CONFIDENTIALITY:</strong></p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>Your photographs will be stored securely in compliance with privacy regulations</li>
-            <li>For medical records: Your identity is protected and images are part of your confidential file</li>
-            <li>For marketing/educational use: Your identity may or may not be recognizable</li>
-            <li>No photographs will be used without your explicit consent for each use category</li>
-          </ul>
-
-          <p><strong>YOUR RIGHTS:</strong></p>
-          <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-            <li>You have the right to refuse photography (except for medical documentation)</li>
-            <li>You may withdraw consent for marketing/educational use at any time</li>
-            <li>Withdrawal of consent does not affect your treatment or care</li>
-            <li>You may request copies of your photographs for your own records</li>
-          </ul>
-
-          <p><strong>ACKNOWLEDGEMENT:</strong></p>
-          <p>
-            I understand that photographs and/or videos will be taken as part of my medical record. 
-            I consent to the use of my images as indicated by my selections below.
-          </p>
-        </div>
-
-        {/* Options de consentement */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <p style={{ fontWeight: '600', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-            I consent to the use of my photographs/videos for:
-          </p>
-          
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.75rem',
-            cursor: 'pointer',
-            padding: '0.75rem 1rem',
-            background: 'var(--bg-card-hover)',
-            borderRadius: '8px',
-            marginBottom: '0.5rem',
-            border: '1px solid var(--border)'
-          }}>
-            <input type="checkbox" checked disabled style={{ width: '18px', height: '18px' }} />
-            <span style={{ color: 'var(--text-primary)' }}>
-              <strong>Medical Records</strong> (Required for treatment)
-            </span>
-          </label>
-
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.75rem',
-            cursor: 'pointer',
-            padding: '0.75rem 1rem',
-            background: 'var(--bg-card-hover)',
-            borderRadius: '8px',
-            marginBottom: '0.5rem',
-            border: '1px solid var(--border)'
-          }}>
-            <input type="checkbox" style={{ width: '18px', height: '18px' }} />
-            <span style={{ color: 'var(--text-primary)' }}>
-              <strong>Educational Purposes</strong> (Training, presentations)
-            </span>
-          </label>
-
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.75rem',
-            cursor: 'pointer',
-            padding: '0.75rem 1rem',
-            background: 'var(--bg-card-hover)',
-            borderRadius: '8px',
-            marginBottom: '0.5rem',
-            border: '1px solid var(--border)'
-          }}>
-            <input type="checkbox" style={{ width: '18px', height: '18px' }} />
-            <span style={{ color: 'var(--text-primary)' }}>
-              <strong>Marketing/Promotional</strong> (Website, social media, brochures)
-            </span>
-          </label>
-
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.75rem',
-            cursor: 'pointer',
-            padding: '0.75rem 1rem',
-            background: 'var(--bg-card-hover)',
-            borderRadius: '8px',
-            border: '1px solid var(--border)'
-          }}>
-            <input type="checkbox" style={{ width: '18px', height: '18px' }} />
-            <span style={{ color: 'var(--text-primary)' }}>
-              <strong>Scientific Publications</strong> (Medical journals, research)
-            </span>
-          </label>
-        </div>
-
-        {/* Checkbox principal */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'flex-start', 
-            gap: '0.75rem',
-            cursor: 'pointer',
-            padding: '1rem',
-            background: consents.photo.agreed ? 'var(--success-bg)' : 'var(--bg-card-hover)',
-            borderRadius: '8px',
-            border: `1px solid ${consents.photo.agreed ? 'var(--success)' : 'var(--border)'}`
-          }}>
-            <input
-              type="checkbox"
-              checked={consents.photo.agreed}
-              onChange={(e) => handleConsentChange('photo', 'agreed', e.target.checked)}
-              style={{ width: '20px', height: '20px', marginTop: '2px' }}
-            />
-            <span style={{ color: 'var(--text-primary)' }}>
-              I have read and understand this photo consent form. I agree to have photographs and/or 
-              videos taken for the purposes indicated above. I understand I may withdraw consent for 
-              non-medical uses at any time.
-            </span>
-          </label>
-        </div>
-
-        {/* Signature */}
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Patient Signature (Type Full Name) *</label>
-            <input
-              type="text"
-              className="form-input"
-              value={consents.photo.signature}
-              onChange={(e) => handleConsentChange('photo', 'signature', e.target.value)}
-              placeholder="Type your full legal name"
-              style={{ fontFamily: "'Brush Script MT', cursive", fontSize: '1.2rem' }}
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Date</label>
-            <input
-              type="date"
-              className="form-input"
-              value={consents.photo.date}
-              onChange={(e) => handleConsentChange('photo', 'date', e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  // Placeholder pour le formulaire d'inscription (à développer)
-  const renderRegistrationForm = () => (
-    <div className="card">
-      <div className="card-header">
-        <h2 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Icons.User /> Patient Registration
-        </h2>
-      </div>
-      <div className="card-body">
-        <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>
-          Le formulaire d'inscription complet sera ajouté ici.
-        </p>
-      </div>
-    </div>
-  )
-
-  const renderCurrentStep = () => {
-    switch (steps[currentStep].id) {
-      case 'botox': return renderBotoxConsent()
-      case 'filler': return renderFillerConsent()
-      case 'photo': return renderPhotoConsent()
-      case 'registration': return renderRegistrationForm()
-      default: return null
-    }
-  }
-
-  // Si modal de type est affiché
   if (showTypeModal) {
     return renderTypeModal()
   }
@@ -698,97 +510,813 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
       <div className="page-breadcrumb">
         <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>Home</a> | 
         <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}> Patients</a> | 
-        Register Patient Internally
+        Register
       </div>
-      <div className="page-header">
+      <h1 className="page-title">PATIENT REGISTRATION</h1>
+
+      {/* Type Toggle */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '1rem', 
+        marginBottom: '1.5rem',
+        padding: '0.75rem 1rem',
+        background: 'var(--bg-card)',
+        borderRadius: '8px',
+        border: '1px solid var(--border)'
+      }}>
+        <span style={{ fontWeight: '500' }}>Type:</span>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+          <input
+            type="radio"
+            name="regTypeInline"
+            checked={registrationType === 'full'}
+            onChange={() => setRegistrationType('full')}
+          />
+          Full Register
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+          <input
+            type="radio"
+            name="regTypeInline"
+            checked={registrationType === 'quick'}
+            onChange={() => setRegistrationType('quick')}
+          />
+          Quick Register
+        </label>
+      </div>
+
+      {/* Errors */}
+      {errors.length > 0 && (
+        <div style={{
+          background: 'var(--danger-bg)',
+          border: '1px solid var(--danger)',
+          borderRadius: '8px',
+          padding: '1rem',
+          marginBottom: '1.5rem'
+        }}>
+          <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--danger)' }}>
+            {errors.map((err, i) => <li key={i}>{err}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {/* Two Column Layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        
+        {/* LEFT COLUMN */}
         <div>
-          <h1 className="page-title">REGISTER PATIENT INTERNALLY</h1>
-          <p className="page-subtitle">
-            {registrationType === 'quick' ? 'Quick Registration' : 'Full Registration'} - 
-            Step {currentStep + 1} of {steps.length}
-          </p>
+          {/* Logo/Clinic Card */}
+          <div style={cardStyle}>
+            <div style={{ ...cardBodyStyle, textAlign: 'center', padding: '2rem' }}>
+              <div style={{ 
+                fontSize: '2rem', 
+                fontWeight: '600', 
+                color: 'var(--primary)',
+                marginBottom: '0.5rem'
+              }}>
+                FaceHub
+              </div>
+              {userClinic && (
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                  {userClinic.name}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Personal Details */}
+          {showSection('personal-details') && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Personal Details</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>
+                      First Name <span style={requiredStyle}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      style={inputStyle}
+                      value={formData.firstName}
+                      onChange={(e) => updateField('firstName', e.target.value)}
+                      placeholder="Enter first name"
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>
+                      Last Name <span style={requiredStyle}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      style={inputStyle}
+                      value={formData.lastName}
+                      onChange={(e) => updateField('lastName', e.target.value)}
+                      placeholder="Enter last name"
+                    />
+                  </div>
+                  
+                  {isFullReg && (
+                    <>
+                      <div>
+                        <label style={labelStyle}>
+                          Gender Identity <span style={requiredStyle}>*</span>
+                        </label>
+                        <select
+                          style={selectStyle}
+                          value={formData.genderIdentity}
+                          onChange={(e) => updateField('genderIdentity', e.target.value)}
+                        >
+                          <option value="">Select...</option>
+                          {GENDER_OPTIONS.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label style={labelStyle}>
+                          Sex Assigned at Birth <span style={requiredStyle}>*</span>
+                        </label>
+                        <select
+                          style={selectStyle}
+                          value={formData.sexAtBirth}
+                          onChange={(e) => updateField('sexAtBirth', e.target.value)}
+                        >
+                          <option value="">Select...</option>
+                          {SEX_OPTIONS.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )}
+                  
+                  <div>
+                    <label style={labelStyle}>
+                      Birthday <span style={requiredStyle}>*</span>
+                    </label>
+                    <input
+                      type="date"
+                      style={inputStyle}
+                      value={formData.birthday}
+                      onChange={(e) => updateField('birthday', e.target.value)}
+                    />
+                  </div>
+                  
+                  {isFullReg && (
+                    <div>
+                      <label style={labelStyle}>
+                        Ethnicity <span style={requiredStyle}>*</span>
+                      </label>
+                      <select
+                        style={selectStyle}
+                        value={formData.ethnicity}
+                        onChange={(e) => updateField('ethnicity', e.target.value)}
+                      >
+                        <option value="">Select...</option>
+                        {ETHNICITY_OPTIONS.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Contact Information */}
+          {showSection('contact-information') && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Contact Information</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>
+                      Email <span style={requiredStyle}>*</span>
+                    </label>
+                    <input
+                      type="email"
+                      style={inputStyle}
+                      value={formData.email}
+                      onChange={(e) => updateField('email', e.target.value)}
+                      placeholder="Enter email"
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>
+                      Cell Phone <span style={requiredStyle}>*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      style={inputStyle}
+                      value={formData.cellPhone}
+                      onChange={(e) => updateField('cellPhone', e.target.value)}
+                      placeholder="(000) 000-0000"
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Home Phone</label>
+                    <input
+                      type="tel"
+                      style={inputStyle}
+                      value={formData.homePhone}
+                      onChange={(e) => updateField('homePhone', e.target.value)}
+                      placeholder="(000) 000-0000"
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Work Phone</label>
+                    <input
+                      type="tel"
+                      style={inputStyle}
+                      value={formData.workPhone}
+                      onChange={(e) => updateField('workPhone', e.target.value)}
+                      placeholder="(000) 000-0000"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Mailing Address */}
+          {showSection('mailing-address') && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Mailing Address</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>
+                      Country <span style={requiredStyle}>*</span>
+                    </label>
+                    <select
+                      style={selectStyle}
+                      value={formData.country}
+                      onChange={(e) => updateField('country', e.target.value)}
+                    >
+                      {COUNTRY_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>
+                      {formData.country === 'US' ? 'State' : 'Province'} <span style={requiredStyle}>*</span>
+                    </label>
+                    <select
+                      style={selectStyle}
+                      value={formData.province}
+                      onChange={(e) => updateField('province', e.target.value)}
+                    >
+                      <option value="">Select...</option>
+                      {PROVINCE_OPTIONS.map(group => (
+                        <optgroup key={group.group} label={group.group}>
+                          {group.options.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={labelStyle}>
+                      Address <span style={requiredStyle}>*</span>
+                    </label>
+                    <textarea
+                      style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                      value={formData.address}
+                      onChange={(e) => updateField('address', e.target.value)}
+                      placeholder="Enter mailing address"
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>
+                      City <span style={requiredStyle}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      style={inputStyle}
+                      value={formData.city}
+                      onChange={(e) => updateField('city', e.target.value)}
+                      placeholder="Enter city"
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>
+                      {formData.country === 'US' ? 'Zip Code' : 'Postal Code'} <span style={requiredStyle}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      style={inputStyle}
+                      value={formData.postalCode}
+                      onChange={(e) => updateField('postalCode', e.target.value)}
+                      placeholder={formData.country === 'US' ? 'Enter zip code' : 'Enter postal code'}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* About Your Visit */}
+          {showSection('about-visit') && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>About Your Visit</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  <div>
+                    <label style={{ ...labelStyle, marginBottom: '1rem' }}>How did you hear about us?</label>
+                    {REFERRAL_OPTIONS.map(opt => (
+                      <label key={opt} style={checkboxLabelStyle}>
+                        <input
+                          type="checkbox"
+                          checked={formData.referrals.includes(opt)}
+                          onChange={() => toggleArrayField('referrals', opt)}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                    <label style={checkboxLabelStyle}>
+                      <input
+                        type="checkbox"
+                        checked={formData.referrals.includes('Other')}
+                        onChange={() => toggleArrayField('referrals', 'Other')}
+                      />
+                      Other
+                    </label>
+                    {formData.referrals.includes('Other') && (
+                      <input
+                        type="text"
+                        style={{ ...inputStyle, marginTop: '0.5rem' }}
+                        value={formData.referralOther}
+                        onChange={(e) => updateField('referralOther', e.target.value)}
+                        placeholder="Please specify"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <label style={{ ...labelStyle, marginBottom: '1rem' }}>What are you interested in?</label>
+                    {INTEREST_OPTIONS.map(opt => (
+                      <label key={opt} style={checkboxLabelStyle}>
+                        <input
+                          type="checkbox"
+                          checked={formData.interests.includes(opt)}
+                          onChange={() => toggleArrayField('interests', opt)}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Skin History */}
+          {showSection('skin-history') && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Skin History</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={labelStyle}>What products are you currently using on your skin:</label>
+                  <textarea
+                    style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                    value={formData.skinProducts}
+                    onChange={(e) => updateField('skinProducts', e.target.value)}
+                  />
+                </div>
+                
+                {[
+                  { field: 'skinSensitivities', textField: 'skinSensitivitiesText', label: 'Do you have any particular skin sensitivities?' },
+                  { field: 'vitaminA', textField: 'vitaminAText', label: 'Have you ever used (or are currently using) Vitamin A or glycolic acid?' },
+                  { field: 'accutane', textField: 'accutaneText', label: 'Have you ever used (or are currently using) Accutane?' },
+                  { field: 'chemicalPeel', textField: 'chemicalPeelText', label: 'Have you ever had a chemical peel?' },
+                  { field: 'laserTreatments', textField: 'laserTreatmentsText', label: 'Have you had laser treatments in the past?' },
+                  { field: 'botoxDermal', textField: 'botoxDermalText', label: 'Have you ever had botulinum toxin or dermal fillers?' },
+                  { field: 'waxDepilatory', textField: 'waxDepilatoryText', label: 'Have you waxed or used a depilatory?' },
+                ].map(item => (
+                  <div key={item.field} style={{ marginBottom: '0.75rem' }}>
+                    <label style={checkboxLabelStyle}>
+                      <input
+                        type="checkbox"
+                        checked={formData[item.field]}
+                        onChange={(e) => updateField(item.field, e.target.checked)}
+                      />
+                      {item.label}
+                    </label>
+                    {formData[item.field] && (
+                      <textarea
+                        style={{ ...inputStyle, minHeight: '60px', resize: 'vertical', marginTop: '0.5rem' }}
+                        value={formData[item.textField]}
+                        onChange={(e) => updateField(item.textField, e.target.value)}
+                        placeholder="Please specify further"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sun History */}
+          {showSection('sun-history') && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Sun History</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={labelStyle}>With sun exposure, how does your skin respond?</label>
+                  <select
+                    style={selectStyle}
+                    value={formData.sunExposure}
+                    onChange={(e) => updateField('sunExposure', e.target.value)}
+                  >
+                    <option value="">Select...</option>
+                    {SUN_EXPOSURE_OPTIONS.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <label style={checkboxLabelStyle}>
+                    <input
+                      type="checkbox"
+                      checked={formData.tanning}
+                      onChange={(e) => updateField('tanning', e.target.checked)}
+                    />
+                    Do you sunbathe, use self-tanning lotions, sprays or use tanning beds?
+                  </label>
+                  {formData.tanning && (
+                    <textarea
+                      style={{ ...inputStyle, minHeight: '60px', resize: 'vertical', marginTop: '0.5rem' }}
+                      value={formData.tanningText}
+                      onChange={(e) => updateField('tanningText', e.target.value)}
+                      placeholder="Please specify further"
+                    />
+                  )}
+                </div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <label style={{ ...checkboxLabelStyle, marginBottom: 0 }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.sunscreen}
+                      onChange={(e) => updateField('sunscreen', e.target.checked)}
+                    />
+                    Do you use sunscreen?
+                  </label>
+                  {formData.sunscreen && (
+                    <input
+                      type="text"
+                      style={{ ...inputStyle, width: '150px' }}
+                      value={formData.sunscreenSPF}
+                      onChange={(e) => updateField('sunscreenSPF', e.target.value)}
+                      placeholder="What SPF?"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div>
+          {/* Medical Conditions */}
+          {showSection('medical-conditions') && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Medical Conditions</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <label style={{ ...labelStyle, marginBottom: '1rem' }}>
+                  Do you have any of the following medical conditions?
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem 1rem' }}>
+                  {MEDICAL_CONDITIONS.map(condition => (
+                    <label key={condition} style={checkboxLabelStyle}>
+                      <input
+                        type="checkbox"
+                        checked={formData.medicalConditions.includes(condition)}
+                        onChange={() => toggleArrayField('medicalConditions', condition)}
+                      />
+                      {condition}
+                    </label>
+                  ))}
+                </div>
+                
+                {formData.medicalConditions.includes('Allergies') && (
+                  <div style={{ marginTop: '1rem' }}>
+                    <label style={labelStyle}>Please list any allergies:</label>
+                    <input
+                      type="text"
+                      style={inputStyle}
+                      value={formData.allergiesDetail}
+                      onChange={(e) => updateField('allergiesDetail', e.target.value)}
+                      placeholder="List allergies"
+                    />
+                  </div>
+                )}
+                
+                <div style={{ marginTop: '1rem' }}>
+                  <label style={checkboxLabelStyle}>
+                    <input
+                      type="checkbox"
+                      checked={formData.otherMedical}
+                      onChange={(e) => updateField('otherMedical', e.target.checked)}
+                    />
+                    Other
+                  </label>
+                  {formData.otherMedical && (
+                    <input
+                      type="text"
+                      style={{ ...inputStyle, marginTop: '0.5rem' }}
+                      value={formData.otherMedicalText}
+                      onChange={(e) => updateField('otherMedicalText', e.target.value)}
+                      placeholder="Please specify"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Medical History */}
+          {showSection('medical-history') && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Medical History</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Family Physician</label>
+                    <input
+                      type="text"
+                      style={inputStyle}
+                      value={formData.familyPhysician}
+                      onChange={(e) => updateField('familyPhysician', e.target.value)}
+                      placeholder="Physician's name"
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Weight</label>
+                    <input
+                      type="text"
+                      style={inputStyle}
+                      value={formData.weight}
+                      onChange={(e) => updateField('weight', e.target.value)}
+                      placeholder="Weight"
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Height</label>
+                    <input
+                      type="text"
+                      style={inputStyle}
+                      value={formData.height}
+                      onChange={(e) => updateField('height', e.target.value)}
+                      placeholder="Height"
+                    />
+                  </div>
+                </div>
+                
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={labelStyle}>Please list any past illnesses as well as all minor or major surgeries:</label>
+                  <textarea
+                    style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                    value={formData.pastIllnessSurgery}
+                    onChange={(e) => updateField('pastIllnessSurgery', e.target.value)}
+                  />
+                </div>
+                
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={labelStyle}>Please list all current medications:</label>
+                  <textarea
+                    style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                    value={formData.medications}
+                    onChange={(e) => updateField('medications', e.target.value)}
+                  />
+                </div>
+                
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={labelStyle}>If you are currently being treated for any conditions, please specify:</label>
+                  <textarea
+                    style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                    value={formData.currentConditions}
+                    onChange={(e) => updateField('currentConditions', e.target.value)}
+                  />
+                </div>
+                
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <label style={checkboxLabelStyle}>
+                    <input
+                      type="checkbox"
+                      checked={formData.specialistTreatment}
+                      onChange={(e) => updateField('specialistTreatment', e.target.checked)}
+                    />
+                    Are you currently or have you ever received treatment from an endocrinologist, dermatologist or plastic surgeon?
+                  </label>
+                  {formData.specialistTreatment && (
+                    <textarea
+                      style={{ ...inputStyle, minHeight: '60px', resize: 'vertical', marginTop: '0.5rem' }}
+                      value={formData.specialistTreatmentText}
+                      onChange={(e) => updateField('specialistTreatmentText', e.target.value)}
+                      placeholder="Please specify"
+                    />
+                  )}
+                </div>
+                
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <label style={checkboxLabelStyle}>
+                    <input
+                      type="checkbox"
+                      checked={formData.pregnant}
+                      onChange={(e) => updateField('pregnant', e.target.checked)}
+                    />
+                    Are you currently pregnant, breastfeeding or do you plan to become pregnant in the next year?
+                  </label>
+                  {formData.pregnant && (
+                    <textarea
+                      style={{ ...inputStyle, minHeight: '60px', resize: 'vertical', marginTop: '0.5rem' }}
+                      value={formData.pregnantText}
+                      onChange={(e) => updateField('pregnantText', e.target.value)}
+                      placeholder="Please specify"
+                    />
+                  )}
+                </div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <label style={{ ...checkboxLabelStyle, marginBottom: 0 }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.smoker}
+                      onChange={(e) => updateField('smoker', e.target.checked)}
+                    />
+                    Do you smoke?
+                  </label>
+                  {formData.smoker && (
+                    <input
+                      type="text"
+                      style={{ ...inputStyle, width: '180px' }}
+                      value={formData.cigarettesPerDay}
+                      onChange={(e) => updateField('cigarettesPerDay', e.target.value)}
+                      placeholder="Cigarettes per day"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Consent Forms */}
+          {isFullReg && selectedConsents.botox && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Botulinum Toxin Consent</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ 
+                  maxHeight: '180px', 
+                  overflowY: 'auto', 
+                  padding: '1rem',
+                  background: 'var(--bg-input)',
+                  borderRadius: '6px',
+                  fontSize: '0.85rem',
+                  lineHeight: '1.6',
+                  marginBottom: '1rem'
+                }}>
+                  <p>1. I am aware that when small amounts of purified botulinum toxin are injected into a muscle, the muscle is weakened. This effect appears in 12 - 14 days and usually lasts approximately 3 - 4 months.</p>
+                  <p>2. I understand that this treatment will reduce or eliminate my ability to "frown" and/or produce "crow's feet" or forehead "worry lines" while the injection is effective, but that this will reverse itself after a period of months at which time re-treatment is appropriate.</p>
+                  <p>3. I understand that I must stay in the erect position and may not manipulate the area of injection or participate in strenuous activity for 4 hours after treatment.</p>
+                  <p>4. I agree to return for a follow up visit 10 to 14 days from my treatment.</p>
+                  <p>5. I have been made aware of alternative methods of treatment.</p>
+                  <p>6. To my knowledge, I am not pregnant and do not have any significant neurologic or muscular disease.</p>
+                </div>
+                <select
+                  style={selectStyle}
+                  value={formData.botoxConsent}
+                  onChange={(e) => updateField('botoxConsent', e.target.value)}
+                >
+                  <option value="">Choose an option</option>
+                  <option value="accept">Accept</option>
+                  <option value="decline">Do not accept</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {isFullReg && selectedConsents.filler && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Dermal Filler Consent</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ 
+                  maxHeight: '180px', 
+                  overflowY: 'auto', 
+                  padding: '1rem',
+                  background: 'var(--bg-input)',
+                  borderRadius: '6px',
+                  fontSize: '0.85rem',
+                  lineHeight: '1.6',
+                  marginBottom: '1rem'
+                }}>
+                  <p>I acknowledge that this treatment has been fully explained to me and that I have had the opportunity to ask questions that have been answered to my satisfaction.</p>
+                  <p>I have been specifically informed of the following:</p>
+                  <ul>
+                    <li>Dermal Filler is a transparent, bio-resorbable gel for injection into the skin to correct wrinkles and folds on the face and for lip enhancement.</li>
+                    <li>After the injection, some common injection-related reactions might occur, such as swelling, redness, pain, itching, discoloration, and tenderness at the injection site.</li>
+                    <li>Very rarely, lumps, abscesses and indurations have been reported after injection.</li>
+                  </ul>
+                  <p>I understand the procedure and accept the risks and request that this procedure be performed on me.</p>
+                </div>
+                <select
+                  style={selectStyle}
+                  value={formData.fillerConsent}
+                  onChange={(e) => updateField('fillerConsent', e.target.value)}
+                >
+                  <option value="">Choose an option</option>
+                  <option value="accept">Accept</option>
+                  <option value="decline">Do not accept</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {isFullReg && selectedConsents.photo && (
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <h3 style={sectionTitleStyle}>Photo Consent</h3>
+              </div>
+              <div style={cardBodyStyle}>
+                <div style={{ 
+                  maxHeight: '180px', 
+                  overflowY: 'auto', 
+                  padding: '1rem',
+                  background: 'var(--bg-input)',
+                  borderRadius: '6px',
+                  fontSize: '0.85rem',
+                  lineHeight: '1.6',
+                  marginBottom: '1rem'
+                }}>
+                  <p>Do you consent to having your photographs used for patient education and marketing purposes?</p>
+                  <p>I consent to photographs being taken to evaluate treatment effectiveness, for medical education, training, professional publications, or sales purposes. No photographs revealing my identity will be used without my written consent.</p>
+                </div>
+                <select
+                  style={selectStyle}
+                  value={formData.photoConsent}
+                  onChange={(e) => updateField('photoConsent', e.target.value)}
+                >
+                  <option value="">Choose an option</option>
+                  <option value="accept">Accept</option>
+                  <option value="decline">Do not accept</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Progress Steps */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        marginBottom: '1.5rem',
-        padding: '1rem',
-        background: 'var(--bg-card)',
-        borderRadius: '12px',
-        border: '1px solid var(--border)',
-        overflowX: 'auto'
-      }}>
-        {steps.map((step, index) => (
-          <div key={step.id} style={{ display: 'flex', alignItems: 'center' }}>
-            <div 
-              onClick={() => index <= currentStep && setCurrentStep(index)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                cursor: index <= currentStep ? 'pointer' : 'default',
-                background: index === currentStep ? 'var(--primary)' : 
-                           index < currentStep ? 'var(--success-bg)' : 'var(--bg-card-hover)',
-                color: index === currentStep ? 'white' : 
-                       index < currentStep ? 'var(--success)' : 'var(--text-muted)',
-                transition: 'all 0.2s'
-              }}
-            >
-              {index < currentStep ? (
-                <Icons.Check />
-              ) : (
-                <step.icon />
-              )}
-              <span style={{ fontSize: '0.85rem', fontWeight: '500', whiteSpace: 'nowrap' }}>
-                {step.title}
-              </span>
-            </div>
-            {index < steps.length - 1 && (
-              <div style={{
-                width: '30px',
-                height: '2px',
-                background: index < currentStep ? 'var(--success)' : 'var(--border)',
-                margin: '0 0.5rem'
-              }} />
-            )}
-          </div>
-        ))}
+      {/* Required field note */}
+      <div style={{ marginTop: '1rem', color: 'var(--danger)', fontSize: '0.85rem' }}>
+        * indicates required field
       </div>
 
-      {/* Current Form */}
-      {renderCurrentStep()}
-
-      {/* Navigation Buttons */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
+      {/* Submit Button */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'flex-end', 
         marginTop: '1.5rem',
         paddingTop: '1.5rem',
         borderTop: '1px solid var(--border)'
       }}>
         <button 
-          className="btn btn-outline"
-          onClick={currentStep === 0 ? onBack : handlePrevious}
-        >
-          <Icons.ArrowLeft />
-          {currentStep === 0 ? 'Cancel' : 'Previous'}
-        </button>
-        
-        <button 
           className="btn btn-primary"
-          onClick={handleNext}
-          disabled={!canProceed()}
-          style={{ opacity: canProceed() ? 1 : 0.5 }}
+          onClick={handleSubmit}
+          disabled={saving}
+          style={{ minWidth: '150px' }}
         >
-          {currentStep === steps.length - 1 ? 'Complete Registration' : 'Next'}
-          <Icons.ArrowRight />
+          {saving ? 'Registering...' : 'Register'}
         </button>
+      </div>
+
+      {/* Copyright */}
+      <div className="copyright">
+        Copyright © {new Date().getFullYear()} FaceHub
       </div>
     </div>
   )
