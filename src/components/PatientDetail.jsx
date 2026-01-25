@@ -50,7 +50,7 @@ const DOCUMENT_TYPES = [
   { id: 'other', label: 'Autre' },
 ]
 
-export default function PatientDetail({ patient, onBack, onRefresh, session, onEditProfile, defaultView = 'profile' }) {
+export default function PatientDetail({ patient, onBack, onRefresh, session, onEditProfile, onViewVisits, defaultView = 'profile' }) {
   // View: 'profile' (default), 'visits', 'edit'
   const [currentView, setCurrentView] = useState(defaultView)
   const [visits, setVisits] = useState([])
@@ -600,7 +600,7 @@ export default function PatientDetail({ patient, onBack, onRefresh, session, onE
             {/* Buttons */}
             <button 
               style={{ ...styles.profileBtn, ...styles.btnPrimary }}
-              onClick={() => setCurrentView('visits')}
+              onClick={() => onViewVisits ? onViewVisits() : setCurrentView('visits')}
             >
               <Icons.Clipboard /> View Visits
             </button>

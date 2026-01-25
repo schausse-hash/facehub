@@ -8,6 +8,8 @@ import SendRegistrationLink from './SendRegistrationLink'
 import Documents from './Documents'
 import Admin from './Admin'
 import Help from './Help'
+import VisitsList from './VisitsList'
+import VisitDetail from './VisitDetail'
 
 // Icônes SVG style FaceTec
 const Icons = {
@@ -53,6 +55,7 @@ export default function Dashboard({ session }) {
   const [userClinic, setUserClinic] = useState(null)
   const [userProfile, setUserProfile] = useState(null)
   const [expandedMenus, setExpandedMenus] = useState({ patients: false })
+  const [selectedVisit, setSelectedVisit] = useState(null)
   
   const [showPatientModal, setShowPatientModal] = useState(false)
   const [patientForm, setPatientForm] = useState({
@@ -438,12 +441,30 @@ export default function Dashboard({ session }) {
               />
             )}
             {currentView === 'patient-visits' && selectedPatient && (
-              <PatientDetail 
+              <VisitsList 
                 patient={selectedPatient}
-                onBack={() => { setCurrentView('patients'); setSelectedPatient(null); }}
+                onBack={() => { setCurrentView('patient-detail'); }}
+                onCreateVisit={(visit) => { 
+                  setSelectedVisit(visit)
+                  setCurrentView('visit-detail')
+                }}
+                onViewVisit={(visit) => { 
+                  setSelectedVisit(visit)
+                  setCurrentView('visit-detail')
+                }}
+                session={session}
+              />
+            )}
+            {currentView === 'visit-detail' && selectedPatient && selectedVisit && (
+              <VisitDetail 
+                patient={selectedPatient}
+                visit={selectedVisit}
+                onBack={() => { 
+                  setSelectedVisit(null)
+                  setCurrentView('patient-visits')
+                }}
                 onRefresh={fetchPatients}
                 session={session}
-                defaultView="visits"
               />
             )}
             {currentView === 'patient-detail' && selectedPatient && (
@@ -455,6 +476,9 @@ export default function Dashboard({ session }) {
                 onEditProfile={(patient) => { 
                   setSelectedPatient(patient)
                   setCurrentView('patient-edit')
+                }}
+                onViewVisits={() => {
+                  setCurrentView('patient-visits')
                 }}
               />
             )}
