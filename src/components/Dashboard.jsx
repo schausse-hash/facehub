@@ -416,8 +416,8 @@ export default function Dashboard({ session }) {
                 patients={patients} 
                 onRefresh={fetchPatients}
                 onSelectPatient={handleSelectPatient}
-                session={session}
-                userClinic={userClinic}
+                onRegisterInOffice={() => setCurrentView('patient-registration')}
+                onRegisterByEmail={() => setCurrentView('send-registration-link')}
               />
             )}
             {currentView === 'patient-detail' && selectedPatient && (
