@@ -353,8 +353,7 @@ export default function VisitDetail({ patient, visit, onBack, onRefresh, session
           ? `${newTreatment.expiry_month}/${newTreatment.expiry_year}` 
           : null,
         areas: newTreatment.areas,
-        details: newTreatment.details,
-        metadata: {}
+        details: newTreatment.details
       }])
       .select()
       .single()

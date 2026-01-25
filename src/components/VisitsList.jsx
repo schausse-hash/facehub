@@ -70,8 +70,7 @@ export default function VisitsList({ patient, onBack, onCreateVisit, onViewVisit
         user_id: session.user.id,
         visit_date: new Date().toISOString(),
         visit_type: 'treatment',
-        notes: '',
-        metadata: {}
+        notes: ''
       }])
       .select()
       .single()
