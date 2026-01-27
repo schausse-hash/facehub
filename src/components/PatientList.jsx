@@ -108,7 +108,7 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
   function formatDate(dateString) {
     if (!dateString) return '-'
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('fr-CA', { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
@@ -273,12 +273,12 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
       display: 'inline-block'
     },
     badgeComplete: {
-      background: '#d4edda',
-      color: '#155724'
+      background: 'rgba(76, 175, 80, 0.2)',
+      color: '#4caf50'
     },
     badgeIncomplete: {
-      background: '#fff3cd',
-      color: '#856404'
+      background: 'rgba(255, 167, 38, 0.2)',
+      color: '#ffa726'
     },
     actionBtn: {
       width: '32px',
@@ -293,16 +293,16 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
       transition: 'all 0.2s'
     },
     actionBtnView: {
-      background: '#d4edda',
-      color: '#155724'
+      background: 'rgba(76, 175, 80, 0.2)',
+      color: '#4caf50'
     },
     actionBtnEdit: {
-      background: '#fff3cd',
-      color: '#856404'
+      background: 'rgba(255, 167, 38, 0.2)',
+      color: '#ffa726'
     },
     actionBtnVisits: {
-      background: '#e2e3e5',
-      color: '#383d41'
+      background: 'rgba(90, 154, 156, 0.2)',
+      color: 'var(--primary)'
     },
     pagination: {
       display: 'flex',
@@ -361,7 +361,7 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
     <div>
       {/* Header */}
       <div className="page-breadcrumb">
-        <a href="#">Home</a> | Patients
+        <a href="#">Accueil</a> | Patients
       </div>
       <h1 className="page-title">PATIENTS</h1>
 
@@ -371,21 +371,21 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
           
           {/* Filter Row */}
           <div style={styles.filterRow}>
-            <span style={styles.filterLabel}>Patient Status</span>
+            <span style={styles.filterLabel}>Statut du patient</span>
             <select 
               style={styles.select}
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="active">Actif</option>
+              <option value="inactive">Inactif</option>
             </select>
             
             <button style={styles.btn} onClick={onRegisterInOffice}>
-              Register In-Office
+              Inscrire au bureau
             </button>
             <button style={styles.btn} onClick={onRegisterByEmail}>
-              Register by Email
+              Inscrire par courriel
             </button>
           </div>
 
@@ -405,11 +405,11 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
                 <option value={50}>50</option>
                 <option value={100}>100</option>
               </select>
-              <span>entries per page</span>
+              <span>entrées par page</span>
             </div>
             
             <div style={styles.searchBox}>
-              <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Search:</span>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Rechercher:</span>
               <input 
                 type="text"
                 style={styles.searchInput}
@@ -430,33 +430,33 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
                   <thead>
                     <tr>
                       <th style={styles.th} onClick={() => handleSort('firstName')}>
-                        First Name {sortField === 'firstName' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        Prénom {sortField === 'firstName' && (sortDirection === 'asc' ? '↑' : '↓')}
                       </th>
                       <th style={styles.th} onClick={() => handleSort('lastName')}>
-                        Last Name {sortField === 'lastName' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        Nom {sortField === 'lastName' && (sortDirection === 'asc' ? '↑' : '↓')}
                       </th>
                       <th style={styles.th} onClick={() => handleSort('phone')}>
-                        Phone {sortField === 'phone' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        Téléphone {sortField === 'phone' && (sortDirection === 'asc' ? '↑' : '↓')}
                       </th>
                       <th style={styles.th} onClick={() => handleSort('city')}>
-                        City {sortField === 'city' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        Ville {sortField === 'city' && (sortDirection === 'asc' ? '↑' : '↓')}
                       </th>
                       <th style={styles.th} onClick={() => handleSort('province')}>
                         Province {sortField === 'province' && (sortDirection === 'asc' ? '↑' : '↓')}
                       </th>
                       <th style={styles.th} onClick={() => handleSort('birthday')}>
-                        Birthday {sortField === 'birthday' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        Date de naissance {sortField === 'birthday' && (sortDirection === 'asc' ? '↑' : '↓')}
                       </th>
                       <th style={styles.th} onClick={() => handleSort('status')}>
                         <span style={{ display: 'flex', alignItems: 'center' }}>
-                          Registration Status
-                          <span style={styles.helpIcon} title="Shows whether a patient's chart has completed all of the required in-take forms">
+                          Statut inscription
+                          <span style={styles.helpIcon} title="Indique si le dossier du patient a complété tous les formulaires requis">
                             <Icons.Question />
                           </span>
                         </span>
                       </th>
                       <th style={styles.th} onClick={() => handleSort('created_at')}>
-                        Registration Date {sortField === 'created_at' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        Date d'inscription {sortField === 'created_at' && (sortDirection === 'asc' ? '↑' : '↓')}
                       </th>
                       <th style={styles.th}>Actions</th>
                     </tr>
@@ -480,9 +480,9 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
                         <td style={styles.td}>{formatDate(getBirthday(patient))}</td>
                         <td style={styles.td}>
                           {isRegistrationComplete(patient) ? (
-                            <span style={{ ...styles.badge, ...styles.badgeComplete }}>Complete</span>
+                            <span style={{ ...styles.badge, ...styles.badgeComplete }}>Complet</span>
                           ) : (
-                            <span style={{ ...styles.badge, ...styles.badgeIncomplete }}>Incomplete</span>
+                            <span style={{ ...styles.badge, ...styles.badgeIncomplete }}>Incomplet</span>
                           )}
                         </td>
                         <td style={styles.td}>{formatDate(patient.created_at)}</td>
@@ -490,21 +490,21 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
                           <button 
                             style={{ ...styles.actionBtn, ...styles.actionBtnView }}
                             onClick={() => onSelectPatient(patient)}
-                            title="View Profile"
+                            title="Voir le profil"
                           >
                             <Icons.Eye />
                           </button>
                           <button 
                             style={{ ...styles.actionBtn, ...styles.actionBtnEdit }}
                             onClick={() => onEditPatient ? onEditPatient(patient) : onSelectPatient(patient)}
-                            title="Edit Profile"
+                            title="Modifier le profil"
                           >
                             <Icons.Edit />
                           </button>
                           <button 
                             style={{ ...styles.actionBtn, ...styles.actionBtnVisits }}
                             onClick={() => onViewVisits ? onViewVisits(patient) : onSelectPatient(patient)}
-                            title="View Visits"
+                            title="Voir les visites"
                           >
                             <Icons.Clipboard />
                           </button>
@@ -518,7 +518,7 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
               {/* Pagination */}
               <div style={styles.pagination}>
                 <div style={styles.pageInfo}>
-                  Showing {startIndex + 1} to {Math.min(endIndex, sortedPatients.length)} of {sortedPatients.length} entries
+                  Affichage de {startIndex + 1} à {Math.min(endIndex, sortedPatients.length)} sur {sortedPatients.length} entrées
                 </div>
                 
                 <div style={styles.pageControls}>
@@ -596,18 +596,18 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
             <div style={styles.emptyState}>
               <Icons.Users />
               <h3 style={{ marginTop: '1rem', color: 'var(--text-primary)' }}>
-                {searchTerm ? 'No results found' : 'No patients yet'}
+                {searchTerm ? 'Aucun résultat trouvé' : 'Aucun patient pour le moment'}
               </h3>
               <p style={{ marginTop: '0.5rem' }}>
-                {searchTerm ? 'Try adjusting your search' : 'Register your first patient to get started'}
+                {searchTerm ? 'Essayez de modifier votre recherche' : 'Inscrivez votre premier patient pour commencer'}
               </p>
               {!searchTerm && (
                 <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                   <button style={styles.btn} onClick={onRegisterInOffice}>
-                    Register In-Office
+                    Inscrire au bureau
                   </button>
                   <button style={styles.btn} onClick={onRegisterByEmail}>
-                    Register by Email
+                    Inscrire par courriel
                   </button>
                 </div>
               )}

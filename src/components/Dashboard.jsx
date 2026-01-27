@@ -195,9 +195,9 @@ export default function Dashboard({ session }) {
   const renderDashboardHome = () => (
     <div>
       <div className="page-breadcrumb">
-        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView('dashboard'); }}>Home</a> | Dashboard
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView('dashboard'); }}>Accueil</a> | Tableau de bord
       </div>
-      <h1 className="page-title">DASHBOARD</h1>
+      <h1 className="page-title">TABLEAU DE BORD</h1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1.5rem', marginBottom: '1rem' }}>
         {/* Welcome Card */}
@@ -214,7 +214,7 @@ export default function Dashboard({ session }) {
           minHeight: '180px'
         }}>
           <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Welcome Back !</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Bon retour !</h2>
             <p style={{ fontSize: '0.9rem', opacity: 0.9 }}>{getUserName()} | {getUserTitle()} {getUserName()}</p>
           </div>
           <div style={{ fontSize: '0.8rem', opacity: 0.85 }}>{formatDate()}</div>
@@ -223,7 +223,7 @@ export default function Dashboard({ session }) {
         {/* Total Registered Patients */}
         <div className="stat-card">
           <div className="stat-content">
-            <div className="stat-label">Total Registered Patients</div>
+            <div className="stat-label">Patients inscrits</div>
             <div className="stat-value">{stats.patients}</div>
           </div>
           <div className="stat-icon"><Icons.UsersGroup /></div>
@@ -232,7 +232,7 @@ export default function Dashboard({ session }) {
         {/* Total Visits */}
         <div className="stat-card">
           <div className="stat-content">
-            <div className="stat-label">Total Visits By Patients</div>
+            <div className="stat-label">Visites totales</div>
             <div className="stat-value">{stats.visits}</div>
           </div>
           <div className="stat-icon"><Icons.Calendar /></div>
@@ -243,14 +243,14 @@ export default function Dashboard({ session }) {
         <div></div>
         <div className="stat-card">
           <div className="stat-content">
-            <div className="stat-label">Total Scheduled Appointments</div>
+            <div className="stat-label">Rendez-vous planifiés</div>
             <div className="stat-value">{stats.appointments}</div>
           </div>
           <div className="stat-icon"><Icons.CalendarCheck /></div>
         </div>
         <div className="stat-card">
           <div className="stat-content">
-            <div className="stat-label">Upcoming Scheduled Appointments</div>
+            <div className="stat-label">Rendez-vous à venir</div>
             <div className="stat-value">{stats.upcoming}</div>
           </div>
           <div className="stat-icon"><Icons.Clock /></div>
@@ -277,13 +277,13 @@ export default function Dashboard({ session }) {
             onClick={() => { setCurrentView('dashboard'); setSelectedPatient(null); }}
           >
             <Icons.Dashboard />
-            <span>Dashboard</span>
+            <span>Tableau de bord</span>
           </div>
 
           {/* Schedule */}
           <div className="nav-item" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
             <Icons.Schedule />
-            <span>Schedule</span>
+            <span>Agenda</span>
           </div>
 
           {/* Patients with submenu */}
@@ -306,7 +306,7 @@ export default function Dashboard({ session }) {
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <Icons.PatientList />
-                <span>Patient List</span>
+                <span>Liste des patients</span>
               </div>
               <div 
                 className={`nav-item sub-item ${currentView === 'patient-registration' ? 'active' : ''}`}
@@ -314,7 +314,7 @@ export default function Dashboard({ session }) {
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <Icons.UserPlus />
-                <span>Register Patient Internally</span>
+                <span>Inscrire un patient</span>
               </div>
               <div 
                 className={`nav-item sub-item ${currentView === 'send-registration-link' ? 'active' : ''}`}
@@ -322,7 +322,7 @@ export default function Dashboard({ session }) {
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <Icons.Link />
-                <span>Send Registration Link</span>
+                <span>Envoyer lien d'inscription</span>
               </div>
             </>
           )}
@@ -336,17 +336,17 @@ export default function Dashboard({ session }) {
           {/* Case Search */}
           <div className="nav-item" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
             <Icons.Search />
-            <span>Case Search</span>
+            <span>Recherche de cas</span>
           </div>
 
           {/* Marketing Resources */}
           <div className="nav-item" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
             <Icons.Marketing />
-            <span>Marketing Resources</span>
+            <span>Ressources marketing</span>
           </div>
 
           {/* Settings Section */}
-          <div className="nav-section-title">SETTINGS</div>
+          <div className="nav-section-title">PARAMÈTRES</div>
 
           {/* User Settings (Admin) */}
           <div 
@@ -354,7 +354,7 @@ export default function Dashboard({ session }) {
             onClick={() => { setCurrentView('admin'); setSelectedPatient(null); }}
           >
             <Icons.User />
-            <span>User Settings</span>
+            <span>Gestion utilisateurs</span>
             {pendingRequestsCount > 0 && (
               <span style={{
                 marginLeft: 'auto',
@@ -376,7 +376,7 @@ export default function Dashboard({ session }) {
             onClick={() => { setCurrentView('documents'); setSelectedPatient(null); }}
           >
             <Icons.Building />
-            <span>Clinic Settings</span>
+            <span>Paramètres clinique</span>
           </div>
 
           {/* Help Center */}
@@ -385,7 +385,17 @@ export default function Dashboard({ session }) {
             onClick={() => { setCurrentView('help'); setSelectedPatient(null); }}
           >
             <Icons.Help />
-            <span>Help Center</span>
+            <span>Centre d'aide</span>
+          </div>
+
+          {/* Logout - Ajouté dans le menu */}
+          <div 
+            className="nav-item"
+            onClick={handleLogout}
+            style={{ marginTop: '0.5rem', color: 'var(--danger)' }}
+          >
+            <Icons.Logout />
+            <span>Déconnexion</span>
           </div>
         </nav>
 
@@ -397,13 +407,6 @@ export default function Dashboard({ session }) {
           <div className="sidebar-user-info">
             <div className="sidebar-user-name">{getUserName()}</div>
             <div className="sidebar-user-email">{session.user.email}</div>
-          </div>
-          <div 
-            onClick={handleLogout} 
-            style={{ cursor: 'pointer', padding: '0.5rem', color: 'var(--text-muted)' }}
-            title="Déconnexion"
-          >
-            <Icons.Logout />
           </div>
         </div>
       </aside>
@@ -418,75 +421,62 @@ export default function Dashboard({ session }) {
             {currentView === 'patients' && (
               <PatientList 
                 patients={patients} 
-                onRefresh={fetchPatients}
                 onSelectPatient={handleSelectPatient}
-                onEditPatient={(patient) => { 
-                  setSelectedPatient(patient)
-                  setCurrentView('patient-edit')
-                }}
-                onViewVisits={(patient) => { 
-                  setSelectedPatient(patient)
-                  setCurrentView('patient-visits')
-                }}
-                onRegisterInOffice={() => setCurrentView('patient-registration')}
-                onRegisterByEmail={() => setCurrentView('send-registration-link')}
-              />
-            )}
-            {currentView === 'patient-edit' && selectedPatient && (
-              <PatientEdit 
-                patient={selectedPatient}
-                onBack={() => { setCurrentView('patients'); setSelectedPatient(null); }}
-                onSave={() => { fetchPatients(); setCurrentView('patients'); }}
-                session={session}
-              />
-            )}
-            {currentView === 'patient-visits' && selectedPatient && (
-              <VisitsList 
-                patient={selectedPatient}
-                onBack={() => { setCurrentView('patient-detail'); }}
-                onCreateVisit={(visit) => { 
-                  setSelectedVisit(visit)
-                  setCurrentView('visit-detail')
-                }}
-                onViewVisit={(visit) => { 
-                  setSelectedVisit(visit)
-                  setCurrentView('visit-detail')
-                }}
-                session={session}
-              />
-            )}
-            {currentView === 'visit-detail' && selectedPatient && selectedVisit && (
-              <VisitDetail 
-                patient={selectedPatient}
-                visit={selectedVisit}
-                onBack={() => { 
-                  setSelectedVisit(null)
-                  setCurrentView('patient-visits')
-                }}
                 onRefresh={fetchPatients}
-                session={session}
+                onNewPatient={() => setShowPatientModal(true)}
               />
             )}
             {currentView === 'patient-detail' && selectedPatient && (
               <PatientDetail 
-                patient={selectedPatient}
+                patient={selectedPatient} 
                 onBack={() => { setCurrentView('patients'); setSelectedPatient(null); }}
                 onRefresh={fetchPatients}
+                onSelectVisit={(visit) => { setSelectedVisit(visit); setCurrentView('visit-detail'); }}
                 session={session}
-                onEditProfile={(patient) => { 
-                  setSelectedPatient(patient)
-                  setCurrentView('patient-edit')
-                }}
-                onViewVisits={() => {
-                  setCurrentView('patient-visits')
-                }}
               />
             )}
-            {currentView === 'documents' && <Documents />}
+            {currentView === 'patient-edit' && selectedPatient && (
+              <PatientEdit 
+                patient={selectedPatient} 
+                onBack={() => setCurrentView('patient-detail')}
+                onSave={() => { fetchPatients(); setCurrentView('patient-detail'); }}
+              />
+            )}
+            {currentView === 'visit-detail' && selectedVisit && selectedPatient && (
+              <VisitDetail 
+                visit={selectedVisit}
+                patient={selectedPatient}
+                onBack={() => setCurrentView('patient-detail')}
+                onRefresh={() => {
+                  fetchPatients()
+                  // Refresh the selected patient data
+                  if (selectedPatient) {
+                    supabase
+                      .from('patients')
+                      .select('*, visits (*)')
+                      .eq('id', selectedPatient.id)
+                      .single()
+                      .then(({ data }) => {
+                        if (data) setSelectedPatient(data)
+                      })
+                  }
+                }}
+                session={session}
+              />
+            )}
+            {currentView === 'visits' && selectedPatient && (
+              <VisitsList 
+                patient={selectedPatient}
+                onBack={() => setCurrentView('patient-detail')}
+                onSelectVisit={(visit) => { setSelectedVisit(visit); setCurrentView('visit-detail'); }}
+                session={session}
+              />
+            )}
+            {currentView === 'documents' && <Documents session={session} userClinic={userClinic} />}
             {currentView === 'patient-registration' && (
               <PatientRegistration 
                 onBack={() => setCurrentView('patients')}
-                onComplete={() => { fetchPatients(); setCurrentView('patients'); }}
+                onSuccess={() => { fetchPatients(); setCurrentView('patients'); }}
                 session={session}
                 userClinic={userClinic}
               />
@@ -527,13 +517,13 @@ export default function Dashboard({ session }) {
                 </div>
                 <div className="form-row">
                   <div className="form-group">
-                    <label className="form-label">Email</label>
+                    <label className="form-label">Courriel</label>
                     <input 
                       type="email" 
                       className="form-input"
                       value={patientForm.email}
                       onChange={(e) => setPatientForm({ ...patientForm, email: e.target.value })}
-                      placeholder="email@exemple.com"
+                      placeholder="courriel@exemple.com"
                     />
                   </div>
                   <div className="form-group">
