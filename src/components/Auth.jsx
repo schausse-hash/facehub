@@ -34,37 +34,34 @@ const Icons = {
 
 // Logo FaceHub stylisé
 const FaceHubLogo = ({ size = 'large' }) => {
-  const logoSize = size === 'large' ? 120 : 32
+  const logoSize = size === 'large' ? 80 : 32
   return (
     <div style={{ 
       display: 'flex', 
       alignItems: 'center', 
-      gap: size === 'large' ? 0 : '0.75rem',
-      flexDirection: size === 'large' ? 'column' : 'row'
+      gap: size === 'large' ? '1rem' : '0.75rem',
+      flexDirection: 'row',
+      justifyContent: 'center'
     }}>
       <svg width={logoSize} height={logoSize} viewBox="0 0 100 100" fill="none">
         {/* Forme abstraite représentant un visage stylisé */}
         <path 
           d="M30 20 C30 20, 30 80, 30 80 C30 85, 35 90, 40 90 L40 90 C45 90, 50 85, 50 80 L50 60 C50 55, 55 50, 60 50 L60 50 C65 50, 70 55, 70 60 L70 60 C70 65, 65 70, 60 70 L50 70"
-          stroke="currentColor"
+          stroke="#5a9a9c"
           strokeWidth="8"
           strokeLinecap="round"
           fill="none"
         />
-        <circle cx="60" cy="35" r="12" fill="currentColor" />
+        <circle cx="60" cy="35" r="12" fill="#5a9a9c" />
       </svg>
-      {size === 'small' && (
-        <span style={{ 
-          fontFamily: "'Cormorant Garamond', serif",
-          fontSize: '1.5rem',
-          fontWeight: 600,
-          background: 'linear-gradient(135deg, #d4a574 0%, #e8c9a8 50%, #d4a574 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>
-          FaceHub
-        </span>
-      )}
+      <span style={{ 
+        fontFamily: "'Cormorant Garamond', serif",
+        fontSize: size === 'large' ? '2rem' : '1.5rem',
+        fontWeight: 600,
+        color: '#5a9a9c'
+      }}>
+        FaceHub
+      </span>
     </div>
   )
 }
@@ -275,17 +272,38 @@ Nouvelle demande d'inscription:
     }
   }
 
-  // Styles communs
+  // Styles du thème sombre
+  const containerStyle = {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#1e2428',
+    padding: '2rem'
+  }
+
+  const cardStyle = {
+    background: '#2a3238',
+    borderRadius: '16px',
+    padding: '2.5rem',
+    width: '100%',
+    maxWidth: mode === 'signup' ? '520px' : '420px',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(90, 154, 156, 0.1)',
+    border: '1px solid #3a444c',
+    position: 'relative'
+  }
+
   const inputStyle = {
     width: '100%',
     padding: '0.875rem 1rem',
-    border: '1px solid #e2e8f0',
+    border: '1px solid #3a444c',
     borderRadius: '8px',
     fontSize: '1rem',
     fontFamily: 'inherit',
-    background: '#f8fafc',
-    color: '#1e293b',
-    transition: 'all 0.2s'
+    background: '#1e2428',
+    color: '#e8edef',
+    transition: 'all 0.2s',
+    outline: 'none'
   }
 
   const labelStyle = {
@@ -293,7 +311,7 @@ Nouvelle demande d'inscription:
     fontWeight: 500,
     marginBottom: '0.5rem',
     fontSize: '0.9rem',
-    color: '#475569'
+    color: '#a8b4ba'
   }
 
   const buttonPrimaryStyle = {
@@ -304,7 +322,7 @@ Nouvelle demande d'inscription:
     border: 'none',
     fontSize: '0.95rem',
     fontFamily: 'inherit',
-    background: '#0ea5e9',
+    background: '#5a9a9c',
     color: 'white',
     transition: 'all 0.2s',
     width: '100%'
@@ -315,11 +333,11 @@ Nouvelle demande d'inscription:
     borderRadius: '8px',
     fontWeight: 600,
     cursor: 'pointer',
-    border: '1px solid #cbd5e1',
+    border: '1px solid #3a444c',
     fontSize: '0.95rem',
     fontFamily: 'inherit',
-    background: '#e2e8f0',
-    color: '#475569',
+    background: '#323a42',
+    color: '#a8b4ba',
     transition: 'all 0.2s',
     width: '100%'
   }
@@ -327,87 +345,75 @@ Nouvelle demande d'inscription:
   // Écran de succès après inscription
   if (mode === 'success') {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
-        {/* Panneau gauche avec logo */}
-        <div style={{
-          flex: '0 0 45%',
-          background: 'linear-gradient(135deg, #f0f4f3 0%, #e8f0ee 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2rem'
-        }}>
-          <div style={{ color: '#1e293b' }}>
-            <FaceHubLogo size="large" />
+      <div style={containerStyle}>
+        <div style={cardStyle}>
+          <div style={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            background: 'rgba(76, 175, 80, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1.5rem',
+            color: '#4caf50'
+          }}>
+            <Icons.Check />
           </div>
-        </div>
-
-        {/* Panneau droit */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2rem',
-          background: 'white'
-        }}>
-          <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-            <div style={{
-              width: 80,
-              height: 80,
-              borderRadius: '50%',
-              background: '#dcfce7',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1.5rem',
-              color: '#16a34a'
-            }}>
-              <Icons.Check />
-            </div>
-            
-            <h2 style={{ 
-              fontSize: '1.75rem', 
-              marginBottom: '1rem', 
-              color: '#1e293b',
-              fontFamily: "'Cormorant Garamond', serif"
-            }}>
-              Compte créé avec succès!
-            </h2>
-            
-            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
-              Votre demande a été envoyée à l'administrateur.
+          
+          <h2 style={{ 
+            fontSize: '1.75rem', 
+            marginBottom: '1rem', 
+            color: '#e8edef',
+            fontFamily: "'Cormorant Garamond', serif",
+            textAlign: 'center'
+          }}>
+            Compte créé avec succès!
+          </h2>
+          
+          <p style={{ color: '#a8b4ba', marginBottom: '1.5rem', textAlign: 'center' }}>
+            Votre demande a été envoyée à l'administrateur.
+          </p>
+          
+          <div style={{
+            background: '#1e2428',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            marginBottom: '2rem',
+            textAlign: 'left',
+            border: '1px solid #3a444c'
+          }}>
+            <p style={{ fontWeight: 600, marginBottom: '0.75rem', color: '#e8edef' }}>
+              Prochaines étapes:
             </p>
-            
-            <div style={{
-              background: '#f1f5f9',
-              borderRadius: '12px',
-              padding: '1.25rem',
-              marginBottom: '2rem',
-              textAlign: 'left'
+            <ol style={{ 
+              margin: 0, 
+              paddingLeft: '1.25rem', 
+              color: '#a8b4ba', 
+              fontSize: '0.9rem',
+              lineHeight: 1.8
             }}>
-              <p style={{ fontWeight: 600, marginBottom: '0.75rem', color: '#1e293b' }}>
-                Prochaines étapes:
-              </p>
-              <ol style={{ 
-                margin: 0, 
-                paddingLeft: '1.25rem', 
-                color: '#64748b', 
-                fontSize: '0.9rem',
-                lineHeight: 1.8
-              }}>
-                <li>Vérifiez votre courriel et cliquez sur le lien de confirmation</li>
-                <li>Attendez que l'administrateur active votre compte</li>
-                <li>Vous recevrez un courriel une fois votre accès approuvé</li>
-              </ol>
-            </div>
-            
-            <button 
-              onClick={() => switchMode('login')}
-              style={buttonPrimaryStyle}
-            >
-              Retour à la connexion
-            </button>
+              <li>Vérifiez votre courriel et cliquez sur le lien de confirmation</li>
+              <li>Attendez que l'administrateur active votre compte</li>
+              <li>Vous recevrez un courriel une fois votre accès approuvé</li>
+            </ol>
+          </div>
+          
+          <button 
+            onClick={() => switchMode('login')}
+            style={buttonPrimaryStyle}
+          >
+            Retour à la connexion
+          </button>
+          
+          {/* Copyright */}
+          <div style={{ 
+            marginTop: '2rem', 
+            textAlign: 'center', 
+            color: '#6e7a82',
+            fontSize: '0.75rem'
+          }}>
+            COPYRIGHT © 2026 FACEHUB
           </div>
         </div>
       </div>
@@ -417,65 +423,56 @@ Nouvelle demande d'inscription:
   // Écran de confirmation mot de passe envoyé
   if (mode === 'reset-sent') {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
-        {/* Panneau gauche avec logo */}
-        <div style={{
-          flex: '0 0 45%',
-          background: 'linear-gradient(135deg, #f0f4f3 0%, #e8f0ee 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2rem'
-        }}>
-          <div style={{ color: '#1e293b' }}>
-            <FaceHubLogo size="large" />
+      <div style={containerStyle}>
+        <div style={cardStyle}>
+          <div style={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            background: 'rgba(90, 154, 156, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1.5rem',
+            color: '#5a9a9c'
+          }}>
+            <Icons.Mail />
           </div>
-        </div>
-
-        {/* Panneau droit */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2rem',
-          background: 'white'
-        }}>
-          <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-            <div style={{
-              width: 80,
-              height: 80,
-              borderRadius: '50%',
-              background: '#dbeafe',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1.5rem',
-              color: '#2563eb'
-            }}>
-              <Icons.Mail />
-            </div>
-            
-            <h2 style={{ 
-              fontSize: '1.75rem', 
-              marginBottom: '1rem', 
-              color: '#1e293b',
-              fontFamily: "'Cormorant Garamond', serif"
-            }}>
-              Courriel envoyé!
-            </h2>
-            
-            <p style={{ color: '#64748b', marginBottom: '2rem' }}>
-              Si un compte existe avec l'adresse <strong>{form.email}</strong>, 
-              vous recevrez un lien pour réinitialiser votre mot de passe.
-            </p>
-            
-            <button 
-              onClick={() => switchMode('login')}
-              style={buttonPrimaryStyle}
-            >
-              Retour à la connexion
-            </button>
+          
+          <h2 style={{ 
+            fontSize: '1.75rem', 
+            marginBottom: '1rem', 
+            color: '#e8edef',
+            fontFamily: "'Cormorant Garamond', serif",
+            textAlign: 'center'
+          }}>
+            Courriel envoyé!
+          </h2>
+          
+          <p style={{ 
+            color: '#a8b4ba', 
+            marginBottom: '1.5rem', 
+            textAlign: 'center',
+            fontSize: '0.95rem'
+          }}>
+            Vérifiez votre boîte de réception pour le lien de réinitialisation.
+          </p>
+          
+          <button 
+            onClick={() => switchMode('login')}
+            style={buttonPrimaryStyle}
+          >
+            Retour à la connexion
+          </button>
+          
+          {/* Copyright */}
+          <div style={{ 
+            marginTop: '2rem', 
+            textAlign: 'center', 
+            color: '#6e7a82',
+            fontSize: '0.75rem'
+          }}>
+            COPYRIGHT © 2026 FACEHUB
           </div>
         </div>
       </div>
@@ -483,138 +480,323 @@ Nouvelle demande d'inscription:
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Panneau gauche avec logo - Style FaceTec */}
-      <div style={{
-        flex: '0 0 45%',
-        background: 'linear-gradient(135deg, #f0f4f3 0%, #e8f0ee 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem',
-        position: 'relative'
-      }}>
-        <div style={{ color: '#1e293b' }}>
-          <FaceHubLogo size="large" />
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        {/* Logo en haut */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <FaceHubLogo size="small" />
         </div>
-      </div>
 
-      {/* Panneau droit avec formulaire */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem',
-        background: 'white',
-        overflowY: 'auto'
-      }}>
-        <div style={{ width: '100%', maxWidth: mode === 'signup' ? '500px' : '400px' }}>
-          {/* Logo en haut du formulaire */}
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <FaceHubLogo size="small" />
-          </div>
-
-          {/* Bouton retour */}
-          {(mode === 'signup' || mode === 'forgot') && (
-            <button
-              type="button"
-              onClick={() => switchMode('login')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: 'none',
-                border: 'none',
-                color: '#64748b',
-                cursor: 'pointer',
-                padding: '0.5rem 0',
-                marginBottom: '1rem',
-                fontSize: '0.9rem'
-              }}
-            >
-              <Icons.ArrowLeft /> Retour à la connexion
-            </button>
-          )}
-
-          {/* Titre */}
-          <h2 style={{ 
-            fontSize: '1.75rem', 
-            marginBottom: '0.5rem', 
-            color: '#1e293b',
-            fontFamily: "'Cormorant Garamond', serif",
-            textAlign: 'center'
-          }}>
-            {mode === 'login' && 'Connexion'}
-            {mode === 'signup' && 'Créer un compte'}
-            {mode === 'forgot' && 'Mot de passe oublié'}
-          </h2>
-
-          {mode === 'signup' && (
-            <p style={{ 
-              textAlign: 'center', 
-              color: '#64748b', 
-              marginBottom: '1.5rem',
-              fontSize: '0.9rem'
-            }}>
-              Vous devenez la personne ressource de votre clinique
-            </p>
-          )}
-
-          {mode === 'forgot' && (
-            <p style={{ 
-              textAlign: 'center', 
-              color: '#64748b', 
-              marginBottom: '1.5rem',
-              fontSize: '0.9rem'
-            }}>
-              Entrez votre courriel ci-dessous. Le mot de passe doit contenir au moins 8 caractères.
-            </p>
-          )}
-
-          {/* Message d'erreur */}
-          {error && (
-            <div style={{
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
-              borderRadius: '8px',
-              padding: '0.875rem 1rem',
+        {/* Bouton retour */}
+        {(mode === 'signup' || mode === 'forgot') && (
+          <button
+            type="button"
+            onClick={() => switchMode('login')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'none',
+              border: 'none',
+              color: '#a8b4ba',
+              cursor: 'pointer',
+              padding: '0.5rem 0',
               marginBottom: '1rem',
-              color: '#dc2626',
               fontSize: '0.9rem'
-            }}>
-              {error}
-            </div>
-          )}
+            }}
+          >
+            <Icons.ArrowLeft /> Retour à la connexion
+          </button>
+        )}
 
-          {/* FORMULAIRE DE CONNEXION */}
-          {mode === 'login' && (
-            <form onSubmit={handleLogin}>
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={labelStyle}>Adresse courriel</label>
+        {/* Titre */}
+        <h2 style={{ 
+          fontSize: '1.75rem', 
+          marginBottom: '0.5rem', 
+          color: '#e8edef',
+          fontFamily: "'Cormorant Garamond', serif",
+          textAlign: 'center'
+        }}>
+          {mode === 'login' && 'Connexion'}
+          {mode === 'signup' && 'Créer un compte'}
+          {mode === 'forgot' && 'Mot de passe oublié'}
+        </h2>
+
+        {mode === 'signup' && (
+          <p style={{ 
+            textAlign: 'center', 
+            color: '#a8b4ba', 
+            marginBottom: '1.5rem',
+            fontSize: '0.9rem'
+          }}>
+            Vous devenez la personne ressource de votre clinique
+          </p>
+        )}
+
+        {mode === 'forgot' && (
+          <p style={{ 
+            textAlign: 'center', 
+            color: '#a8b4ba', 
+            marginBottom: '1.5rem',
+            fontSize: '0.9rem'
+          }}>
+            Entrez votre courriel ci-dessous. Le mot de passe doit contenir au moins 8 caractères.
+          </p>
+        )}
+
+        {/* Message d'erreur */}
+        {error && (
+          <div style={{
+            background: 'rgba(239, 83, 80, 0.15)',
+            border: '1px solid rgba(239, 83, 80, 0.3)',
+            borderRadius: '8px',
+            padding: '0.875rem 1rem',
+            marginBottom: '1rem',
+            color: '#ef5350',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
+
+        {/* FORMULAIRE DE CONNEXION */}
+        {mode === 'login' && (
+          <form onSubmit={handleLogin}>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={labelStyle}>Adresse courriel</label>
+              <input
+                type="email"
+                style={inputStyle}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="votre@courriel.com"
+                required
+                autoComplete="email"
+                onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={labelStyle}>Mot de passe</label>
+              <div style={{ position: 'relative' }}>
                 <input
-                  type="email"
-                  style={inputStyle}
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="votre@courriel.com"
+                  type={showPassword ? 'text' : 'password'}
+                  style={{ ...inputStyle, paddingRight: '3rem' }}
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  placeholder="••••••••••••"
                   required
-                  autoComplete="email"
+                  minLength={6}
+                  autoComplete="current-password"
+                  onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                  onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6e7a82',
+                    padding: '0.25rem'
+                  }}
+                >
+                  {showPassword ? <Icons.EyeOff /> : <Icons.Eye />}
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <button 
+                type="submit" 
+                style={buttonPrimaryStyle}
+                disabled={loading}
+              >
+                {loading ? 'Connexion...' : 'Se connecter'}
+              </button>
+              <button 
+                type="button"
+                onClick={() => switchMode('forgot')}
+                style={buttonSecondaryStyle}
+              >
+                Mot de passe oublié
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* FORMULAIRE MOT DE PASSE OUBLIÉ */}
+        {mode === 'forgot' && (
+          <form onSubmit={handleForgotPassword}>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={labelStyle}>Adresse courriel</label>
+              <input
+                type="email"
+                style={inputStyle}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="votre@courriel.com"
+                required
+                autoComplete="email"
+                onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <button 
+                type="submit" 
+                style={buttonPrimaryStyle}
+                disabled={loading}
+              >
+                {loading ? 'Envoi...' : 'Envoyer'}
+              </button>
+              <button 
+                type="button"
+                onClick={() => switchMode('login')}
+                style={buttonSecondaryStyle}
+              >
+                Retour
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* FORMULAIRE D'INSCRIPTION */}
+        {mode === 'signup' && (
+          <form onSubmit={handleSignUp}>
+            {/* Prénom et Nom */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+              <div>
+                <label style={labelStyle}>Prénom *</label>
+                <input
+                  type="text"
+                  style={inputStyle}
+                  value={form.firstName}
+                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                  placeholder="Jean"
+                  required
+                  onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                  onBlur={(e) => e.target.style.borderColor = '#3a444c'}
                 />
               </div>
+              <div>
+                <label style={labelStyle}>Nom *</label>
+                <input
+                  type="text"
+                  style={inputStyle}
+                  value={form.lastName}
+                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                  placeholder="Tremblay"
+                  required
+                  onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                  onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+                />
+              </div>
+            </div>
 
+            {/* Courriel */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={labelStyle}>Adresse courriel *</label>
+              <input
+                type="email"
+                style={inputStyle}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="votre@courriel.com"
+                required
+                autoComplete="email"
+                onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+              />
+            </div>
+
+            {/* Téléphone */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={labelStyle}>Téléphone</label>
+              <input
+                type="tel"
+                style={inputStyle}
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="514-555-1234"
+                onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+              />
+            </div>
+
+            {/* Nom de la compagnie/clinique */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={labelStyle}>Nom de votre compagnie ou clinique *</label>
+              <input
+                type="text"
+                style={inputStyle}
+                value={form.companyName}
+                onChange={(e) => setForm({ ...form, companyName: e.target.value })}
+                placeholder="Ex: Clinique Esthétique Montréal"
+                required
+                onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+              />
+            </div>
+
+            {/* Type de professionnel */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={labelStyle}>Type de professionnel *</label>
+              <select
+                style={{ ...inputStyle, cursor: 'pointer' }}
+                value={form.profession}
+                onChange={(e) => setForm({ ...form, profession: e.target.value })}
+                required
+                onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+              >
+                <option value="">Sélectionnez votre profession</option>
+                {PROFESSION_TYPES.map(type => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Champ "Autre" si sélectionné */}
+            {form.profession === 'autre' && (
               <div style={{ marginBottom: '1.25rem' }}>
-                <label style={labelStyle}>Mot de passe</label>
+                <label style={labelStyle}>Précisez votre profession *</label>
+                <input
+                  type="text"
+                  style={inputStyle}
+                  value={form.professionOther}
+                  onChange={(e) => setForm({ ...form, professionOther: e.target.value })}
+                  placeholder="Votre profession"
+                  required
+                  onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                  onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+                />
+              </div>
+            )}
+
+            {/* Mots de passe */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+              <div>
+                <label style={labelStyle}>Mot de passe *</label>
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     style={{ ...inputStyle, paddingRight: '3rem' }}
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    placeholder="••••••••••••"
+                    placeholder="Min. 8 caractères"
                     required
-                    minLength={6}
-                    autoComplete="current-password"
+                    minLength={8}
+                    autoComplete="new-password"
+                    onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                    onBlur={(e) => e.target.style.borderColor = '#3a444c'}
                   />
                   <button
                     type="button"
@@ -627,7 +809,7 @@ Nouvelle demande d'inscription:
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#94a3b8',
+                      color: '#6e7a82',
                       padding: '0.25rem'
                     }}
                   >
@@ -635,263 +817,78 @@ Nouvelle demande d'inscription:
                   </button>
                 </div>
               </div>
-
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                <button 
-                  type="submit" 
-                  style={buttonPrimaryStyle}
-                  disabled={loading}
-                >
-                  {loading ? 'Connexion...' : 'Se connecter'}
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => switchMode('forgot')}
-                  style={buttonSecondaryStyle}
-                >
-                  Mot de passe oublié
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* FORMULAIRE MOT DE PASSE OUBLIÉ */}
-          {mode === 'forgot' && (
-            <form onSubmit={handleForgotPassword}>
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={labelStyle}>Adresse courriel</label>
+              <div>
+                <label style={labelStyle}>Confirmer *</label>
                 <input
-                  type="email"
+                  type={showPassword ? 'text' : 'password'}
                   style={inputStyle}
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="votre@courriel.com"
+                  value={form.confirmPassword}
+                  onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                  placeholder="••••••••••••"
                   required
-                  autoComplete="email"
+                  minLength={8}
+                  autoComplete="new-password"
+                  onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                  onBlur={(e) => e.target.style.borderColor = '#3a444c'}
                 />
               </div>
-
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                <button 
-                  type="submit" 
-                  style={buttonPrimaryStyle}
-                  disabled={loading}
-                >
-                  {loading ? 'Envoi...' : 'Envoyer'}
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => switchMode('login')}
-                  style={buttonSecondaryStyle}
-                >
-                  Retour
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* FORMULAIRE D'INSCRIPTION */}
-          {mode === 'signup' && (
-            <form onSubmit={handleSignUp}>
-              {/* Prénom et Nom */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
-                <div>
-                  <label style={labelStyle}>Prénom *</label>
-                  <input
-                    type="text"
-                    style={inputStyle}
-                    value={form.firstName}
-                    onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                    placeholder="Jean"
-                    required
-                  />
-                </div>
-                <div>
-                  <label style={labelStyle}>Nom *</label>
-                  <input
-                    type="text"
-                    style={inputStyle}
-                    value={form.lastName}
-                    onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                    placeholder="Tremblay"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Courriel */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={labelStyle}>Adresse courriel *</label>
-                <input
-                  type="email"
-                  style={inputStyle}
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="votre@courriel.com"
-                  required
-                  autoComplete="email"
-                />
-              </div>
-
-              {/* Téléphone */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={labelStyle}>Téléphone</label>
-                <input
-                  type="tel"
-                  style={inputStyle}
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="514-555-1234"
-                />
-              </div>
-
-              {/* Nom de la compagnie/clinique */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={labelStyle}>Nom de votre compagnie ou clinique *</label>
-                <input
-                  type="text"
-                  style={inputStyle}
-                  value={form.companyName}
-                  onChange={(e) => setForm({ ...form, companyName: e.target.value })}
-                  placeholder="Ex: Clinique Esthétique Montréal"
-                  required
-                />
-              </div>
-
-              {/* Type de professionnel */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={labelStyle}>Type de professionnel *</label>
-                <select
-                  style={{ ...inputStyle, cursor: 'pointer' }}
-                  value={form.profession}
-                  onChange={(e) => setForm({ ...form, profession: e.target.value })}
-                  required
-                >
-                  <option value="">Sélectionnez votre profession</option>
-                  {PROFESSION_TYPES.map(type => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Champ "Autre" si sélectionné */}
-              {form.profession === 'autre' && (
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <label style={labelStyle}>Précisez votre profession *</label>
-                  <input
-                    type="text"
-                    style={inputStyle}
-                    value={form.professionOther}
-                    onChange={(e) => setForm({ ...form, professionOther: e.target.value })}
-                    placeholder="Votre profession"
-                    required
-                  />
-                </div>
-              )}
-
-              {/* Mots de passe */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
-                <div>
-                  <label style={labelStyle}>Mot de passe *</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      style={{ ...inputStyle, paddingRight: '3rem' }}
-                      value={form.password}
-                      onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      placeholder="Min. 8 caractères"
-                      required
-                      minLength={8}
-                      autoComplete="new-password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{
-                        position: 'absolute',
-                        right: '0.75rem',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#94a3b8',
-                        padding: '0.25rem'
-                      }}
-                    >
-                      {showPassword ? <Icons.EyeOff /> : <Icons.Eye />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label style={labelStyle}>Confirmer *</label>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    style={inputStyle}
-                    value={form.confirmPassword}
-                    onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                    placeholder="••••••••••••"
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                  />
-                </div>
-              </div>
-
-              {/* Captcha anti-robot */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={labelStyle}>
-                  🤖 Anti-robot: <strong style={{ color: '#0ea5e9' }}>{captcha.question}</strong>
-                </label>
-                <input
-                  type="number"
-                  style={inputStyle}
-                  value={captchaInput}
-                  onChange={(e) => setCaptchaInput(e.target.value)}
-                  placeholder="Votre réponse"
-                  required
-                />
-              </div>
-
-              <button 
-                type="submit" 
-                style={buttonPrimaryStyle}
-                disabled={loading}
-              >
-                {loading ? 'Création en cours...' : 'Créer mon compte'}
-              </button>
-            </form>
-          )}
-
-          {/* Lien inscription */}
-          {mode === 'login' && (
-            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-              <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
-                Pas encore de compte?{' '}
-                <a 
-                  onClick={() => switchMode('signup')} 
-                  style={{ 
-                    color: '#0ea5e9', 
-                    cursor: 'pointer',
-                    textDecoration: 'none',
-                    fontWeight: 500
-                  }}
-                >
-                  S'inscrire
-                </a>
-              </p>
             </div>
-          )}
 
-          {/* Copyright */}
-          <div style={{ 
-            marginTop: '3rem', 
-            textAlign: 'center', 
-            color: '#94a3b8',
-            fontSize: '0.75rem'
-          }}>
-            COPYRIGHT © 2025 FACEHUB
+            {/* Captcha anti-robot */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={labelStyle}>
+                🤖 Anti-robot: <strong style={{ color: '#5a9a9c' }}>{captcha.question}</strong>
+              </label>
+              <input
+                type="number"
+                style={inputStyle}
+                value={captchaInput}
+                onChange={(e) => setCaptchaInput(e.target.value)}
+                placeholder="Votre réponse"
+                required
+                onFocus={(e) => e.target.style.borderColor = '#5a9a9c'}
+                onBlur={(e) => e.target.style.borderColor = '#3a444c'}
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              style={buttonPrimaryStyle}
+              disabled={loading}
+            >
+              {loading ? 'Création en cours...' : 'Créer mon compte'}
+            </button>
+          </form>
+        )}
+
+        {/* Lien inscription */}
+        {mode === 'login' && (
+          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+            <p style={{ color: '#a8b4ba', fontSize: '0.9rem' }}>
+              Pas encore de compte?{' '}
+              <a 
+                onClick={() => switchMode('signup')} 
+                style={{ 
+                  color: '#5a9a9c', 
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                  fontWeight: 500
+                }}
+              >
+                S'inscrire
+              </a>
+            </p>
           </div>
+        )}
+
+        {/* Copyright */}
+        <div style={{ 
+          marginTop: '2rem', 
+          textAlign: 'center', 
+          color: '#6e7a82',
+          fontSize: '0.75rem'
+        }}>
+          COPYRIGHT © 2026 FACEHUB
         </div>
       </div>
     </div>
