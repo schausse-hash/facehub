@@ -10,6 +10,13 @@ import Admin from './Admin'
 import Help from './Help'
 import VisitsList from './VisitsList'
 import VisitDetail from './VisitDetail'
+// Settings components
+import PhotoSettings from './PhotoSettings'
+import AccountSettings from './AccountSettings'
+import BillingSettings from './BillingSettings'
+import InjectionTemplates from './InjectionTemplates'
+import RegistrationSettings from './RegistrationSettings'
+import ConsentSettings from './ConsentSettings'
 
 // Icônes SVG style FaceTec
 const Icons = {
@@ -54,7 +61,7 @@ export default function Dashboard({ session }) {
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
   const [userClinic, setUserClinic] = useState(null)
   const [userProfile, setUserProfile] = useState(null)
-  const [expandedMenus, setExpandedMenus] = useState({ patients: false })
+  const [expandedMenus, setExpandedMenus] = useState({ patients: false, userSettings: false, clinicSettings: false, admin: false })
   const [selectedVisit, setSelectedVisit] = useState(null)
   
   const [showPatientModal, setShowPatientModal] = useState(false)
@@ -348,16 +355,92 @@ export default function Dashboard({ session }) {
           {/* Settings Section */}
           <div className="nav-section-title">PARAMÈTRES</div>
 
-          {/* User Settings (Admin) */}
+          {/* User Settings with submenu */}
           <div 
-            className={`nav-item ${currentView === 'admin' ? 'active' : ''}`}
-            onClick={() => { setCurrentView('admin'); setSelectedPatient(null); }}
+            className={`nav-item ${['photo-settings', 'account-settings', 'billing-settings', 'injection-templates'].includes(currentView) ? 'active' : ''}`}
+            onClick={() => toggleMenu('userSettings')}
           >
             <Icons.User />
-            <span>Gestion utilisateurs</span>
+            <span>Paramètres utilisateur</span>
+            <span style={{ marginLeft: 'auto' }}>
+              {expandedMenus.userSettings ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
+            </span>
+          </div>
+          
+          {expandedMenus.userSettings && (
+            <>
+              <div 
+                className={`nav-item sub-item ${currentView === 'photo-settings' ? 'active' : ''}`}
+                onClick={() => { setCurrentView('photo-settings'); setSelectedPatient(null); }}
+                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
+              >
+                <span>Arrangement photo</span>
+              </div>
+              <div 
+                className={`nav-item sub-item ${currentView === 'account-settings' ? 'active' : ''}`}
+                onClick={() => { setCurrentView('account-settings'); setSelectedPatient(null); }}
+                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
+              >
+                <span>Paramètres du compte</span>
+              </div>
+              <div 
+                className={`nav-item sub-item ${currentView === 'billing-settings' ? 'active' : ''}`}
+                onClick={() => { setCurrentView('billing-settings'); setSelectedPatient(null); }}
+                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
+              >
+                <span>Produits et facturation</span>
+              </div>
+              <div 
+                className={`nav-item sub-item ${currentView === 'injection-templates' ? 'active' : ''}`}
+                onClick={() => { setCurrentView('injection-templates'); setSelectedPatient(null); }}
+                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
+              >
+                <span>Modèles d'injection</span>
+              </div>
+            </>
+          )}
+
+          {/* Clinic Settings with submenu */}
+          <div 
+            className={`nav-item ${['registration-settings', 'consent-settings'].includes(currentView) ? 'active' : ''}`}
+            onClick={() => toggleMenu('clinicSettings')}
+          >
+            <Icons.Building />
+            <span>Paramètres clinique</span>
+            <span style={{ marginLeft: 'auto' }}>
+              {expandedMenus.clinicSettings ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
+            </span>
+          </div>
+          
+          {expandedMenus.clinicSettings && (
+            <>
+              <div 
+                className={`nav-item sub-item ${currentView === 'registration-settings' ? 'active' : ''}`}
+                onClick={() => { setCurrentView('registration-settings'); setSelectedPatient(null); }}
+                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
+              >
+                <span>Paramètres d'inscription</span>
+              </div>
+              <div 
+                className={`nav-item sub-item ${currentView === 'consent-settings' ? 'active' : ''}`}
+                onClick={() => { setCurrentView('consent-settings'); setSelectedPatient(null); }}
+                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
+              >
+                <span>Paramètres de consentement</span>
+              </div>
+            </>
+          )}
+
+          {/* Admin Section (Super Admin Only) */}
+          <div 
+            className={`nav-item ${currentView === 'admin' ? 'active' : ''}`}
+            onClick={() => toggleMenu('admin')}
+          >
+            <Icons.Settings />
+            <span>Admin</span>
             {pendingRequestsCount > 0 && (
               <span style={{
-                marginLeft: 'auto',
+                marginLeft: '0.5rem',
                 background: 'var(--danger)',
                 color: '#fff',
                 borderRadius: '10px',
@@ -368,16 +451,36 @@ export default function Dashboard({ session }) {
                 {pendingRequestsCount}
               </span>
             )}
+            <span style={{ marginLeft: 'auto' }}>
+              {expandedMenus.admin ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
+            </span>
           </div>
-
-          {/* Clinic Settings */}
-          <div 
-            className={`nav-item ${currentView === 'documents' ? 'active' : ''}`}
-            onClick={() => { setCurrentView('documents'); setSelectedPatient(null); }}
-          >
-            <Icons.Building />
-            <span>Paramètres clinique</span>
-          </div>
+          
+          {expandedMenus.admin && (
+            <>
+              <div 
+                className={`nav-item sub-item ${currentView === 'admin' ? 'active' : ''}`}
+                onClick={() => { setCurrentView('admin'); setSelectedPatient(null); }}
+                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
+              >
+                <Icons.UsersGroup />
+                <span>Gestion des utilisateurs</span>
+                {pendingRequestsCount > 0 && (
+                  <span style={{
+                    marginLeft: 'auto',
+                    background: 'var(--danger)',
+                    color: '#fff',
+                    borderRadius: '10px',
+                    padding: '0.1rem 0.5rem',
+                    fontSize: '0.7rem',
+                    fontWeight: '600'
+                  }}>
+                    {pendingRequestsCount}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
 
           {/* Help Center */}
           <div 
@@ -490,6 +593,43 @@ export default function Dashboard({ session }) {
             )}
             {currentView === 'admin' && <Admin session={session} userClinic={userClinic} />}
             {currentView === 'help' && <Help />}
+            {/* Settings Views */}
+            {currentView === 'photo-settings' && (
+              <PhotoSettings 
+                onBack={() => setCurrentView('dashboard')}
+                session={session}
+              />
+            )}
+            {currentView === 'account-settings' && (
+              <AccountSettings 
+                onBack={() => setCurrentView('dashboard')}
+                session={session}
+              />
+            )}
+            {currentView === 'billing-settings' && (
+              <BillingSettings 
+                onBack={() => setCurrentView('dashboard')}
+                session={session}
+              />
+            )}
+            {currentView === 'injection-templates' && (
+              <InjectionTemplates 
+                onBack={() => setCurrentView('dashboard')}
+                session={session}
+              />
+            )}
+            {currentView === 'registration-settings' && (
+              <RegistrationSettings 
+                onBack={() => setCurrentView('dashboard')}
+                session={session}
+              />
+            )}
+            {currentView === 'consent-settings' && (
+              <ConsentSettings 
+                onBack={() => setCurrentView('dashboard')}
+                session={session}
+              />
+            )}
           </>
         )}
       </main>
