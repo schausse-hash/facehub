@@ -157,7 +157,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
       consents: { botox: form.botoxConsent, filler: form.fillerConsent, photo: form.photoConsent },
     }
     const { error } = await supabase.from('patients').update({
-      name: \`\${form.firstName} \${form.lastName}\`, email: form.email, phone: form.cellPhone, birthdate: form.birthday, metadata,
+      name: `${form.firstName} ${form.lastName}`, email: form.email, phone: form.cellPhone, birthdate: form.birthday, metadata,
     }).eq('id', patient.id)
     setSaving(false)
     if (!error) { alert('Patient enregistré avec succès!'); onSave && onSave() }
@@ -165,7 +165,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
   }
 
   const handleDelete = async () => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce patient?\\n\\nCette action est IRRÉVERSIBLE.')) return
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce patient?\n\nCette action est IRRÉVERSIBLE.')) return
     const confirmText = window.prompt("Tapez 'supprimer' pour confirmer:")
     if (confirmText?.toLowerCase() !== 'supprimer') return
     await supabase.from('patients').delete().eq('id', patient.id)
@@ -184,11 +184,11 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
     return form.firstName && form.lastName && form.birthday && form.email && form.genderIdentity && form.sexAtBirth && form.ethnicity
   }
 
-  const fullName = \`\${form.firstName} \${form.lastName}\`.trim() || 'Patient'
+  const fullName = `${form.firstName} ${form.lastName}`.trim() || 'Patient'
 
   return (
     <div className="pe-container">
-      <style>{\`
+      <style>{`
         .pe-container { background: var(--bg-main); min-height: 100%; padding: 1.5rem; color: var(--text-primary); }
         .pe-breadcrumb { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; }
         .pe-breadcrumb a { color: var(--text-muted); text-decoration: none; }
@@ -242,7 +242,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
         .pe-save-btn:hover { background: var(--primary-dark); }
         .pe-save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         @media (max-width: 1024px) { .pe-grid { grid-template-columns: 1fr; } .pe-profile-card { flex-direction: column; } .pe-form-row { grid-template-columns: 1fr; } .pe-checkbox-grid { grid-template-columns: 1fr; } }
-      \`}</style>
+      `}</style>
 
       <div className="pe-breadcrumb">
         <a href="#" onClick={(e) => { e.preventDefault(); onBack() }}>Accueil</a>{' | '}
