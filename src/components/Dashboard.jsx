@@ -50,6 +50,7 @@ const Icons = {
   Calendar: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
   CalendarCheck: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>,
   Clock: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+  Menu: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>,
 }
 
 export default function Dashboard({ session }) {
@@ -63,6 +64,7 @@ export default function Dashboard({ session }) {
   const [userProfile, setUserProfile] = useState(null)
   const [expandedMenus, setExpandedMenus] = useState({ patients: false, userSettings: false, clinicSettings: false, admin: false })
   const [selectedVisit, setSelectedVisit] = useState(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
   const [showPatientModal, setShowPatientModal] = useState(false)
   const [patientForm, setPatientForm] = useState({
@@ -198,6 +200,13 @@ export default function Dashboard({ session }) {
     return ''
   }
 
+  // Navigation helper that closes mobile menu
+  const navigateTo = (view, patient = null) => {
+    setCurrentView(view)
+    if (patient !== undefined) setSelectedPatient(patient)
+    setMobileMenuOpen(false)
+  }
+
   // Dashboard Home View
   const renderDashboardHome = () => (
     <div>
@@ -270,8 +279,22 @@ export default function Dashboard({ session }) {
 
   return (
     <div className="app-container">
+      {/* Mobile Header */}
+      <div className="mobile-header">
+        <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <Icons.Menu />
+        </button>
+        <div className="mobile-logo">
+          <Icons.Logo />
+          <span>FaceHub</span>
+        </div>
+      </div>
+
+      {/* Overlay for mobile */}
+      {mobileMenuOpen && <div className="sidebar-overlay" onClick={() => setMobileMenuOpen(false)} />}
+
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="logo">
           <div style={{ color: 'var(--primary)' }}><Icons.Logo /></div>
           <div><h1>FaceHub</h1></div>
@@ -281,7 +304,7 @@ export default function Dashboard({ session }) {
           {/* Dashboard */}
           <div 
             className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`}
-            onClick={() => { setCurrentView('dashboard'); setSelectedPatient(null); }}
+            onClick={() => navigateTo('dashboard', null)}
           >
             <Icons.Dashboard />
             <span>Tableau de bord</span>
@@ -309,7 +332,7 @@ export default function Dashboard({ session }) {
             <>
               <div 
                 className={`nav-item sub-item ${currentView === 'patients' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('patients'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('patients', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <Icons.PatientList />
@@ -317,7 +340,7 @@ export default function Dashboard({ session }) {
               </div>
               <div 
                 className={`nav-item sub-item ${currentView === 'patient-registration' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('patient-registration'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('patient-registration', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <Icons.UserPlus />
@@ -325,7 +348,7 @@ export default function Dashboard({ session }) {
               </div>
               <div 
                 className={`nav-item sub-item ${currentView === 'send-registration-link' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('send-registration-link'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('send-registration-link', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <Icons.Link />
@@ -371,28 +394,28 @@ export default function Dashboard({ session }) {
             <>
               <div 
                 className={`nav-item sub-item ${currentView === 'photo-settings' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('photo-settings'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('photo-settings', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <span>Arrangement photo</span>
               </div>
               <div 
                 className={`nav-item sub-item ${currentView === 'account-settings' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('account-settings'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('account-settings', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <span>Paramètres du compte</span>
               </div>
               <div 
                 className={`nav-item sub-item ${currentView === 'billing-settings' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('billing-settings'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('billing-settings', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <span>Produits et facturation</span>
               </div>
               <div 
                 className={`nav-item sub-item ${currentView === 'injection-templates' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('injection-templates'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('injection-templates', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <span>Modèles d'injection</span>
@@ -416,14 +439,14 @@ export default function Dashboard({ session }) {
             <>
               <div 
                 className={`nav-item sub-item ${currentView === 'registration-settings' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('registration-settings'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('registration-settings', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <span>Paramètres d'inscription</span>
               </div>
               <div 
                 className={`nav-item sub-item ${currentView === 'consent-settings' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('consent-settings'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('consent-settings', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <span>Paramètres de consentement</span>
@@ -460,7 +483,7 @@ export default function Dashboard({ session }) {
             <>
               <div 
                 className={`nav-item sub-item ${currentView === 'admin' ? 'active' : ''}`}
-                onClick={() => { setCurrentView('admin'); setSelectedPatient(null); }}
+                onClick={() => navigateTo('admin', null)}
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <Icons.UsersGroup />
@@ -485,7 +508,7 @@ export default function Dashboard({ session }) {
           {/* Help Center */}
           <div 
             className={`nav-item ${currentView === 'help' ? 'active' : ''}`}
-            onClick={() => { setCurrentView('help'); setSelectedPatient(null); }}
+            onClick={() => navigateTo('help', null)}
           >
             <Icons.Help />
             <span>Centre d'aide</span>
