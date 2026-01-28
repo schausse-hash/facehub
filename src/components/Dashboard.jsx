@@ -215,20 +215,9 @@ export default function Dashboard({ session }) {
       </div>
       <h1 className="page-title">TABLEAU DE BORD</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1.5rem', marginBottom: '1rem' }}>
+      <div className="dashboard-stats-grid">
         {/* Welcome Card */}
-        <div style={{
-          background: `linear-gradient(135deg, rgba(90, 154, 156, 0.9), rgba(74, 138, 140, 0.95)), url('https://images.unsplash.com/photo-1579154204601-01588f351e67?w=400&q=80')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          color: 'white',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          minHeight: '180px'
-        }}>
+        <div className="welcome-card">
           <div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Bon retour !</h2>
             <p style={{ fontSize: '0.9rem', opacity: 0.9 }}>{getUserName()} | {getUserTitle()} {getUserName()}</p>
@@ -255,7 +244,7 @@ export default function Dashboard({ session }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+      <div className="dashboard-stats-grid" style={{ marginTop: '1rem' }}>
         <div></div>
         <div className="stat-card">
           <div className="stat-content">
