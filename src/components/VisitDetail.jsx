@@ -236,58 +236,23 @@ export default function VisitDetail({ patient, visit, onBack, onRefresh, session
     }
   }
 
-  // Vérifier et créer le bucket si nécessaire
-  const ensureBucketExists = async (bucketName) => {
-    try {
-      // Essayer de lister le bucket pour voir s'il existe
-      const { data, error } = await supabase.storage.getBucket(bucketName)
-      
-      if (error && error.message.includes('not found')) {
-        // Le bucket n'existe pas, essayer de le créer
-        const { error: createError } = await supabase.storage.createBucket(bucketName, {
-          public: true,
-          fileSizeLimit: 10485760, // 10MB
-        })
-        
-        if (createError) {
-          console.error('Erreur création bucket:', createError)
-          return false
-        }
-        return true
-      }
-      
-      return !error
-    } catch (err) {
-      console.error('Erreur vérification bucket:', err)
-      return false
-    }
-  }
-
   const handlePhotoUpload = async (positionId, file) => {
     if (!file) return
     
     setUploadError(null)
 
-    // Vérifier que le bucket existe
-    const bucketExists = await ensureBucketExists('photos')
-    if (!bucketExists) {
-      setUploadError('Le stockage des photos n\'est pas configuré. Veuillez contacter l\'administrateur pour créer le bucket "photos" dans Supabase Storage.')
-      alert('Erreur: Le bucket de stockage "photos" n\'existe pas. Veuillez le créer dans les paramètres Supabase Storage.')
-      return
-    }
-
-    // Téléverser vers Supabase Storage
+    // Téléverser vers Supabase Storage (bucket: patient-photos)
     const fileExt = file.name.split('.').pop()
     const fileName = `${visit.id}/${positionId}_${Date.now()}.${fileExt}`
     
     const { error: uploadError } = await supabase.storage
-      .from('photos')
+      .from('patient-photos')
       .upload(fileName, file)
 
     if (uploadError) {
       if (uploadError.message.includes('Bucket not found') || uploadError.message.includes('bucket')) {
-        setUploadError('Le bucket "photos" n\'existe pas dans Supabase Storage. Veuillez le créer dans la console Supabase > Storage > New Bucket.')
-        alert('Erreur: Bucket non trouvé. Veuillez créer un bucket nommé "photos" dans Supabase Storage avec les permissions publiques activées.')
+        setUploadError('Le bucket "patient-photos" n\'existe pas dans Supabase Storage.')
+        alert('Erreur: Bucket non trouvé.')
       } else {
         alert('Erreur lors du téléversement: ' + uploadError.message)
       }
@@ -296,7 +261,7 @@ export default function VisitDetail({ patient, visit, onBack, onRefresh, session
 
     // Obtenir l'URL publique
     const { data: { publicUrl } } = supabase.storage
-      .from('photos')
+      .from('patient-photos')
       .getPublicUrl(fileName)
 
     // Sauvegarder dans la base de données
@@ -322,24 +287,16 @@ export default function VisitDetail({ patient, visit, onBack, onRefresh, session
 
     setUploadError(null)
 
-    // Vérifier que le bucket existe
-    const bucketExists = await ensureBucketExists('photos')
-    if (!bucketExists) {
-      setUploadError('Le stockage des photos n\'est pas configuré. Veuillez contacter l\'administrateur.')
-      alert('Erreur: Le bucket de stockage "photos" n\'existe pas.')
-      return
-    }
-
     const fileExt = file.name.split('.').pop()
     const fileName = `${visit.id}/marked_${Date.now()}.${fileExt}`
     
     const { error: uploadError } = await supabase.storage
-      .from('photos')
+      .from('patient-photos')
       .upload(fileName, file)
 
     if (uploadError) {
       if (uploadError.message.includes('Bucket not found') || uploadError.message.includes('bucket')) {
-        alert('Erreur: Bucket non trouvé. Veuillez créer un bucket nommé "photos" dans Supabase Storage.')
+        alert('Erreur: Bucket non trouvé.')
       } else {
         alert('Erreur lors du téléversement: ' + uploadError.message)
       }
@@ -347,7 +304,7 @@ export default function VisitDetail({ patient, visit, onBack, onRefresh, session
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from('photos')
+      .from('patient-photos')
       .getPublicUrl(fileName)
 
     const { data, error } = await supabase
@@ -369,23 +326,16 @@ export default function VisitDetail({ patient, visit, onBack, onRefresh, session
   const handleDocumentUpload = async (file) => {
     if (!file) return
 
-    // Vérifier que le bucket existe
-    const bucketExists = await ensureBucketExists('documents')
-    if (!bucketExists) {
-      alert('Erreur: Le bucket de stockage "documents" n\'existe pas.')
-      return
-    }
-
     const fileExt = file.name.split('.').pop()
     const fileName = `${visit.id}/doc_${Date.now()}.${fileExt}`
     
     const { error: uploadError } = await supabase.storage
-      .from('documents')
+      .from('patient-photos')
       .upload(fileName, file)
 
     if (uploadError) {
       if (uploadError.message.includes('Bucket not found') || uploadError.message.includes('bucket')) {
-        alert('Erreur: Bucket non trouvé. Veuillez créer un bucket nommé "documents" dans Supabase Storage.')
+        alert('Erreur: Bucket non trouvé.')
       } else {
         alert('Erreur lors du téléversement: ' + uploadError.message)
       }
@@ -393,7 +343,7 @@ export default function VisitDetail({ patient, visit, onBack, onRefresh, session
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from('documents')
+      .from('patient-photos')
       .getPublicUrl(fileName)
 
     const { data, error } = await supabase
