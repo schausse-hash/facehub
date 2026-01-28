@@ -525,6 +525,8 @@ export default function Dashboard({ session }) {
               <PatientList 
                 patients={patients} 
                 onSelectPatient={handleSelectPatient}
+                onEditPatient={(patient) => { setSelectedPatient(patient); setCurrentView('patient-edit'); }}
+                onViewVisits={(patient) => { setSelectedPatient(patient); setCurrentView('visits'); }}
                 onRefresh={fetchPatients}
                 onNewPatient={() => setShowPatientModal(true)}
               />
@@ -571,7 +573,8 @@ export default function Dashboard({ session }) {
               <VisitsList 
                 patient={selectedPatient}
                 onBack={() => setCurrentView('patient-detail')}
-                onSelectVisit={(visit) => { setSelectedVisit(visit); setCurrentView('visit-detail'); }}
+                onCreateVisit={(visit) => { setSelectedVisit(visit); setCurrentView('visit-detail'); }}
+                onViewVisit={(visit) => { setSelectedVisit(visit); setCurrentView('visit-detail'); }}
                 session={session}
               />
             )}
