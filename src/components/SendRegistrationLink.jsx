@@ -151,7 +151,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
         {/* Registration Type */}
         <div style={{ marginBottom: '1.5rem' }}>
           <label style={{ fontWeight: '600', marginBottom: '0.75rem', display: 'block', color: 'var(--text-primary)' }}>
-            Registration Type:
+            Type d'inscription :
           </label>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--text-primary)' }}>
@@ -161,7 +161,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
                 checked={registrationType === 'full'}
                 onChange={() => setRegistrationType('full')}
               />
-              Full Register
+              Inscription complète
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--text-primary)' }}>
               <input
@@ -170,7 +170,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
                 checked={registrationType === 'quick'}
                 onChange={() => setRegistrationType('quick')}
               />
-              Quick Register
+              Inscription rapide
             </label>
           </div>
         </div>
@@ -178,10 +178,10 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
         {/* Consent Forms */}
         <div style={{ marginBottom: '1.5rem' }}>
           <label style={{ fontWeight: '600', marginBottom: '0.5rem', display: 'block', color: 'var(--text-primary)' }}>
-            Consent Forms:
+            Formulaires de consentement :
           </label>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-            Select which consent forms to attach to the patient's in-take.
+            Sélectionnez les formulaires de consentement à joindre à l'inscription du patient.
           </p>
           
           <label style={checkboxLabelStyle}>
@@ -190,7 +190,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
               checked={selectedConsents.botox}
               onChange={(e) => setSelectedConsents(prev => ({ ...prev, botox: e.target.checked }))}
             />
-            Botulinum Toxin Consent
+            Consentement Toxine Botulique
           </label>
           
           <label style={checkboxLabelStyle}>
@@ -199,7 +199,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
               checked={selectedConsents.filler}
               onChange={(e) => setSelectedConsents(prev => ({ ...prev, filler: e.target.checked }))}
             />
-            Dermal Filler Consent
+            Consentement Agents de Comblement
           </label>
           
           <label style={checkboxLabelStyle}>
@@ -208,7 +208,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
               checked={selectedConsents.photo}
               onChange={(e) => setSelectedConsents(prev => ({ ...prev, photo: e.target.checked }))}
             />
-            Photo Consent
+            Consentement Photo
           </label>
         </div>
 
@@ -237,9 +237,9 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
                   marginRight: '8px',
                   display: 'inline-block'
                 }}></span>
-                Generating...
+                Génération...
               </>
-            ) : 'Submit'}
+            ) : 'Continuer'}
           </button>
         </div>
       </div>
@@ -253,10 +253,10 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
         {/* Link Section */}
         <div style={{ marginBottom: '2rem' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-            Patient Registration Link Generated
+            Lien d'inscription patient généré
           </h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-            Copy and paste the link below into an email to your patient:
+            Copiez et collez le lien ci-dessous dans un courriel à votre patient :
           </p>
           
           <textarea
@@ -272,11 +272,11 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
           >
             {copied ? (
               <>
-                <Icons.Check /> Copied!
+                <Icons.Check /> Copié !
               </>
             ) : (
               <>
-                <Icons.Copy /> Copy Link
+                <Icons.Copy /> Copier le lien
               </>
             )}
           </button>
@@ -285,10 +285,10 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
         {/* QR Code Section */}
         <div style={{ marginBottom: '2rem' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-            For In-Clinic Use:
+            Pour utilisation en clinique :
           </h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-            Scan the QR code below on an office tablet to allow the patient to complete their registration:
+            Scannez le code QR ci-dessous sur une tablette de bureau pour permettre au patient de compléter son inscription :
           </p>
           
           <div style={{ 
@@ -301,7 +301,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
             {qrCodeUrl ? (
               <img 
                 src={qrCodeUrl} 
-                alt="QR Code" 
+                alt="Code QR" 
                 style={{ display: 'block', width: '200px', height: '200px' }}
               />
             ) : (
@@ -322,7 +322,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
         {/* Included Forms */}
         <div style={{ marginBottom: '2rem' }}>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
-            The following forms are included in this registration link:
+            Les formulaires suivants sont inclus dans ce lien d'inscription :
           </p>
           <ul style={{ 
             margin: 0, 
@@ -330,23 +330,23 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
             color: 'var(--text-primary)',
             fontSize: '0.9rem'
           }}>
-            <li>Patient Registration (Personal Details & Medical History)</li>
-            {selectedConsents.botox && <li>Botulinum Toxin Consent</li>}
-            {selectedConsents.filler && <li>Dermal Filler Consent</li>}
-            {selectedConsents.photo && <li>Photo Consent</li>}
+            <li>Inscription patient (Détails personnels et historique médical)</li>
+            {selectedConsents.botox && <li>Consentement Toxine Botulique</li>}
+            {selectedConsents.filler && <li>Consentement Agents de Comblement</li>}
+            {selectedConsents.photo && <li>Consentement Photo</li>}
           </ul>
         </div>
 
         {/* Refresh Button */}
         <div style={{ marginBottom: '2rem' }}>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-            🔄 <strong>Need a new link or code?</strong> Click the Refresh button to generate a new one.
+            🔄 <strong>Besoin d'un nouveau lien ou code ?</strong> Cliquez sur Actualiser pour en générer un nouveau.
           </p>
           <button 
             className="btn btn-outline"
             onClick={handleRefresh}
           >
-            <Icons.Refresh /> Refresh
+            <Icons.Refresh /> Actualiser
           </button>
         </div>
 
@@ -366,7 +366,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
             color: 'var(--primary)',
             marginBottom: '1rem'
           }}>
-            <Icons.Info /> Important Information:
+            <Icons.Info /> Information importante :
           </h4>
           <ul style={{ 
             margin: 0, 
@@ -375,9 +375,9 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
             fontSize: '0.9rem',
             lineHeight: '1.7'
           }}>
-            <li>Each patient must receive a unique registration link. Do not share the same link with multiple patients.</li>
-            <li>Once the patient completes their registration, the link will automatically expire.</li>
-            <li>Links are valid for 14 days from the time of creation. After that, they will no longer be accessible.</li>
+            <li>Chaque patient doit recevoir un lien d'inscription unique. Ne partagez pas le même lien avec plusieurs patients.</li>
+            <li>Une fois que le patient a complété son inscription, le lien expirera automatiquement.</li>
+            <li>Les liens sont valides pendant 14 jours à partir de leur création. Après cela, ils ne seront plus accessibles.</li>
           </ul>
           <p style={{ 
             marginTop: '1rem', 
@@ -385,7 +385,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
             fontSize: '0.9rem', 
             color: 'var(--text-secondary)' 
           }}>
-            Thank you for helping us maintain patient confidentiality and data security.
+            Merci de nous aider à maintenir la confidentialité des patients et la sécurité des données.
           </p>
         </div>
       </div>
@@ -396,11 +396,11 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
     <div>
       {/* Header */}
       <div className="page-breadcrumb">
-        <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>Home</a> | 
+        <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>Accueil</a> | 
         <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}> Patients</a> | 
-        Register by Email
+        Inscription par courriel
       </div>
-      <h1 className="page-title">PATIENT SELF-REGISTRATION</h1>
+      <h1 className="page-title">AUTO-INSCRIPTION PATIENT</h1>
 
       {/* Description */}
       <p style={{ 
@@ -408,8 +408,8 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
         marginBottom: '1.5rem',
         maxWidth: '700px'
       }}>
-        Create a unique registration link and QR code that you can send to patients via email 
-        or have them scan in-office using a tablet or their own phone.
+        Créez un lien d'inscription unique et un code QR que vous pouvez envoyer aux patients par courriel 
+        ou leur faire scanner en clinique à l'aide d'une tablette ou de leur téléphone.
       </p>
 
       {/* Manage Consent Settings Link */}
@@ -426,7 +426,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
               gap: '0.5rem'
             }}
           >
-            <Icons.Settings /> Manage Clinic Consent Settings
+            <Icons.Settings /> Gérer les paramètres de consentement
           </a>
         </div>
       )}
@@ -438,7 +438,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic }) {
 
       {/* Copyright */}
       <div className="copyright">
-        Copyright © {new Date().getFullYear()} FaceHub
+        Droits d'auteur © {new Date().getFullYear()} FaceHub
       </div>
 
       {/* CSS for spinner animation */}

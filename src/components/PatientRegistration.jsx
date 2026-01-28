@@ -337,7 +337,7 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
       
       if (error) throw error
       
-      alert('Patient registered successfully!')
+      alert('Patient inscrit avec succès !')
       onComplete()
       
     } catch (error) {
@@ -425,13 +425,13 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
     <div className="modal-overlay">
       <div className="modal" style={{ maxWidth: '600px' }}>
         <div className="modal-header">
-          <h2 className="modal-title">Patient Registration</h2>
+          <h2 className="modal-title">Inscription patient</h2>
         </div>
         <div className="modal-body" style={{ padding: '1.5rem' }}>
           {/* Registration Type */}
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ fontWeight: '600', marginBottom: '0.75rem', display: 'block' }}>
-              Registration Type:
+              Type d'inscription :
             </label>
             <div style={{ display: 'flex', gap: '1.5rem' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -441,7 +441,7 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
                   checked={registrationType === 'full'}
                   onChange={() => setRegistrationType('full')}
                 />
-                Full Register
+                Inscription complète
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input
@@ -450,7 +450,7 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
                   checked={registrationType === 'quick'}
                   onChange={() => setRegistrationType('quick')}
                 />
-                Quick Register
+                Inscription rapide
               </label>
             </div>
           </div>
@@ -458,10 +458,10 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
           {/* Consent Forms Selection */}
           <div>
             <label style={{ fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>
-              Consent Forms:
+              Formulaires de consentement :
             </label>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-              Select which consent forms to attach to the patient's in-take.
+              Sélectionnez les formulaires de consentement à joindre à l'inscription du patient.
             </p>
             
             <label style={checkboxLabelStyle}>
@@ -470,7 +470,7 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
                 checked={selectedConsents.botox}
                 onChange={(e) => setSelectedConsents(prev => ({ ...prev, botox: e.target.checked }))}
               />
-              Botulinum Toxin Consent
+              Consentement Toxine Botulique
             </label>
             
             <label style={checkboxLabelStyle}>
@@ -479,7 +479,7 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
                 checked={selectedConsents.filler}
                 onChange={(e) => setSelectedConsents(prev => ({ ...prev, filler: e.target.checked }))}
               />
-              Dermal Filler Consent
+              Consentement Agents de Comblement
             </label>
             
             <label style={checkboxLabelStyle}>
@@ -488,13 +488,13 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
                 checked={selectedConsents.photo}
                 onChange={(e) => setSelectedConsents(prev => ({ ...prev, photo: e.target.checked }))}
               />
-              Photo Consent
+              Consentement Photo
             </label>
           </div>
         </div>
         <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <button className="btn btn-outline" onClick={onBack}>Cancel</button>
-          <button className="btn btn-primary" onClick={handleContinue}>Continue</button>
+          <button className="btn btn-outline" onClick={onBack}>Annuler</button>
+          <button className="btn btn-primary" onClick={handleContinue}>Continuer</button>
         </div>
       </div>
     </div>
@@ -508,11 +508,11 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
     <div>
       {/* Header */}
       <div className="page-breadcrumb">
-        <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>Home</a> | 
+        <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>Accueil</a> | 
         <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}> Patients</a> | 
-        Register
+        Inscription
       </div>
-      <h1 className="page-title">PATIENT REGISTRATION</h1>
+      <h1 className="page-title">INSCRIPTION PATIENT</h1>
 
       {/* Type Toggle */}
       <div style={{ 
@@ -525,7 +525,7 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
         borderRadius: '8px',
         border: '1px solid var(--border)'
       }}>
-        <span style={{ fontWeight: '500' }}>Type:</span>
+        <span style={{ fontWeight: '500' }}>Type :</span>
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
           <input
             type="radio"
@@ -533,7 +533,7 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
             checked={registrationType === 'full'}
             onChange={() => setRegistrationType('full')}
           />
-          Full Register
+          Inscription complète
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
           <input
@@ -542,7 +542,7 @@ export default function PatientRegistration({ onBack, onComplete, session, userC
             checked={registrationType === 'quick'}
             onChange={() => setRegistrationType('quick')}
           />
-          Quick Register
+          Inscription rapide
         </label>
       </div>
 

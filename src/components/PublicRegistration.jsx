@@ -650,7 +650,7 @@ export default function PublicRegistration({ token }) {
             borderRadius: '50%',
             animation: 'spin 1s linear infinite'
           }} />
-          <p style={{ marginTop: '1rem', color: '#666' }}>Loading registration form...</p>
+          <p style={{ marginTop: '1rem', color: '#666' }}>Chargement du formulaire d'inscription...</p>
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </div>
@@ -660,9 +660,9 @@ export default function PublicRegistration({ token }) {
   // ===================== ERROR STATES =====================
   if (error) {
     const errorMessages = {
-      invalid: { title: 'Invalid Link', message: 'This registration link is invalid or does not exist.' },
-      used: { title: 'Link Already Used', message: 'This registration link has already been used. Each link can only be used once.' },
-      expired: { title: 'Link Expired', message: 'This registration link has expired. Please contact the clinic for a new registration link.' }
+      invalid: { title: 'Lien invalide', message: 'Ce lien d\'inscription est invalide ou n\'existe pas.' },
+      used: { title: 'Lien déjà utilisé', message: 'Ce lien d\'inscription a déjà été utilisé. Chaque lien ne peut être utilisé qu\'une seule fois.' },
+      expired: { title: 'Lien expiré', message: 'Ce lien d\'inscription a expiré. Veuillez contacter la clinique pour obtenir un nouveau lien.' }
     }
     const { title, message } = errorMessages[error] || errorMessages.invalid
 
@@ -683,12 +683,12 @@ export default function PublicRegistration({ token }) {
       <div style={styles.page}>
         <div style={styles.successBox}>
           <div style={styles.successIcon}>✓</div>
-          <h2 style={{ marginBottom: '1rem', color: '#333' }}>Registration Successful</h2>
+          <h2 style={{ marginBottom: '1rem', color: '#333' }}>Inscription réussie</h2>
           <p style={{ color: '#666', maxWidth: '500px', marginBottom: '0.5rem' }}>
-            Thank you for taking the time to register. We've received your details and will review them shortly.
+            Merci d'avoir pris le temps de vous inscrire. Nous avons reçu vos informations et les examinerons sous peu.
           </p>
           <p style={{ color: '#666', maxWidth: '500px' }}>
-            If any additional information is required, a member of our team will reach out to you. We're glad to have you with us!
+            Si des informations supplémentaires sont nécessaires, un membre de notre équipe vous contactera. Nous sommes heureux de vous compter parmi nous !
           </p>
         </div>
       </div>
