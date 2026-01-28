@@ -18,11 +18,15 @@ const Icons = {
   UserPlus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>,
   Star: () => <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>,
   Send: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>,
+  Key: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>,
+  Refresh: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
 }
 
 const ROLES = {
   user: { label: 'Injecteur', color: '#6b7280', description: 'Accès aux patients de sa clinique' },
-  collaborator: { label: 'Administrateur', color: '#3b82f6', description: 'Peut gérer sa clinique' },
+  assistant: { label: 'Assistante', color: '#8b5cf6', description: 'Gestion photos et dossiers' },
+  owner: { label: 'Propriétaire', color: '#3b82f6', description: 'Propriétaire de la clinique' },
+  collaborator: { label: 'Administrateur', color: '#10b981', description: 'Peut gérer sa clinique' },
   super_admin: { label: 'Super Admin', color: '#eab308', description: 'Accès total' }
 }
 
@@ -453,6 +457,56 @@ export default function Admin({ session, userClinic }) {
     await supabase.from('user_roles').delete().eq('user_id', user.user_id)
     await supabase.from('user_profiles').delete().eq('user_id', user.user_id)
     fetchUsers()
+  }
+
+  // Envoyer un lien de réinitialisation de mot de passe
+  const handleSendPasswordReset = async (user) => {
+    if (userRole !== 'super_admin') return
+    
+    const email = user.email || user.profile?.email
+    if (!email) {
+      alert('Aucune adresse courriel trouvée pour cet utilisateur.')
+      return
+    }
+
+    if (!window.confirm(`Envoyer un lien de réinitialisation de mot de passe à ${email}?`)) return
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    })
+
+    if (error) {
+      alert('Erreur lors de l\'envoi: ' + error.message)
+    } else {
+      alert(`Un lien de réinitialisation a été envoyé à ${email}`)
+    }
+  }
+
+  // Changer le mot de passe manuellement (Super Admin)
+  const handleForcePasswordChange = async (user) => {
+    if (userRole !== 'super_admin') return
+    
+    const newPassword = window.prompt(
+      `Définir un nouveau mot de passe pour ${user.email || user.profile?.email}\n\n` +
+      `Le mot de passe doit contenir au moins 6 caractères.\n` +
+      `L'utilisateur devra changer son mot de passe à la prochaine connexion.`
+    )
+
+    if (!newPassword) return
+
+    if (newPassword.length < 6) {
+      alert('Le mot de passe doit contenir au moins 6 caractères.')
+      return
+    }
+
+    // Note: Cette fonction nécessite des privilèges admin via Supabase Admin API
+    // Pour l'instant, on simule avec une alerte
+    alert(
+      `Fonctionnalité de changement forcé de mot de passe:\n\n` +
+      `Pour ${user.email || user.profile?.email}\n` +
+      `Nouveau mot de passe: ${newPassword}\n\n` +
+      `Note: Cette fonctionnalité nécessite une configuration serveur supplémentaire.`
+    )
   }
 
   const handleEditUser = (user) => {
@@ -1167,12 +1221,14 @@ export default function Admin({ session, userClinic }) {
                             borderRadius: '8px',
                             border: '1px solid var(--border)',
                             background: 'var(--bg-card)',
-                            color: ROLES[user.role].color,
+                            color: ROLES[user.role]?.color || '#6b7280',
                             fontWeight: '600',
                             fontSize: '0.85rem'
                           }}
                         >
                           <option value="user">👤 Injecteur</option>
+                          <option value="assistant">👩‍💼 Assistante</option>
+                          <option value="owner">🏠 Propriétaire</option>
                           <option value="collaborator">👥 Administrateur</option>
                           <option value="super_admin">⭐ Super Admin</option>
                         </select>
@@ -1191,13 +1247,32 @@ export default function Admin({ session, userClinic }) {
                       </button>
 
                       {userRole === 'super_admin' && user.user_id !== session.user.id && (
-                        <button 
-                          className="btn btn-outline btn-sm" 
-                          onClick={() => handleDeleteUser(user)}
-                          style={{ color: '#ef4444' }}
-                        >
-                          <Icons.Trash />
-                        </button>
+                        <>
+                          <button 
+                            className="btn btn-outline btn-sm" 
+                            onClick={() => handleSendPasswordReset(user)}
+                            title="Envoyer lien de réinitialisation"
+                            style={{ color: '#3b82f6' }}
+                          >
+                            <Icons.Key />
+                          </button>
+                          <button 
+                            className="btn btn-outline btn-sm" 
+                            onClick={() => handleForcePasswordChange(user)}
+                            title="Changer le mot de passe"
+                            style={{ color: '#f59e0b' }}
+                          >
+                            <Icons.Refresh />
+                          </button>
+                          <button 
+                            className="btn btn-outline btn-sm" 
+                            onClick={() => handleDeleteUser(user)}
+                            style={{ color: '#ef4444' }}
+                            title="Supprimer l'utilisateur"
+                          >
+                            <Icons.Trash />
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
