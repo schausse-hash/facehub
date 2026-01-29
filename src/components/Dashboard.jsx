@@ -20,6 +20,8 @@ import ConsentSettings from './ConsentSettings'
 // Schedule components
 import Schedule from './Schedule'
 import ScheduleSettings from './ScheduleSettings'
+// Portfolio
+import Portfolio from './Portfolio'
 
 // Icônes SVG style FaceTec
 const Icons = {
@@ -470,7 +472,10 @@ export default function Dashboard({ session }) {
           )}
 
           {/* Portfolio */}
-          <div className="nav-item" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+          <div 
+            className={`nav-item ${currentView === 'portfolio' ? 'active' : ''}`}
+            onClick={() => navigateTo('portfolio', null)}
+          >
             <Icons.Portfolio />
             <span>Portfolio</span>
           </div>
@@ -784,6 +789,13 @@ export default function Dashboard({ session }) {
               <ScheduleSettings 
                 onBack={() => setCurrentView('schedule')}
                 session={session}
+              />
+            )}
+            {/* Portfolio View */}
+            {currentView === 'portfolio' && (
+              <Portfolio 
+                session={session}
+                userClinic={userClinic}
               />
             )}
           </>
