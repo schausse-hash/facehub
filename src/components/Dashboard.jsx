@@ -17,6 +17,9 @@ import BillingSettings from './BillingSettings'
 import InjectionTemplates from './InjectionTemplates'
 import RegistrationSettings from './RegistrationSettings'
 import ConsentSettings from './ConsentSettings'
+// Schedule components
+import Schedule from './Schedule'
+import ScheduleSettings from './ScheduleSettings'
 
 // Icônes SVG style FaceTec
 const Icons = {
@@ -417,7 +420,10 @@ export default function Dashboard({ session }) {
           </div>
 
           {/* Schedule */}
-          <div className="nav-item" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+          <div 
+            className={`nav-item ${currentView === 'schedule' || currentView === 'schedule-settings' ? 'active' : ''}`}
+            onClick={() => navigateTo('schedule', null)}
+          >
             <Icons.Schedule />
             <span>Agenda</span>
           </div>
@@ -525,6 +531,13 @@ export default function Dashboard({ session }) {
                 style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
               >
                 <span>Modèles d'injection</span>
+              </div>
+              <div 
+                className={`nav-item sub-item ${currentView === 'schedule-settings' ? 'active' : ''}`}
+                onClick={() => navigateTo('schedule-settings', null)}
+                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
+              >
+                <span>Disponibilités agenda</span>
               </div>
             </>
           )}
@@ -762,6 +775,20 @@ export default function Dashboard({ session }) {
             {currentView === 'consent-settings' && (
               <ConsentSettings 
                 onBack={() => setCurrentView('dashboard')}
+                session={session}
+              />
+            )}
+            {/* Schedule Views */}
+            {currentView === 'schedule' && (
+              <Schedule 
+                session={session}
+                userClinic={userClinic}
+                onViewPatient={(patient) => { setSelectedPatient(patient); setCurrentView('patient-detail'); }}
+              />
+            )}
+            {currentView === 'schedule-settings' && (
+              <ScheduleSettings 
+                onBack={() => setCurrentView('schedule')}
                 session={session}
               />
             )}
