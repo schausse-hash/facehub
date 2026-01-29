@@ -155,7 +155,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
     setUploadingPhoto(true)
     try {
       const fileExt = file.name.split('.').pop() || 'jpg'
-      const fileName = \`\${patient.id}/profile_\${Date.now()}.\${fileExt}\`
+      const fileName = `${patient.id}/profile_${Date.now()}.${fileExt}`
 
       if (patient.metadata?.profilePhotoPath) {
         await supabase.storage.from('patient-photos').remove([patient.metadata.profilePhotoPath])
@@ -226,7 +226,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
       consents: { botox: form.botoxConsent, filler: form.fillerConsent, photo: form.photoConsent },
     }
     const { error } = await supabase.from('patients').update({
-      name: \`\${form.firstName} \${form.lastName}\`, email: form.email, phone: form.cellPhone, birthdate: form.birthday, metadata,
+      name: `${form.firstName} ${form.lastName}`, email: form.email, phone: form.cellPhone, birthdate: form.birthday, metadata,
       profile_photo_url: profilePhoto,
     }).eq('id', patient.id)
     setSaving(false)
@@ -254,7 +254,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
     return form.firstName && form.lastName && form.birthday && form.email && form.genderIdentity && form.sexAtBirth && form.ethnicity
   }
 
-  const fullName = \`\${form.firstName} \${form.lastName}\`.trim() || 'Patient'
+  const fullName = `${form.firstName} ${form.lastName}`.trim() || 'Patient'
 
   const styles = `
     .pe-container { background: var(--bg-main); min-height: 100%; padding: 1.5rem; color: var(--text-primary); }
