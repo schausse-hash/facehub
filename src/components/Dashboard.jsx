@@ -481,12 +481,6 @@ export default function Dashboard({ session }) {
             <span>Recherche de cas</span>
           </div>
 
-          {/* Marketing Resources */}
-          <div className="nav-item" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
-            <Icons.Marketing />
-            <span>Ressources marketing</span>
-          </div>
-
           {/* Settings Section */}
           <div className="nav-section-title">PARAMÈTRES</div>
 
