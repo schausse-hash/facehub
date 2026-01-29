@@ -22,6 +22,8 @@ import Schedule from './Schedule'
 import ScheduleSettings from './ScheduleSettings'
 // Portfolio
 import Portfolio from './Portfolio'
+// Case Search
+import CaseSearch from './CaseSearch'
 
 // Icônes SVG style FaceTec
 const Icons = {
@@ -481,10 +483,16 @@ export default function Dashboard({ session }) {
           </div>
 
           {/* Case Search */}
-          <div className="nav-item" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+          <div 
+            className={`nav-item ${currentView === 'case-search' ? 'active' : ''}`}
+            onClick={() => navigateTo('case-search', null)}
+          >
             <Icons.Search />
             <span>Recherche de cas</span>
           </div>
+
+          {/* Spacer to push settings to bottom */}
+          <div style={{ flex: 1, minHeight: '2rem' }}></div>
 
           {/* Settings Section */}
           <div className="nav-section-title">PARAMÈTRES</div>
@@ -796,6 +804,14 @@ export default function Dashboard({ session }) {
               <Portfolio 
                 session={session}
                 userClinic={userClinic}
+              />
+            )}
+            {/* Case Search View */}
+            {currentView === 'case-search' && (
+              <CaseSearch 
+                session={session}
+                userClinic={userClinic}
+                onViewPatient={(patient) => { setSelectedPatient(patient); setCurrentView('patient-detail'); }}
               />
             )}
           </>
