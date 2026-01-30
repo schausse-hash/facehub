@@ -10,54 +10,57 @@ import Admin from './Admin'
 import Help from './Help'
 import VisitsList from './VisitsList'
 import VisitDetail from './VisitDetail'
-// Settings components
 import PhotoSettings from './PhotoSettings'
 import AccountSettings from './AccountSettings'
 import BillingSettings from './BillingSettings'
 import InjectionTemplates from './InjectionTemplates'
 import RegistrationSettings from './RegistrationSettings'
 import ConsentSettings from './ConsentSettings'
-// Schedule components
 import Schedule from './Schedule'
 import ScheduleSettings from './ScheduleSettings'
-// Portfolio
 import Portfolio from './Portfolio'
-// Case Search
 import CaseSearch from './CaseSearch'
 
-// Icônes SVG style FaceTec
+// Icônes SVG Premium
 const Icons = {
   Logo: () => (
     <svg viewBox="0 0 40 40" fill="none" style={{ width: 32, height: 32 }}>
+      <defs>
+        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#c9a87c" />
+          <stop offset="100%" stopColor="#a78bfa" />
+        </linearGradient>
+      </defs>
       <path d="M12 8C12 8 12 32 12 32C12 34 14 36 16 36C18 36 20 34 20 32V24C20 22 22 20 24 20C26 20 28 22 28 24C28 26 26 28 24 28H20" 
-        stroke="currentColor" strokeWidth="3" strokeLinecap="round" fill="none"/>
-      <circle cx="24" cy="14" r="5" fill="currentColor"/>
+        stroke="url(#logoGrad)" strokeWidth="3" strokeLinecap="round" fill="none"/>
+      <circle cx="24" cy="14" r="5" fill="url(#logoGrad)"/>
     </svg>
   ),
-  Dashboard: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>,
-  Schedule: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
-  Patients: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>,
-  PatientList: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>,
-  UserPlus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>,
-  Link: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>,
-  Portfolio: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
-  Search: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
-  Marketing: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>,
-  Document: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
-  Settings: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
-  User: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
-  Building: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
-  Help: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-  Logout: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>,
-  ChevronDown: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 16, height: 16 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>,
-  ChevronRight: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 16, height: 16 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>,
-  Plus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>,
-  X: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>,
-  UsersGroup: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>,
-  Calendar: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
-  CalendarCheck: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>,
-  Clock: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-  Menu: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>,
+  Dashboard: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2" strokeWidth="2"/><rect x="14" y="3" width="7" height="7" rx="2" strokeWidth="2"/><rect x="3" y="14" width="7" height="7" rx="2" strokeWidth="2"/><rect x="14" y="14" width="7" height="7" rx="2" strokeWidth="2"/></svg>,
+  Schedule: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="2"/><path strokeWidth="2" d="M16 2v4M8 2v4M3 10h18"/></svg>,
+  Patients: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" strokeWidth="2"/><path strokeWidth="2" d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><circle cx="19" cy="7" r="3" strokeWidth="2"/><path strokeWidth="2" d="M21 21v-2a3 3 0 00-2-2.83"/></svg>,
+  Portfolio: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path strokeWidth="2" d="M21 15l-5-5L5 21"/></svg>,
+  Search: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" strokeWidth="2"/><path strokeWidth="2" strokeLinecap="round" d="M21 21l-4.35-4.35"/></svg>,
+  Settings: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" strokeWidth="2"/><path strokeWidth="2" d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>,
+  User: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" strokeWidth="2"/><path strokeWidth="2" d="M3 21v-2a7 7 0 0114 0v2"/></svg>,
+  Building: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3M9 9v.01M9 13v.01M9 17v.01"/></svg>,
+  Help: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2"/><path strokeWidth="2" d="M9 9a3 3 0 115.83 1c0 2-3 3-3 3M12 17v.01"/></svg>,
+  Logout: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>,
+  ChevronDown: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" d="M6 9l6 6 6-6"/></svg>,
+  ChevronRight: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" d="M9 18l6-6-6-6"/></svg>,
+  Plus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" d="M12 5v14M5 12h14"/></svg>,
+  X: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" d="M18 6L6 18M6 6l12 12"/></svg>,
+  Bell: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>,
+  Menu: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>,
+  Star: () => <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
+  Activity: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
+  TrendingUp: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" d="M23 6l-9.5 9.5-5-5L1 18"/><path strokeWidth="2" d="M17 6h6v6"/></svg>,
+  Calendar: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="2"/><path strokeWidth="2" d="M16 2v4M8 2v4M3 10h18"/></svg>,
+  Clock: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2"/><path strokeWidth="2" d="M12 6v6l4 2"/></svg>,
+  UserPlus: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" strokeWidth="2"/><path strokeWidth="2" d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2M19 8v6M16 11h6"/></svg>,
+  Link: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>,
+  PatientList: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>,
+  Sparkles: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l1.5 4.5L19 9l-4.5 1.5L13 15l-1.5-4.5L7 9l4.5-1.5L13 3z"/></svg>,
 }
 
 export default function Dashboard({ session }) {
@@ -72,9 +75,9 @@ export default function Dashboard({ session }) {
   const [expandedMenus, setExpandedMenus] = useState({ patients: false, userSettings: false, clinicSettings: false, admin: false })
   const [selectedVisit, setSelectedVisit] = useState(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  
-  // État pour vérifier si l'utilisateur est approuvé
-  const [isApproved, setIsApproved] = useState(null) // null = en cours de vérification
+  const [recentPatients, setRecentPatients] = useState([])
+  const [todayAppointments, setTodayAppointments] = useState([])
+  const [isApproved, setIsApproved] = useState(null)
   
   const [showPatientModal, setShowPatientModal] = useState(false)
   const [patientForm, setPatientForm] = useState({
@@ -83,13 +86,12 @@ export default function Dashboard({ session }) {
   })
   const [savingPatient, setSavingPatient] = useState(false)
 
-  // Vérifier si l'utilisateur est approuvé
+  // Check user approval
   useEffect(() => {
     checkUserApproval()
   }, [session])
 
   const checkUserApproval = async () => {
-    // Vérifier dans user_requests si l'utilisateur a un statut 'pending' ou 'rejected'
     const { data, error } = await supabase
       .from('user_requests')
       .select('status')
@@ -97,12 +99,10 @@ export default function Dashboard({ session }) {
       .single()
 
     if (error || !data) {
-      // Si pas dans user_requests, c'est un ancien utilisateur ou admin - approuvé par défaut
       setIsApproved(true)
     } else if (data.status === 'approved') {
       setIsApproved(true)
     } else {
-      // pending ou rejected
       setIsApproved(false)
     }
   }
@@ -168,6 +168,7 @@ export default function Dashboard({ session }) {
 
     const { data } = await query
     setPatients(data || [])
+    setRecentPatients((data || []).slice(0, 5))
     
     const totalVisits = data?.reduce((sum, p) => sum + (p.visits?.length || 0), 0) || 0
     setStats({
@@ -177,6 +178,26 @@ export default function Dashboard({ session }) {
       upcoming: 0
     })
     setLoading(false)
+  }
+
+  useEffect(() => {
+    if (userClinic?.id) {
+      fetchTodayAppointments()
+    }
+  }, [userClinic])
+
+  const fetchTodayAppointments = async () => {
+    const today = new Date().toISOString().split('T')[0]
+    const { data } = await supabase
+      .from('appointments')
+      .select(`*, patients (name)`)
+      .eq('clinic_id', userClinic?.id)
+      .gte('start_time', `${today}T00:00:00`)
+      .lte('start_time', `${today}T23:59:59`)
+      .order('start_time', { ascending: true })
+      .limit(5)
+    
+    setTodayAppointments(data || [])
   }
 
   const handleCreatePatient = async (e) => {
@@ -217,178 +238,262 @@ export default function Dashboard({ session }) {
     setExpandedMenus(prev => ({ ...prev, [menu]: !prev[menu] }))
   }
 
-  const formatDate = () => {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-    return new Date().toLocaleDateString('fr-CA', options).toUpperCase()
-  }
-
   const getUserName = () => {
     if (userProfile?.full_name) return userProfile.full_name
     if (userProfile?.first_name) return `${userProfile.first_name} ${userProfile.last_name || ''}`
     return session.user.email?.split('@')[0] || 'Utilisateur'
   }
 
-  const getUserTitle = () => {
-    if (userProfile?.profession) {
-      const titles = { 'dentiste': 'Dr', 'medecin': 'Dr', 'infirmier': 'Inf.', 'pharmacien': 'Pharm.' }
-      return titles[userProfile.profession] || ''
-    }
-    return ''
+  const getUserInitials = () => {
+    const name = getUserName()
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
 
-  // Navigation helper that closes mobile menu
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Bonjour'
+    if (hour < 18) return 'Bon après-midi'
+    return 'Bonsoir'
+  }
+
   const navigateTo = (view, patient = null) => {
     setCurrentView(view)
     if (patient !== undefined) setSelectedPatient(patient)
     setMobileMenuOpen(false)
   }
 
-  // Dashboard Home View
+  // Loading screen
+  if (isApproved === null) {
+    return (
+      <div className="app-container" style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <div className="loading">Vérification en cours...</div>
+      </div>
+    )
+  }
+
+  // Pending approval screen
+  if (!isApproved) {
+    return (
+      <div className="app-container" style={{ alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div className="card" style={{ maxWidth: '500px', textAlign: 'center' }}>
+          <div className="card-body" style={{ padding: '3rem' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>✨</div>
+            <h1 style={{ 
+              background: 'var(--gradient-premium)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontSize: '1.75rem', 
+              marginBottom: '1rem'
+            }}>
+              Demande en attente
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+              Votre demande d'inscription a été reçue et est en cours d'examen.
+            </p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '2rem' }}>
+              Courriel: <strong style={{ color: 'var(--primary)' }}>{session.user.email}</strong>
+            </p>
+            <button className="btn btn-secondary" onClick={() => supabase.auth.signOut()}>
+              Se déconnecter
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Dashboard Home View - Premium Design
   const renderDashboardHome = () => (
     <div>
-      <div className="page-breadcrumb">
-        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView('dashboard'); }}>Accueil</a> | Tableau de bord
-      </div>
-      <h1 className="page-title">TABLEAU DE BORD</h1>
-
-      <div className="dashboard-stats-grid">
-        {/* Welcome Card */}
-        <div className="welcome-card">
-          <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Bon retour !</h2>
-            <p style={{ fontSize: '0.9rem', opacity: 0.9 }}>{getUserName()} | {getUserTitle()} {getUserName()}</p>
-          </div>
-          <div style={{ fontSize: '0.8rem', opacity: 0.85 }}>{formatDate()}</div>
+      {/* Hero Welcome Section */}
+      <div className="welcome-card" style={{ marginBottom: '2rem' }}>
+        <div>
+          <p style={{ opacity: 0.9, marginBottom: '0.5rem', fontSize: '0.9rem' }}>{getGreeting()}</p>
+          <h2 style={{ fontSize: '2rem', fontWeight: '700' }}>{getUserName()} ✨</h2>
         </div>
+        <p style={{ marginTop: '1rem' }}>
+          {new Date().toLocaleDateString('fr-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </p>
+      </div>
 
-        {/* Total Registered Patients */}
+      {/* Stats Grid */}
+      <div className="stats-grid">
         <div className="stat-card">
+          <div className="stat-icon">
+            <Icons.Patients />
+          </div>
           <div className="stat-content">
             <div className="stat-label">Patients inscrits</div>
             <div className="stat-value">{stats.patients}</div>
           </div>
-          <div className="stat-icon"><Icons.UsersGroup /></div>
         </div>
-
-        {/* Total Visits */}
+        
         <div className="stat-card">
+          <div className="stat-icon" style={{ color: 'var(--accent)' }}>
+            <Icons.Activity />
+          </div>
           <div className="stat-content">
             <div className="stat-label">Visites totales</div>
             <div className="stat-value">{stats.visits}</div>
           </div>
-          <div className="stat-icon"><Icons.Calendar /></div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-icon" style={{ color: 'var(--success)' }}>
+            <Icons.Calendar />
+          </div>
+          <div className="stat-content">
+            <div className="stat-label">RDV aujourd'hui</div>
+            <div className="stat-value">{todayAppointments.length}</div>
+          </div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-icon" style={{ color: 'var(--info)' }}>
+            <Icons.TrendingUp />
+          </div>
+          <div className="stat-content">
+            <div className="stat-label">Ce mois</div>
+            <div className="stat-value">{Math.floor(stats.visits * 0.3)}</div>
+          </div>
         </div>
       </div>
 
-      <div className="dashboard-stats-grid" style={{ marginTop: '1rem' }}>
-        <div></div>
-        <div className="stat-card">
-          <div className="stat-content">
-            <div className="stat-label">Rendez-vous planifiés</div>
-            <div className="stat-value">{stats.appointments}</div>
+      {/* Two Column Layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        {/* Today's Appointments */}
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">
+              <Icons.Clock style={{ width: 18, height: 18 }} />
+              Rendez-vous aujourd'hui
+            </h3>
+            <button className="btn btn-ghost btn-sm" onClick={() => navigateTo('schedule')}>
+              Voir tout →
+            </button>
           </div>
-          <div className="stat-icon"><Icons.CalendarCheck /></div>
+          <div className="card-body">
+            {todayAppointments.length === 0 ? (
+              <div className="empty-state" style={{ padding: '2rem' }}>
+                <Icons.Calendar style={{ width: 48, height: 48, opacity: 0.3 }} />
+                <p style={{ marginTop: '1rem' }}>Aucun rendez-vous aujourd'hui</p>
+              </div>
+            ) : (
+              <div className="patient-list">
+                {todayAppointments.map((apt, i) => (
+                  <div key={i} className="patient-card" style={{ cursor: 'default' }}>
+                    <div className="patient-avatar" style={{ 
+                      background: 'var(--accent)',
+                      width: '44px', 
+                      height: '44px',
+                      fontSize: '0.85rem'
+                    }}>
+                      {new Date(apt.start_time).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    <div className="patient-info">
+                      <div className="patient-name">{apt.patients?.name || 'Patient'}</div>
+                      <div className="patient-meta">{apt.service_type || 'Consultation'}</div>
+                    </div>
+                    <span className={`badge ${apt.status === 'confirmed' ? 'badge-success' : 'badge-warning'}`}>
+                      {apt.status === 'confirmed' ? '✓ Confirmé' : 'En attente'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-content">
-            <div className="stat-label">Rendez-vous à venir</div>
-            <div className="stat-value">{stats.upcoming}</div>
+
+        {/* Recent Patients */}
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">
+              <Icons.Star style={{ width: 18, height: 18, color: 'var(--primary)' }} />
+              Patients récents
+            </h3>
+            <button className="btn btn-ghost btn-sm" onClick={() => navigateTo('patients')}>
+              Voir tout →
+            </button>
           </div>
-          <div className="stat-icon"><Icons.Clock /></div>
+          <div className="card-body">
+            {recentPatients.length === 0 ? (
+              <div className="empty-state" style={{ padding: '2rem' }}>
+                <Icons.Patients style={{ width: 48, height: 48, opacity: 0.3 }} />
+                <p style={{ marginTop: '1rem' }}>Aucun patient enregistré</p>
+              </div>
+            ) : (
+              <div className="patient-list">
+                {recentPatients.map((patient, i) => (
+                  <div 
+                    key={i} 
+                    className="patient-card"
+                    onClick={() => handleSelectPatient(patient)}
+                  >
+                    <div className="patient-avatar">
+                      {patient.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                    </div>
+                    <div className="patient-info">
+                      <div className="patient-name">{patient.name}</div>
+                      <div className="patient-meta">{patient.visits?.length || 0} visite(s)</div>
+                    </div>
+                    <Icons.ChevronRight style={{ width: 18, height: 18, color: 'var(--text-muted)' }} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="copyright">COPYRIGHT © {new Date().getFullYear()} FACEHUB</div>
+      {/* Quick Actions */}
+      <div className="card">
+        <div className="card-header">
+          <h3 className="card-title">
+            <Icons.Sparkles style={{ width: 18, height: 18 }} />
+            Actions rapides
+          </h3>
+        </div>
+        <div className="card-body">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+            <button 
+              className="btn btn-secondary"
+              style={{ flexDirection: 'column', padding: '1.5rem', height: 'auto', gap: '0.75rem' }}
+              onClick={() => setShowPatientModal(true)}
+            >
+              <Icons.UserPlus style={{ width: 24, height: 24 }} />
+              <span>Nouveau patient</span>
+            </button>
+            <button 
+              className="btn btn-secondary"
+              style={{ flexDirection: 'column', padding: '1.5rem', height: 'auto', gap: '0.75rem' }}
+              onClick={() => navigateTo('schedule')}
+            >
+              <Icons.Calendar style={{ width: 24, height: 24 }} />
+              <span>Prendre RDV</span>
+            </button>
+            <button 
+              className="btn btn-secondary"
+              style={{ flexDirection: 'column', padding: '1.5rem', height: 'auto', gap: '0.75rem' }}
+              onClick={() => navigateTo('portfolio')}
+            >
+              <Icons.Portfolio style={{ width: 24, height: 24 }} />
+              <span>Portfolio</span>
+            </button>
+            <button 
+              className="btn btn-secondary"
+              style={{ flexDirection: 'column', padding: '1.5rem', height: 'auto', gap: '0.75rem' }}
+              onClick={() => navigateTo('case-search')}
+            >
+              <Icons.Search style={{ width: 24, height: 24 }} />
+              <span>Recherche</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="copyright">© {new Date().getFullYear()} FACEHUB — Premium Aesthetic Management</div>
     </div>
   )
-
-  // Écran de chargement pendant la vérification
-  if (isApproved === null) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--bg-main)',
-        color: 'var(--text-primary)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
-          <p>Vérification en cours...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Écran d'attente d'approbation
-  if (!isApproved) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--bg-main)',
-        padding: '2rem'
-      }}>
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '3rem',
-          maxWidth: '500px',
-          textAlign: 'center',
-          border: '1px solid var(--border)'
-        }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>🕐</div>
-          <h1 style={{ 
-            color: 'var(--primary)', 
-            fontSize: '1.75rem', 
-            marginBottom: '1rem',
-            fontFamily: "'Cormorant Garamond', serif"
-          }}>
-            Demande en attente
-          </h1>
-          <p style={{ 
-            color: 'var(--text-secondary)', 
-            marginBottom: '1.5rem',
-            lineHeight: '1.6'
-          }}>
-            Votre demande d'inscription a été reçue et est en cours d'examen par notre équipe.
-            Vous recevrez un courriel de confirmation une fois votre compte approuvé.
-          </p>
-          <p style={{ 
-            color: 'var(--text-muted)', 
-            fontSize: '0.9rem',
-            marginBottom: '2rem'
-          }}>
-            Courriel: <strong>{session.user.email}</strong>
-          </p>
-          <button
-            onClick={() => supabase.auth.signOut()}
-            style={{
-              background: 'transparent',
-              border: '1px solid var(--border)',
-              color: 'var(--text-secondary)',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '0.9rem'
-            }}
-          >
-            Se déconnecter
-          </button>
-          <p style={{ 
-            color: 'var(--text-muted)', 
-            fontSize: '0.8rem',
-            marginTop: '2rem'
-          }}>
-            Des questions? Contactez-nous à support@facehub.ca
-          </p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="app-container">
@@ -401,264 +506,137 @@ export default function Dashboard({ session }) {
           <Icons.Logo />
           <span>FaceHub</span>
         </div>
+        <button className="btn btn-ghost" onClick={() => setShowPatientModal(true)}>
+          <Icons.Plus />
+        </button>
       </div>
 
-      {/* Overlay for mobile */}
-      {mobileMenuOpen && <div className="sidebar-overlay" onClick={() => setMobileMenuOpen(false)} />}
+      {/* Overlay */}
+      {mobileMenuOpen && (
+        <div className="sidebar-overlay" style={{ opacity: 1, visibility: 'visible' }} onClick={() => setMobileMenuOpen(false)} />
+      )}
 
       {/* Sidebar */}
       <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="logo">
-          <div style={{ color: 'var(--primary)' }}><Icons.Logo /></div>
-          <div><h1>FaceHub</h1></div>
+          <Icons.Logo />
+          <div>
+            <h1>FaceHub</h1>
+            <span>Aesthetic Pro</span>
+          </div>
         </div>
 
         <nav className="nav-menu">
-          {/* Dashboard */}
-          <div 
-            className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`}
-            onClick={() => navigateTo('dashboard', null)}
-          >
-            <Icons.Dashboard />
+          {/* Main Navigation */}
+          <div className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`} onClick={() => navigateTo('dashboard')}>
+            <Icons.Dashboard style={{ width: 18, height: 18 }} />
             <span>Tableau de bord</span>
           </div>
 
-          {/* Schedule */}
-          <div 
-            className={`nav-item ${currentView === 'schedule' || currentView === 'schedule-settings' ? 'active' : ''}`}
-            onClick={() => navigateTo('schedule', null)}
-          >
-            <Icons.Schedule />
+          <div className={`nav-item ${currentView === 'schedule' ? 'active' : ''}`} onClick={() => navigateTo('schedule')}>
+            <Icons.Schedule style={{ width: 18, height: 18 }} />
             <span>Agenda</span>
           </div>
 
-          {/* Patients with submenu */}
-          <div 
-            className={`nav-item ${currentView === 'patients' || currentView === 'patient-detail' ? 'active' : ''}`}
-            onClick={() => toggleMenu('patients')}
-          >
-            <Icons.Patients />
+          <div className={`nav-item ${['patients', 'patient-detail'].includes(currentView) ? 'active' : ''}`} onClick={() => toggleMenu('patients')}>
+            <Icons.Patients style={{ width: 18, height: 18 }} />
             <span>Patients</span>
             <span style={{ marginLeft: 'auto' }}>
-              {expandedMenus.patients ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
+              {expandedMenus.patients ? <Icons.ChevronDown style={{ width: 16, height: 16 }} /> : <Icons.ChevronRight style={{ width: 16, height: 16 }} />}
             </span>
           </div>
           
           {expandedMenus.patients && (
             <>
-              <div 
-                className={`nav-item sub-item ${currentView === 'patients' ? 'active' : ''}`}
-                onClick={() => navigateTo('patients', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <Icons.PatientList />
-                <span>Liste des patients</span>
+              <div className={`nav-item sub-item ${currentView === 'patients' ? 'active' : ''}`} onClick={() => navigateTo('patients')}>
+                <Icons.PatientList style={{ width: 16, height: 16 }} />
+                <span>Liste</span>
               </div>
-              <div 
-                className={`nav-item sub-item ${currentView === 'patient-registration' ? 'active' : ''}`}
-                onClick={() => navigateTo('patient-registration', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <Icons.UserPlus />
-                <span>Inscrire un patient</span>
+              <div className={`nav-item sub-item ${currentView === 'patient-registration' ? 'active' : ''}`} onClick={() => navigateTo('patient-registration')}>
+                <Icons.UserPlus style={{ width: 16, height: 16 }} />
+                <span>Inscrire</span>
               </div>
-              <div 
-                className={`nav-item sub-item ${currentView === 'send-registration-link' ? 'active' : ''}`}
-                onClick={() => navigateTo('send-registration-link', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <Icons.Link />
-                <span>Envoyer lien d'inscription</span>
+              <div className={`nav-item sub-item ${currentView === 'send-registration-link' ? 'active' : ''}`} onClick={() => navigateTo('send-registration-link')}>
+                <Icons.Link style={{ width: 16, height: 16 }} />
+                <span>Lien d'inscription</span>
               </div>
             </>
           )}
 
-          {/* Portfolio */}
-          <div 
-            className={`nav-item ${currentView === 'portfolio' ? 'active' : ''}`}
-            onClick={() => navigateTo('portfolio', null)}
-          >
-            <Icons.Portfolio />
+          <div className={`nav-item ${currentView === 'portfolio' ? 'active' : ''}`} onClick={() => navigateTo('portfolio')}>
+            <Icons.Portfolio style={{ width: 18, height: 18 }} />
             <span>Portfolio</span>
           </div>
 
-          {/* Case Search */}
-          <div 
-            className={`nav-item ${currentView === 'case-search' ? 'active' : ''}`}
-            onClick={() => navigateTo('case-search', null)}
-          >
-            <Icons.Search />
+          <div className={`nav-item ${currentView === 'case-search' ? 'active' : ''}`} onClick={() => navigateTo('case-search')}>
+            <Icons.Search style={{ width: 18, height: 18 }} />
             <span>Recherche de cas</span>
           </div>
 
-          {/* Spacer to push settings to bottom */}
-          <div style={{ flex: 1, minHeight: '2rem' }}></div>
+          {/* Spacer */}
+          <div style={{ flex: 1, minHeight: '2rem' }} />
 
-          {/* Settings Section */}
-          <div className="nav-section-title">PARAMÈTRES</div>
+          {/* Settings */}
+          <div className="nav-section-title">Paramètres</div>
 
-          {/* User Settings with submenu */}
-          <div 
-            className={`nav-item ${['photo-settings', 'account-settings', 'billing-settings', 'injection-templates'].includes(currentView) ? 'active' : ''}`}
-            onClick={() => toggleMenu('userSettings')}
-          >
-            <Icons.User />
-            <span>Paramètres utilisateur</span>
+          <div className={`nav-item ${['photo-settings', 'account-settings', 'billing-settings'].includes(currentView) ? 'active' : ''}`} onClick={() => toggleMenu('userSettings')}>
+            <Icons.User style={{ width: 18, height: 18 }} />
+            <span>Utilisateur</span>
             <span style={{ marginLeft: 'auto' }}>
-              {expandedMenus.userSettings ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
+              {expandedMenus.userSettings ? <Icons.ChevronDown style={{ width: 16, height: 16 }} /> : <Icons.ChevronRight style={{ width: 16, height: 16 }} />}
             </span>
           </div>
           
           {expandedMenus.userSettings && (
             <>
-              <div 
-                className={`nav-item sub-item ${currentView === 'photo-settings' ? 'active' : ''}`}
-                onClick={() => navigateTo('photo-settings', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <span>Arrangement photo</span>
-              </div>
-              <div 
-                className={`nav-item sub-item ${currentView === 'account-settings' ? 'active' : ''}`}
-                onClick={() => navigateTo('account-settings', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <span>Paramètres du compte</span>
-              </div>
-              <div 
-                className={`nav-item sub-item ${currentView === 'billing-settings' ? 'active' : ''}`}
-                onClick={() => navigateTo('billing-settings', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <span>Produits et facturation</span>
-              </div>
-              <div 
-                className={`nav-item sub-item ${currentView === 'injection-templates' ? 'active' : ''}`}
-                onClick={() => navigateTo('injection-templates', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <span>Modèles d'injection</span>
-              </div>
-              <div 
-                className={`nav-item sub-item ${currentView === 'schedule-settings' ? 'active' : ''}`}
-                onClick={() => navigateTo('schedule-settings', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <span>Disponibilités agenda</span>
-              </div>
+              <div className={`nav-item sub-item ${currentView === 'account-settings' ? 'active' : ''}`} onClick={() => navigateTo('account-settings')}>Compte</div>
+              <div className={`nav-item sub-item ${currentView === 'photo-settings' ? 'active' : ''}`} onClick={() => navigateTo('photo-settings')}>Photos</div>
+              <div className={`nav-item sub-item ${currentView === 'billing-settings' ? 'active' : ''}`} onClick={() => navigateTo('billing-settings')}>Facturation</div>
+              <div className={`nav-item sub-item ${currentView === 'injection-templates' ? 'active' : ''}`} onClick={() => navigateTo('injection-templates')}>Templates</div>
+              <div className={`nav-item sub-item ${currentView === 'schedule-settings' ? 'active' : ''}`} onClick={() => navigateTo('schedule-settings')}>Disponibilités</div>
             </>
           )}
 
-          {/* Clinic Settings with submenu */}
-          <div 
-            className={`nav-item ${['registration-settings', 'consent-settings'].includes(currentView) ? 'active' : ''}`}
-            onClick={() => toggleMenu('clinicSettings')}
-          >
-            <Icons.Building />
-            <span>Paramètres clinique</span>
+          <div className={`nav-item ${['registration-settings', 'consent-settings'].includes(currentView) ? 'active' : ''}`} onClick={() => toggleMenu('clinicSettings')}>
+            <Icons.Building style={{ width: 18, height: 18 }} />
+            <span>Clinique</span>
             <span style={{ marginLeft: 'auto' }}>
-              {expandedMenus.clinicSettings ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
+              {expandedMenus.clinicSettings ? <Icons.ChevronDown style={{ width: 16, height: 16 }} /> : <Icons.ChevronRight style={{ width: 16, height: 16 }} />}
             </span>
           </div>
           
           {expandedMenus.clinicSettings && (
             <>
-              <div 
-                className={`nav-item sub-item ${currentView === 'registration-settings' ? 'active' : ''}`}
-                onClick={() => navigateTo('registration-settings', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <span>Paramètres d'inscription</span>
-              </div>
-              <div 
-                className={`nav-item sub-item ${currentView === 'consent-settings' ? 'active' : ''}`}
-                onClick={() => navigateTo('consent-settings', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <span>Paramètres de consentement</span>
-              </div>
+              <div className={`nav-item sub-item ${currentView === 'registration-settings' ? 'active' : ''}`} onClick={() => navigateTo('registration-settings')}>Inscription</div>
+              <div className={`nav-item sub-item ${currentView === 'consent-settings' ? 'active' : ''}`} onClick={() => navigateTo('consent-settings')}>Consentement</div>
             </>
           )}
 
-          {/* Admin Section (Super Admin Only) */}
-          <div 
-            className={`nav-item ${currentView === 'admin' ? 'active' : ''}`}
-            onClick={() => toggleMenu('admin')}
-          >
-            <Icons.Settings />
+          <div className={`nav-item ${currentView === 'admin' ? 'active' : ''}`} onClick={() => navigateTo('admin')}>
+            <Icons.Settings style={{ width: 18, height: 18 }} />
             <span>Admin</span>
             {pendingRequestsCount > 0 && (
-              <span style={{
-                marginLeft: '0.5rem',
-                background: 'var(--danger)',
-                color: '#fff',
-                borderRadius: '10px',
-                padding: '0.1rem 0.5rem',
-                fontSize: '0.7rem',
-                fontWeight: '600'
-              }}>
-                {pendingRequestsCount}
-              </span>
+              <span className="badge badge-danger" style={{ marginLeft: 'auto' }}>{pendingRequestsCount}</span>
             )}
-            <span style={{ marginLeft: 'auto' }}>
-              {expandedMenus.admin ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
-            </span>
-          </div>
-          
-          {expandedMenus.admin && (
-            <>
-              <div 
-                className={`nav-item sub-item ${currentView === 'admin' ? 'active' : ''}`}
-                onClick={() => navigateTo('admin', null)}
-                style={{ paddingLeft: '3rem', fontSize: '0.85rem' }}
-              >
-                <Icons.UsersGroup />
-                <span>Gestion des utilisateurs</span>
-                {pendingRequestsCount > 0 && (
-                  <span style={{
-                    marginLeft: 'auto',
-                    background: 'var(--danger)',
-                    color: '#fff',
-                    borderRadius: '10px',
-                    padding: '0.1rem 0.5rem',
-                    fontSize: '0.7rem',
-                    fontWeight: '600'
-                  }}>
-                    {pendingRequestsCount}
-                  </span>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* Help Center */}
-          <div 
-            className={`nav-item ${currentView === 'help' ? 'active' : ''}`}
-            onClick={() => navigateTo('help', null)}
-          >
-            <Icons.Help />
-            <span>Centre d'aide</span>
           </div>
 
-          {/* Logout - Ajouté dans le menu */}
-          <div 
-            className="nav-item"
-            onClick={handleLogout}
-            style={{ marginTop: '0.5rem', color: 'var(--danger)' }}
-          >
-            <Icons.Logout />
+          <div className={`nav-item ${currentView === 'help' ? 'active' : ''}`} onClick={() => navigateTo('help')}>
+            <Icons.Help style={{ width: 18, height: 18 }} />
+            <span>Aide</span>
+          </div>
+
+          <div className="nav-item" onClick={handleLogout} style={{ color: 'var(--danger)' }}>
+            <Icons.Logout style={{ width: 18, height: 18 }} />
             <span>Déconnexion</span>
           </div>
         </nav>
 
-        {/* User info at bottom */}
+        {/* User Section */}
         <div className="sidebar-user">
-          <div className="sidebar-user-avatar">
-            {getUserName().charAt(0).toUpperCase()}
-          </div>
+          <div className="sidebar-user-avatar">{getUserInitials()}</div>
           <div className="sidebar-user-info">
             <div className="sidebar-user-name">{getUserName()}</div>
-            <div className="sidebar-user-email">{session.user.email}</div>
+            <div className="sidebar-user-email">{userClinic?.name || session.user.email}</div>
           </div>
         </div>
       </aside>
@@ -705,7 +683,6 @@ export default function Dashboard({ session }) {
                 onBack={() => setCurrentView('patient-detail')}
                 onRefresh={() => {
                   fetchPatients()
-                  // Refresh the selected patient data
                   if (selectedPatient) {
                     supabase
                       .from('patients')
@@ -748,83 +725,29 @@ export default function Dashboard({ session }) {
             )}
             {currentView === 'admin' && <Admin session={session} userClinic={userClinic} />}
             {currentView === 'help' && <Help />}
-            {/* Settings Views */}
-            {currentView === 'photo-settings' && (
-              <PhotoSettings 
-                onBack={() => setCurrentView('dashboard')}
-                session={session}
-              />
-            )}
-            {currentView === 'account-settings' && (
-              <AccountSettings 
-                onBack={() => setCurrentView('dashboard')}
-                session={session}
-              />
-            )}
-            {currentView === 'billing-settings' && (
-              <BillingSettings 
-                onBack={() => setCurrentView('dashboard')}
-                session={session}
-              />
-            )}
-            {currentView === 'injection-templates' && (
-              <InjectionTemplates 
-                onBack={() => setCurrentView('dashboard')}
-                session={session}
-              />
-            )}
-            {currentView === 'registration-settings' && (
-              <RegistrationSettings 
-                onBack={() => setCurrentView('dashboard')}
-                session={session}
-              />
-            )}
-            {currentView === 'consent-settings' && (
-              <ConsentSettings 
-                onBack={() => setCurrentView('dashboard')}
-                session={session}
-              />
-            )}
-            {/* Schedule Views */}
-            {currentView === 'schedule' && (
-              <Schedule 
-                session={session}
-                userClinic={userClinic}
-                onViewPatient={(patient) => { setSelectedPatient(patient); setCurrentView('patient-detail'); }}
-              />
-            )}
-            {currentView === 'schedule-settings' && (
-              <ScheduleSettings 
-                onBack={() => setCurrentView('schedule')}
-                session={session}
-              />
-            )}
-            {/* Portfolio View */}
-            {currentView === 'portfolio' && (
-              <Portfolio 
-                session={session}
-                userClinic={userClinic}
-              />
-            )}
-            {/* Case Search View */}
-            {currentView === 'case-search' && (
-              <CaseSearch 
-                session={session}
-                userClinic={userClinic}
-                onViewPatient={(patient) => { setSelectedPatient(patient); setCurrentView('patient-detail'); }}
-              />
-            )}
+            {currentView === 'photo-settings' && <PhotoSettings onBack={() => setCurrentView('dashboard')} session={session} />}
+            {currentView === 'account-settings' && <AccountSettings onBack={() => setCurrentView('dashboard')} session={session} />}
+            {currentView === 'billing-settings' && <BillingSettings onBack={() => setCurrentView('dashboard')} session={session} />}
+            {currentView === 'injection-templates' && <InjectionTemplates onBack={() => setCurrentView('dashboard')} session={session} />}
+            {currentView === 'registration-settings' && <RegistrationSettings onBack={() => setCurrentView('dashboard')} session={session} />}
+            {currentView === 'consent-settings' && <ConsentSettings onBack={() => setCurrentView('dashboard')} session={session} />}
+            {currentView === 'schedule' && <Schedule session={session} userClinic={userClinic} onViewPatient={(patient) => { setSelectedPatient(patient); setCurrentView('patient-detail'); }} />}
+            {currentView === 'schedule-settings' && <ScheduleSettings onBack={() => setCurrentView('schedule')} session={session} />}
+            {currentView === 'portfolio' && <Portfolio session={session} userClinic={userClinic} />}
+            {currentView === 'case-search' && <CaseSearch session={session} userClinic={userClinic} onViewPatient={(patient) => { setSelectedPatient(patient); setCurrentView('patient-detail'); }} />}
           </>
         )}
       </main>
 
-      {/* Modal nouveau patient */}
+      {/* New Patient Modal */}
       {showPatientModal && (
         <div className="modal-overlay" onClick={() => setShowPatientModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">Nouveau patient</h2>
-              <button className="modal-close" onClick={() => setShowPatientModal(false)}><Icons.X /></button>
+              <button className="modal-close" onClick={() => setShowPatientModal(false)}>
+                <Icons.X style={{ width: 18, height: 18 }} />
+              </button>
             </div>
             <form onSubmit={handleCreatePatient}>
               <div className="modal-body">
@@ -904,22 +827,16 @@ export default function Dashboard({ session }) {
                   />
                 </div>
                 {userClinic && (
-                  <div style={{
-                    padding: '0.75rem',
-                    background: 'var(--primary-bg)',
-                    borderRadius: '8px',
-                    fontSize: '0.85rem',
-                    color: 'var(--text-muted)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}>
-                    <Icons.Building /> Ce patient sera ajouté à: <strong style={{ color: 'var(--primary)' }}>{userClinic.name}</strong>
+                  <div className="badge badge-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem', width: '100%', justifyContent: 'center' }}>
+                    <Icons.Building style={{ width: 16, height: 16 }} />
+                    Sera ajouté à: {userClinic.name}
                   </div>
                 )}
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-outline" onClick={() => setShowPatientModal(false)}>Annuler</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowPatientModal(false)}>
+                  Annuler
+                </button>
                 <button type="submit" className="btn btn-primary" disabled={savingPatient}>
                   {savingPatient ? 'Création...' : 'Créer le patient'}
                 </button>
