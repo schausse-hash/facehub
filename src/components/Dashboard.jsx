@@ -20,6 +20,8 @@ import Schedule from './Schedule'
 import ScheduleSettings from './ScheduleSettings'
 import Portfolio from './Portfolio'
 import CaseSearch from './CaseSearch'
+import ImplantCases from './ImplantCases'
+import ImplantCaseForm from './ImplantCaseForm'
 
 // Icônes SVG Premium
 const Icons = {
@@ -80,6 +82,8 @@ export default function Dashboard({ session }) {
   const [isApproved, setIsApproved] = useState(null)
   
   const [showPatientModal, setShowPatientModal] = useState(false)
+  const [selectedCase, setSelectedCase] = useState(null)
+  const [showCaseForm, setShowCaseForm] = useState(false)
   const [patientForm, setPatientForm] = useState({
     name: '', email: '', phone: '', birthdate: '',
     allergies: '', notes: '', follow_up_interval: 3
@@ -538,6 +542,11 @@ export default function Dashboard({ session }) {
             <span>Agenda</span>
           </div>
 
+          <div className={`nav-item ${currentView === 'implant-cases' ? 'active' : ''}`} onClick={() => navigateTo('implant-cases')} style={{ color: currentView === 'implant-cases' ? 'var(--primary)' : undefined }}>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            <span>Implantologie</span>
+          </div>
+
           <div className={`nav-item ${['patients', 'patient-detail'].includes(currentView) ? 'active' : ''}`} onClick={() => toggleMenu('patients')}>
             <Icons.Patients style={{ width: 18, height: 18 }} />
             <span>Patients</span>
@@ -735,9 +744,27 @@ export default function Dashboard({ session }) {
             {currentView === 'schedule-settings' && <ScheduleSettings onBack={() => setCurrentView('schedule')} session={session} />}
             {currentView === 'portfolio' && <Portfolio session={session} userClinic={userClinic} />}
             {currentView === 'case-search' && <CaseSearch session={session} userClinic={userClinic} onViewPatient={(patient) => { setSelectedPatient(patient); setCurrentView('patient-detail'); }} />}
+            {currentView === 'implant-cases' && (
+              <ImplantCases
+                userProfile={userProfile}
+                clinicId={userClinic?.id}
+                session={session}
+                onSelectCase={(cas) => { setSelectedCase(cas); }}
+                onNewCase={() => setShowCaseForm(true)}
+              />
+            )}
           </>
         )}
       </main>
+
+      {/* New Patient Modal */}
+      {showCaseForm && (
+        <ImplantCaseForm
+          onSave={() => { setShowCaseForm(false); navigateTo('implant-cases'); }}
+          onCancel={() => setShowCaseForm(false)}
+          session={session}
+        />
+      )}
 
       {/* New Patient Modal */}
       {showPatientModal && (
