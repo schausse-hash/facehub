@@ -23,6 +23,7 @@ import CaseSearch from './CaseSearch'
 import ImplantCases from './ImplantCases'
 import ImplantCaseForm from './ImplantCaseForm'
 import ImplantCaseDetail from './ImplantCaseDetail'
+import PricingGrid from './PricingGrid'
 
 // Icônes SVG Premium
 const Icons = {
@@ -548,6 +549,11 @@ export default function Dashboard({ session }) {
             <span>Implantologie</span>
           </div>
 
+          <div className={`nav-item ${currentView === 'pricing-grid' ? 'active' : ''}`} onClick={() => navigateTo('pricing-grid')} style={{ color: currentView === 'pricing-grid' ? 'var(--primary)' : undefined }}>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Tarifs</span>
+          </div>
+
           <div className={`nav-item ${['patients', 'patient-detail'].includes(currentView) ? 'active' : ''}`} onClick={() => toggleMenu('patients')}>
             <Icons.Patients style={{ width: 18, height: 18 }} />
             <span>Patients</span>
@@ -753,6 +759,9 @@ export default function Dashboard({ session }) {
                 onSelectCase={(cas) => { setSelectedCase(cas); }}
                 onNewCase={() => setShowCaseForm(true)}
               />
+            )}
+            {currentView === 'pricing-grid' && (
+              <PricingGrid session={session} userClinic={userClinic} />
             )}
           </>
         )}
