@@ -2,29 +2,42 @@ import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
 const CATEGORIES_ORDER = [
-  "Consultation & Imagerie",
-  "Extractions",
-  "Chirurgie implantaire",
-  "Greffes & Régénération osseuse",
-  "Prothèses sur implants",
-  "Ponts & All-on-X",
-  "Couronnes & Réhabilitation",
-  "Pivots",
-  "Divers",
-  "Matériaux chirurgicaux (C.M.)",
+  "consultation",
+  "extraction",
+  "implant",
+  "greffe",
+  "prothese",
+  "pont",
+  "couronne",
+  "pivot",
+  "divers",
+  "materiaux",
 ];
 
+const CAT_LABELS = {
+  consultation: "Consultation & Imagerie",
+  extraction:   "Extractions",
+  implant:      "Chirurgie implantaire",
+  greffe:       "Greffes & Régénération osseuse",
+  prothese:     "Prothèses sur implants",
+  pont:         "Ponts & All-on-X",
+  couronne:     "Couronnes & Réhabilitation",
+  pivot:        "Pivots",
+  divers:       "Divers",
+  materiaux:    "Matériaux chirurgicaux (C.M.)",
+};
+
 const CAT_ICONS = {
-  "Consultation & Imagerie": "🔬",
-  "Extractions": "🦷",
-  "Chirurgie implantaire": "🏥",
-  "Greffes & Régénération osseuse": "🦴",
-  "Prothèses sur implants": "👑",
-  "Ponts & All-on-X": "🌉",
-  "Couronnes & Réhabilitation": "💎",
-  "Pivots": "🔩",
-  "Divers": "🛡️",
-  "Matériaux chirurgicaux (C.M.)": "🧪",
+  consultation: "🔬",
+  extraction:   "🦷",
+  implant:      "🏥",
+  greffe:       "🦴",
+  prothese:     "👑",
+  pont:         "🌉",
+  couronne:     "💎",
+  pivot:        "🔩",
+  divers:       "🛡️",
+  materiaux:    "🧪",
 };
 
 const S = {
@@ -151,17 +164,17 @@ export default function PricingGrid({ session }) {
 
   function startEdit(t) {
     setEditingId(t.id);
-    setEditBuf({ procedure: t.procedure, code_acdq: t.code_acdq, prix: t.prix, notes: t.notes });
+    setEditBuf({ procedure: t.acte, code_acdq: t.code_acdq, prix_total: t.prix_total, notes: t.notes });
   }
 
   async function saveEdit(id) {
     setSaving(true);
     const { error } = await supabase.from("pricing_grid")
-      .update({ ...editBuf, prix: parseFloat(editBuf.prix) || 0 })
+      .update({ ...editBuf, prix_total: parseFloat(editBuf.prix_total) || 0 })
       .eq("id", id);
     if (error) { notify("Erreur : " + error.message, "error"); }
     else {
-      setTarifs(prev => prev.map(t => t.id === id ? { ...t, ...editBuf, prix: parseFloat(editBuf.prix) || 0 } : t));
+      setTarifs(prev => prev.map(t => t.id === id ? { ...t, ...editBuf, prix_total: parseFloat(editBuf.prix_total) || 0 } : t));
       notify("Prix mis à jour ✓");
     }
     setEditingId(null);
@@ -171,7 +184,7 @@ export default function PricingGrid({ session }) {
   // Filtrage
   const filtered = tarifs.filter(t => {
     const matchSearch = !search ||
-      t.procedure.toLowerCase().includes(search.toLowerCase()) ||
+      t.acte.toLowerCase().includes(search.toLowerCase()) ||
       t.code_acdq?.toLowerCase().includes(search.toLowerCase());
     const matchCat = filterCat === "Toutes" || t.categorie === filterCat;
     return matchSearch && matchCat;
@@ -187,7 +200,7 @@ export default function PricingGrid({ session }) {
 
   const cats = Object.keys(grouped).filter(c => grouped[c].length > 0 || filterCat === "Toutes");
   const totalActes = tarifs.filter(t => t.prix > 0).length;
-  const maxPrix = Math.max(...tarifs.map(t => t.prix || 0));
+  const maxPrix = Math.max(...tarifs.map(t => t.prix_total || 0));
 
   if (loading) return (
     <div style={{ ...S.page, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -250,7 +263,7 @@ export default function PricingGrid({ session }) {
           />
           <select style={S.select} value={filterCat} onChange={e => setFilterCat(e.target.value)}>
             <option value="Toutes">Toutes les catégories</option>
-            {CATEGORIES_ORDER.map(c => <option key={c} value={c}>{CAT_ICONS[c]} {c}</option>)}
+            {CATEGORIES_ORDER.map(c => <option key={c} value={c}>{CAT_ICONS[c]} {CAT_LABELS[c]}</option>)}
           </select>
           {(search || filterCat !== "Toutes") && (
             <button style={S.btn("ghost")} onClick={() => { setSearch(""); setFilterCat("Toutes"); }}>
@@ -266,11 +279,11 @@ export default function PricingGrid({ session }) {
           const isExpanded = expanded[cat] !== false;
 
           return (
-            <div key={cat} style={S.catBlock}>
+            <div key={CAT_LABELS[cat] || cat} style={S.catBlock}>
               <div style={S.catHeader} onClick={() => setExpanded(p => ({ ...p, [cat]: !isExpanded }))}>
                 <span style={S.catTitle}>
                   <span>{CAT_ICONS[cat] || "📋"}</span>
-                  {cat}
+                  {CAT_LABELS[cat] || cat}
                 </span>
                 <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                   <span style={S.catCount}>{rows.length} acte{rows.length > 1 ? "s" : ""}</span>
@@ -294,10 +307,10 @@ export default function PricingGrid({ session }) {
                         <div>
                           {isEditing ? (
                             <input className="edit-input" style={{ ...S.editInput, width: "95%" }}
-                              value={editBuf.procedure}
-                              onChange={e => setEditBuf(p => ({ ...p, procedure: e.target.value }))} />
+                              value={editBuf.acte}
+                              onChange={e => setEditBuf(p => ({ ...p, acte: e.target.value }))} />
                           ) : (
-                            <span style={S.cellText}>{t.procedure}</span>
+                            <span style={S.cellText}>{t.acte}</span>
                           )}
                         </div>
 
@@ -316,11 +329,11 @@ export default function PricingGrid({ session }) {
                         <div style={{ textAlign: "right" }}>
                           {isEditing ? (
                             <input className="edit-input" type="number" style={{ ...S.editInput, textAlign: "right", width: 90 }}
-                              value={editBuf.prix}
-                              onChange={e => setEditBuf(p => ({ ...p, prix: e.target.value }))} />
+                              value={editBuf.prix_total}
+                              onChange={e => setEditBuf(p => ({ ...p, prix_total: e.target.value }))} />
                           ) : (
-                            <span style={{ ...S.cellPrice, color: t.prix === 0 ? "#475569" : "#F1F5F9" }}>
-                              {t.prix === 0 ? "Inclus" : t.prix.toLocaleString("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 })}
+                            <span style={{ ...S.cellPrice, color: t.prix_total === 0 ? "#475569" : "#F1F5F9" }}>
+                              {t.prix_total === 0 ? "Inclus" : t.prix_total.toLocaleString("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 })}
                             </span>
                           )}
                         </div>
