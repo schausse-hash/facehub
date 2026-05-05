@@ -22,6 +22,7 @@ import Portfolio from './Portfolio'
 import CaseSearch from './CaseSearch'
 import ImplantCases from './ImplantCases'
 import ImplantCaseForm from './ImplantCaseForm'
+import ImplantCaseDetail from './ImplantCaseDetail'
 
 // Icônes SVG Premium
 const Icons = {
@@ -763,6 +764,14 @@ export default function Dashboard({ session }) {
           onSave={() => { setShowCaseForm(false); navigateTo('implant-cases'); }}
           onCancel={() => setShowCaseForm(false)}
           session={session}
+        />
+      )}
+
+      {selectedCase && (
+        <ImplantCaseDetail
+          caseId={selectedCase.id}
+          onClose={() => setSelectedCase(null)}
+          onUpdated={() => setSelectedCase(null)}
         />
       )}
 
