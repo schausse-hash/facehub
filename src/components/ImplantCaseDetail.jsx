@@ -83,6 +83,8 @@ export default function ImplantCaseDetail({ caseId, onClose, onUpdated }) {
   const [protocoleKey, setProtocoleKey] = useState("");
   const [newStatut, setNewStatut]       = useState("");
   const [expanded, setExpanded]         = useState({});
+  const [patientForm, setPatientForm]   = useState(null);
+  const [savingPatient, setSavingPatient] = useState(false);
 
   useEffect(() => { if (caseId) load(); }, [caseId]);
 
@@ -103,6 +105,23 @@ export default function ImplantCaseDetail({ caseId, onClose, onUpdated }) {
     const exp = {};
     (phasesData||[]).forEach(p => { exp[p.id] = true; });
     setExpanded(exp);
+    // Patient form init
+    if (casData?.patients) {
+      const p = casData.patients;
+      setPatientForm({
+        name:               p.name || '',
+        phone:              p.phone || '',
+        email:              p.email || '',
+        birthdate:          p.birthdate || '',
+        medicaments:        p.medicaments || '',
+        allergies_dentaires:p.allergies_dentaires || '',
+        medecin_famille:    p.medecin_famille || '',
+        fumeur:             p.fumeur || false,
+        bisphosphonates:    p.bisphosphonates || false,
+        radiation_tete_cou: p.radiation_tete_cou || false,
+        conditions_medicales: p.conditions_medicales || [],
+      });
+    }
     setLoading(false);
   }
 
@@ -168,6 +187,27 @@ export default function ImplantCaseDetail({ caseId, onClose, onUpdated }) {
   const TEETH_LO   = [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
   const activeDents= (cas?.dents||[]).map(Number);
 
+  async function savePatient() {
+    if (!cas?.patients?.id || !patientForm) return;
+    setSavingPatient(true);
+    await supabase.from('patients').update({
+      name:               patientForm.name,
+      phone:              patientForm.phone || null,
+      email:              patientForm.email || null,
+      birthdate:          patientForm.birthdate || null,
+      medicaments:        patientForm.medicaments || null,
+      allergies_dentaires:patientForm.allergies_dentaires || null,
+      medecin_famille:    patientForm.medecin_famille || null,
+      fumeur:             patientForm.fumeur,
+      bisphosphonates:    patientForm.bisphosphonates,
+      radiation_tete_cou: patientForm.radiation_tete_cou,
+      conditions_medicales: patientForm.conditions_medicales,
+    }).eq('id', cas.patients.id);
+    setCas(p => ({ ...p, patients: { ...p.patients, ...patientForm } }));
+    setSavingPatient(false);
+    notify('Patient mis à jour ✓');
+  }
+
   if (loading) return (
     <div style={S.overlay}><div style={S.panel}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",color:"#475569"}}>Chargement…</div>
@@ -217,7 +257,7 @@ export default function ImplantCaseDetail({ caseId, onClose, onUpdated }) {
             </div>
           )}
           <div style={{display:"flex",gap:6,marginTop:14}}>
-            {[["suivi","📋 Suivi"],["plan","💰 Plan"],["info","ℹ️ Infos"]].map(([k,l])=>(
+            {[["suivi","📋 Suivi"],["plan","💰 Plan"],["info","ℹ️ Infos"],["patient","👤 Patient"]].map(([k,l])=>(
               <button key={k} className={`tab-btn ${tab===k?"tab-active":"tab-inactive"}`} onClick={()=>setTab(k)}>{l}</button>
             ))}
           </div>

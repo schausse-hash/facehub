@@ -24,6 +24,7 @@ import ImplantCases from './ImplantCases'
 import ImplantCaseForm from './ImplantCaseForm'
 import ImplantCaseDetail from './ImplantCaseDetail'
 import PricingGrid from './PricingGrid'
+import ModuleSettings from './ModuleSettings'
 
 // Icônes SVG Premium
 const Icons = {
@@ -82,6 +83,7 @@ export default function Dashboard({ session }) {
   const [recentPatients, setRecentPatients] = useState([])
   const [todayAppointments, setTodayAppointments] = useState([])
   const [isApproved, setIsApproved] = useState(null)
+  const [moduleSettings, setModuleSettings] = useState({})
   
   const [showPatientModal, setShowPatientModal] = useState(false)
   const [selectedCase, setSelectedCase] = useState(null)
@@ -126,6 +128,17 @@ export default function Dashboard({ session }) {
     fetchPatients()
   }, [userClinic])
 
+  const fetchModuleSettings = async (clinicId) => {
+    if (!clinicId) return;
+    const { data } = await supabase
+      .from('clinic_module_settings')
+      .select('module_key, is_visible')
+      .eq('clinic_id', clinicId)
+    const map = {}
+    if (data) data.forEach(r => { map[r.module_key] = r.is_visible })
+    setModuleSettings(map)
+  }
+
   const fetchUserClinic = async () => {
     const { data: roleData } = await supabase
       .from('user_roles')
@@ -148,6 +161,7 @@ export default function Dashboard({ session }) {
         .eq('id', roleData.clinic_id)
         .single()
       setUserClinic(clinicData || { id: roleData.clinic_id })
+      fetchModuleSettings((clinicData || { id: roleData.clinic_id }).id)
     } else {
       setUserClinic(null)
     }
@@ -262,6 +276,8 @@ export default function Dashboard({ session }) {
     return 'Bonsoir'
   }
 
+  const isModuleVisible = (key) => moduleSettings[key] !== false
+
   const navigateTo = (view, patient = null) => {
     setCurrentView(view)
     if (patient !== undefined) setSelectedPatient(patient)
@@ -374,7 +390,7 @@ export default function Dashboard({ session }) {
               <Icons.Clock style={{ width: 18, height: 18 }} />
               Rendez-vous aujourd'hui
             </h3>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigateTo('schedule')}>
+            <button className="btn btn-ghost btn-sm" onClick={() => navigateTo('schedule')} style={{ display: isModuleVisible('agenda') ? '' : 'none' }}>
               Voir tout →
             </button>
           </div>
@@ -480,7 +496,7 @@ export default function Dashboard({ session }) {
             <button 
               className="btn btn-secondary"
               style={{ flexDirection: 'column', padding: '1.5rem', height: 'auto', gap: '0.75rem' }}
-              onClick={() => navigateTo('portfolio')}
+              onClick={() => navigateTo('portfolio')} style={{ display: isModuleVisible('portfolio') ? '' : 'none' }}
             >
               <Icons.Portfolio style={{ width: 24, height: 24 }} />
               <span>Portfolio</span>
@@ -488,7 +504,7 @@ export default function Dashboard({ session }) {
             <button 
               className="btn btn-secondary"
               style={{ flexDirection: 'column', padding: '1.5rem', height: 'auto', gap: '0.75rem' }}
-              onClick={() => navigateTo('case-search')}
+              onClick={() => navigateTo('case-search')} style={{ display: isModuleVisible('recherche_cas') ? '' : 'none' }}
             >
               <Icons.Search style={{ width: 24, height: 24 }} />
               <span>Recherche</span>
@@ -544,12 +560,12 @@ export default function Dashboard({ session }) {
             <span>Agenda</span>
           </div>
 
-          <div className={`nav-item ${currentView === 'implant-cases' ? 'active' : ''}`} onClick={() => navigateTo('implant-cases')} style={{ color: currentView === 'implant-cases' ? 'var(--primary)' : undefined }}>
+          <div className={`nav-item ${currentView === 'implant-cases' ? 'active' : ''}`} onClick={() => navigateTo('implant-cases')} style={{ ...(currentView === 'implant-cases' ? { color: 'var(--primary)' } : {}), display: isModuleVisible('implantologie') ? '' : 'none' }} style={{ color: currentView === 'implant-cases' ? 'var(--primary)' : undefined }}>
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
             <span>Implantologie</span>
           </div>
 
-          <div className={`nav-item ${currentView === 'pricing-grid' ? 'active' : ''}`} onClick={() => navigateTo('pricing-grid')} style={{ color: currentView === 'pricing-grid' ? 'var(--primary)' : undefined }}>
+          <div className={`nav-item ${currentView === 'pricing-grid' ? 'active' : ''}`} onClick={() => navigateTo('pricing-grid')} style={{ display: isModuleVisible('tarifs') ? '' : 'none' }} style={{ color: currentView === 'pricing-grid' ? 'var(--primary)' : undefined }}>
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span>Tarifs</span>
           </div>
@@ -634,6 +650,11 @@ export default function Dashboard({ session }) {
             {pendingRequestsCount > 0 && (
               <span className="badge badge-danger" style={{ marginLeft: 'auto' }}>{pendingRequestsCount}</span>
             )}
+          </div>
+
+          <div className={`nav-item ${currentView === 'module-settings' ? 'active' : ''}`} onClick={() => navigateTo('module-settings')} style={{ color: currentView === 'module-settings' ? 'var(--primary)' : undefined }}>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+            <span>Modules</span>
           </div>
 
           <div className={`nav-item ${currentView === 'help' ? 'active' : ''}`} onClick={() => navigateTo('help')}>
@@ -762,6 +783,12 @@ export default function Dashboard({ session }) {
             )}
             {currentView === 'pricing-grid' && (
               <PricingGrid session={session} userClinic={userClinic} />
+            )}
+            {currentView === 'module-settings' && (
+              <div style={{ padding: '32px' }}>
+                <h2 style={{ margin: '0 0 24px', fontSize: 22, fontWeight: 700 }}>⚙️ Modules de l'application</h2>
+                <ModuleSettings session={session} userClinic={userClinic} />
+              </div>
             )}
           </>
         )}
