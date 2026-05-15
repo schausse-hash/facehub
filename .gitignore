@@ -1,2 +1,21 @@
+# Fichiers d'archive
 *.zip
 temp_v*
+
+# Variables d'environnement (CONTIENT DES SECRETS — NE JAMAIS COMMITTER)
+.env
+.env.local
+.env.*.local
+src/.env
+
+# Dépendances Node
+node_modules/
+
+# Build Vite
+dist/
+.vite/
+
+# Logs et fichiers système
+*.log
+.DS_Store
+Thumbs.db
