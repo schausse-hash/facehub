@@ -128,6 +128,10 @@ export async function importPatient(clinicUuid, dtkPatient, facehubClinicId = nu
     return { patientId: existing.patient_id, created: false }
   }
 
+  // user_id est NOT NULL sur `patients` : récupérer l'utilisateur courant
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Aucune session active pour créer le patient')
+
   // Créer le patient FaceHub
   const fullName = [dtkPatient.firstName, dtkPatient.lastName].filter(Boolean).join(' ')
   const { data: created, error } = await supabase
@@ -137,6 +141,7 @@ export async function importPatient(clinicUuid, dtkPatient, facehubClinicId = nu
       email: dtkPatient.email || null,
       phone: dtkPatient.mobile || dtkPatient.phone || null,
       birthdate: dtkPatient.birthDate || null,
+      user_id: user.id,
       ...(facehubClinicId ? { clinic_id: facehubClinicId } : {}),
       notes: `Importé de Dentitek (id ${idDtk}) le ${new Date().toLocaleDateString('fr-CA')}`,
     })
@@ -154,6 +159,63 @@ export async function importPatient(clinicUuid, dtkPatient, facehubClinicId = nu
   if (mapErr) throw new Error('Mapping patient: ' + mapErr.message)
 
   return { patientId: created.id, created: true }
+}
+
+// ============================================================
+// 3b) Liaison d'un patient FaceHub EXISTANT à un dossier Dentitek
+//     (depuis la fiche patient — ne crée pas de doublon)
+// ============================================================
+
+/** Mapping Dentitek d'un patient FaceHub (null si non lié) */
+export async function getPatientMapping(patientId) {
+  const { data } = await supabase
+    .from('dentitek_patient_map')
+    .select('*')
+    .eq('patient_id', patientId)
+    .maybeSingle()
+  return data || null
+}
+
+export async function linkExistingPatient(clinicUuid, dtkPatient, patientId) {
+  const idDtk = dtkPatient.idPatientDentitek
+  if (!idDtk) throw new Error('Patient Dentitek sans idPatientDentitek')
+
+  // Ce dossier Dentitek est-il déjà lié ?
+  const { data: existing } = await supabase
+    .from('dentitek_patient_map')
+    .select('patient_id')
+    .eq('id_patient_dentitek', idDtk)
+    .eq('dentitek_clinic_uuid', clinicUuid)
+    .maybeSingle()
+
+  if (existing && existing.patient_id !== patientId) {
+    throw new Error('Ce dossier Dentitek est déjà lié à un autre patient FaceHub')
+  }
+  if (existing) return { linked: false }
+
+  const { error } = await supabase.from('dentitek_patient_map').insert({
+    patient_id: patientId,
+    id_patient_dentitek: idDtk,
+    dentitek_clinic_uuid: clinicUuid,
+    last_synced_at: new Date().toISOString(),
+  })
+  if (error) throw new Error('Liaison patient: ' + error.message)
+
+  // Compléter les coordonnées manquantes du patient FaceHub
+  const { data: p } = await supabase
+    .from('patients')
+    .select('email, phone, birthdate')
+    .eq('id', patientId)
+    .maybeSingle()
+  const updates = {}
+  if (p && !p.email && dtkPatient.email) updates.email = dtkPatient.email
+  if (p && !p.phone && (dtkPatient.mobile || dtkPatient.phone)) updates.phone = dtkPatient.mobile || dtkPatient.phone
+  if (p && !p.birthdate && dtkPatient.birthDate) updates.birthdate = dtkPatient.birthDate
+  if (Object.keys(updates).length > 0) {
+    await supabase.from('patients').update(updates).eq('id', patientId)
+  }
+
+  return { linked: true, updatedFields: Object.keys(updates) }
 }
 
 // ============================================================

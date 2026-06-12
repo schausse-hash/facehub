@@ -92,7 +92,12 @@ export default function ImplantCases({ userProfile, userRole, clinicId, onSelect
 
   const formatDate = (d) => {
     if (!d) return '—'
-    return new Date(d).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short', year: 'numeric' })
+    // Une date pure (AAAA-MM-JJ) parsée telle quelle = minuit UTC,
+    // donc affichée la veille à Montréal — l'ancrer en heure locale
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(d)
+      ? new Date(d + 'T00:00:00')
+      : new Date(d)
+    return date.toLocaleDateString('fr-CA', { day: 'numeric', month: 'short', year: 'numeric' })
   }
 
   const isUrgent = (c) => {

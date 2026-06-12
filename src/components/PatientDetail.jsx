@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
 import PhotoGallery from './PhotoGallery'
 import PatientEdit from './PatientEdit'
+import DentitekPatientLink from './DentitekPatientLink'
 
 const Icons = {
   ArrowLeft: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
@@ -87,13 +88,22 @@ export default function PatientDetail({ patient, onBack, onRefresh, session, onE
 
   const formatDate = (dateString) => {
     if (!dateString) return '-'
-    return new Date(dateString).toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' })
+    // Une date pure (AAAA-MM-JJ) parsée telle quelle = minuit UTC,
+    // donc affichée la veille à Montréal — l'ancrer en heure locale
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+      ? new Date(dateString + 'T00:00:00')
+      : new Date(dateString)
+    return date.toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' })
   }
 
+  // Mêmes critères minimaux que PatientList (pivot dentaire) :
+  // nom + date de naissance + au moins un moyen de contact
   const isProfileComplete = () => {
-    const m = patient.metadata
-    if (!m || m.registrationType === 'quick') return false
-    return !!(m.firstName && m.lastName && patient.birthdate && (m.contact?.email || patient.email))
+    const md = patient.metadata
+    const hasName = !!(patient.name?.trim() || (md?.firstName && md?.lastName))
+    const hasBirthdate = !!(patient.birthdate || md?.birthday)
+    const hasContact = !!(patient.phone || patient.email || md?.contact?.email || md?.contact?.cellPhone)
+    return hasName && hasBirthdate && hasContact
   }
 
   const toggleTreatment = (zone) => {
@@ -257,6 +267,8 @@ export default function PatientDetail({ patient, onBack, onRefresh, session, onE
               </div>
               <span className="pp-update-link" onClick={() => setCurrentView('edit')}>Mettre à jour / Ajouter</span>
             </div>
+
+            <DentitekPatientLink patient={patient} onLinked={onRefresh} />
           </div>
         </div>
 

@@ -244,7 +244,8 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
 
   const handleInactivate = async () => {
     const newStatus = patient.is_active === false ? true : false
-    await supabase.from('patients').update({ is_active: newStatus }).eq('id', patient.id)
+    const { error } = await supabase.from('patients').update({ is_active: newStatus }).eq('id', patient.id)
+    if (error) { alert('Erreur : ' + error.message); return }
     alert(newStatus ? 'Patient activé' : 'Patient désactivé')
     onSave && onSave()
   }

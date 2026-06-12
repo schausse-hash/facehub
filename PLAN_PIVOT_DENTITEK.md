@@ -42,6 +42,23 @@
 - Lien automatique patient FaceHub ↔ `idPatientDentitek`
 - Pont vers Notion implantologie : création de la fiche Notion à partir des données Dentitek
 
+### Phase 2.5 — Dossier médical dentaire et consentement (ajouté le 12 juin 2026)
+
+À bâtir après le bouton d'import dans la fiche patient. Recycle l'infrastructure
+d'auto-inscription en ligne (lien unique + QR + formulaires) héritée de l'esthétique.
+
+- **Questionnaire médical dentaire obligatoire** pour les nouveaux patients :
+  médicaments, bisphosphonates, allergies, conditions cardiaques, anticoagulants
+  (les colonnes existent déjà dans `patients` : `medicaments`, `conditions_medicales`,
+  `allergies_dentaires`, `bisphosphonates`, `radiation_tete_cou`, `fumeur`, `medecin_famille`)
+- **Consentement éclairé avant chirurgie** : envoi au patient + signature en ligne
+  (remplace les consentements Botox/Comblement par chirurgie implantaire, sédation, greffe, photo)
+- **Blocage du parcours implanto** : un cas ne peut pas passer au statut
+  « chirurgie_programmee » tant que le consentement n'est pas signé
+- Note : depuis le 12 juin, le badge « Complet/Incomplet » de la liste des patients
+  utilise des critères minimaux (nom + naissance + contact) et les patients liés
+  portent un badge ⚡ Dentitek. Ce chantier raffinera la notion de « dossier complet ».
+
 ### Phase 3 — Rendez-vous et disponibilités
 - Tableau de bord multi-cliniques des rendez-vous (`syncRdv` + cache Supabase)
 - Recherche de disponibilités (`getAvailabilities`) depuis le dossier implanto → booking de la chirurgie en un clic (`makeAppointmentById`)

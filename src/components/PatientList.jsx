@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../supabaseClient'
 
 const Icons = {
   Search: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
@@ -16,6 +17,14 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
   const [currentPage, setCurrentPage] = useState(1)
   const [sortField, setSortField] = useState('created_at')
   const [sortDirection, setSortDirection] = useState('desc')
+  const [dentitekIds, setDentitekIds] = useState(new Set())
+
+  // Patients liés à un dossier Dentitek (badge ⚡)
+  useEffect(() => {
+    supabase.from('dentitek_patient_map').select('patient_id').then(({ data }) => {
+      setDentitekIds(new Set((data || []).map(r => r.patient_id)))
+    })
+  }, [patients])
 
   // Filtrer les patients
   const filteredPatients = patients.filter(p => {
@@ -84,34 +93,31 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
   const endIndex = startIndex + entriesPerPage
   const paginatedPatients = sortedPatients.slice(startIndex, endIndex)
 
-  // Vérifier si l'inscription est complète (Full = Complete, Quick = Incomplete)
+  // Dossier minimal complet (pivot dentaire) :
+  // nom + date de naissance + au moins un moyen de contact.
+  // (L'ancienne logique exigeait le parcours d'inscription esthétique
+  // avec consentements Botox/Filler — voir chantier « Dossier médical
+  // dentaire et consentement » dans PLAN_PIVOT_DENTITEK.md.)
   function isRegistrationComplete(patient) {
-    // Si registrationType est 'quick', c'est toujours Incomplete
-    if (patient.metadata?.registrationType === 'quick') return false
-    
-    // Pour Full registration, vérifier les champs essentiels
     const m = patient.metadata
-    if (!m) return false
-    
-    // Vérifier les consentements si présents
-    const hasConsents = m.consents && (
-      m.consents.botox !== undefined || 
-      m.consents.filler !== undefined || 
-      m.consents.photo !== undefined
-    )
-    
-    return !!(m.firstName && m.lastName && patient.birthdate && 
-              (m.contact?.email || patient.email) && hasConsents)
+    const hasName = !!(patient.name?.trim() || (m?.firstName && m?.lastName))
+    const hasBirthdate = !!(patient.birthdate || m?.birthday)
+    const hasContact = !!(patient.phone || patient.email || m?.contact?.email || m?.contact?.cellPhone)
+    return hasName && hasBirthdate && hasContact
   }
 
   // Formater la date
   function formatDate(dateString) {
     if (!dateString) return '-'
-    const date = new Date(dateString)
-    return date.toLocaleDateString('fr-CA', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    // Une date pure (AAAA-MM-JJ) parsée telle quelle = minuit UTC,
+    // donc affichée la veille à Montréal — l'ancrer en heure locale
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+      ? new Date(dateString + 'T00:00:00')
+      : new Date(dateString)
+    return date.toLocaleDateString('fr-CA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     })
   }
 
@@ -279,6 +285,11 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
     badgeIncomplete: {
       background: 'rgba(255, 167, 38, 0.2)',
       color: '#ffa726'
+    },
+    badgeDentitek: {
+      background: 'rgba(96, 165, 250, 0.15)',
+      color: '#60a5fa',
+      marginLeft: '0.4rem'
     },
     actionBtn: {
       width: '32px',
@@ -483,6 +494,9 @@ export default function PatientList({ patients, onRefresh, onSelectPatient, onEd
                             <span style={{ ...styles.badge, ...styles.badgeComplete }}>Complet</span>
                           ) : (
                             <span style={{ ...styles.badge, ...styles.badgeIncomplete }}>Incomplet</span>
+                          )}
+                          {dentitekIds.has(patient.id) && (
+                            <span style={{ ...styles.badge, ...styles.badgeDentitek }} title="Lié à un dossier Dentitek">⚡ Dentitek</span>
                           )}
                         </td>
                         <td style={styles.td}>{formatDate(patient.created_at)}</td>
