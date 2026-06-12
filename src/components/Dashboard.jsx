@@ -25,6 +25,7 @@ import ImplantCaseForm from './ImplantCaseForm'
 import ImplantCaseDetail from './ImplantCaseDetail'
 import PricingGrid from './PricingGrid'
 import ModuleSettings from './ModuleSettings'
+import DentitekSettings from './DentitekSettings'
 
 // Icônes SVG Premium
 const Icons = {
@@ -77,6 +78,7 @@ export default function Dashboard({ session }) {
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
   const [userClinic, setUserClinic] = useState(null)
   const [userProfile, setUserProfile] = useState(null)
+  const [userRole, setUserRole] = useState(null)
   const [expandedMenus, setExpandedMenus] = useState({ patients: false, userSettings: false, clinicSettings: false, admin: false })
   const [selectedVisit, setSelectedVisit] = useState(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -142,9 +144,11 @@ export default function Dashboard({ session }) {
   const fetchUserClinic = async () => {
     const { data: roleData } = await supabase
       .from('user_roles')
-      .select('clinic_id')
+      .select('role, clinic_id')
       .eq('user_id', session.user.id)
       .single()
+
+    if (roleData?.role) setUserRole(roleData.role)
 
     const { data: profileData } = await supabase
       .from('user_profiles')
@@ -657,6 +661,13 @@ export default function Dashboard({ session }) {
             <span>Modules</span>
           </div>
 
+          {(userRole === 'super_admin' || userRole === 'owner') && (
+            <div className={`nav-item ${currentView === 'dentitek-settings' ? 'active' : ''}`} onClick={() => navigateTo('dentitek-settings')}>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span>Dentitek</span>
+            </div>
+          )}
+
           <div className={`nav-item ${currentView === 'help' ? 'active' : ''}`} onClick={() => navigateTo('help')}>
             <Icons.Help style={{ width: 18, height: 18 }} />
             <span>Aide</span>
@@ -789,6 +800,9 @@ export default function Dashboard({ session }) {
                 <h2 style={{ margin: '0 0 24px', fontSize: 22, fontWeight: 700 }}>⚙️ Modules de l'application</h2>
                 <ModuleSettings session={session} userClinic={userClinic} />
               </div>
+            )}
+            {currentView === 'dentitek-settings' && (
+              <DentitekSettings userRole={userRole} />
             )}
           </>
         )}
