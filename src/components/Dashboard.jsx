@@ -26,6 +26,7 @@ import ImplantCaseDetail from './ImplantCaseDetail'
 import PricingGrid from './PricingGrid'
 import ModuleSettings from './ModuleSettings'
 import DentitekSettings from './DentitekSettings'
+import DentitekDashboard from './DentitekDashboard'
 
 // Icônes SVG Premium
 const Icons = {
@@ -662,10 +663,15 @@ export default function Dashboard({ session }) {
           </div>
 
           {(userRole === 'super_admin' || userRole === 'owner') && (
-            <div className={`nav-item ${currentView === 'dentitek-settings' ? 'active' : ''}`} onClick={() => navigateTo('dentitek-settings')}>
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              <span>Dentitek</span>
-            </div>
+            <>
+              <div className={`nav-item ${currentView === 'dentitek' ? 'active' : ''}`} onClick={() => navigateTo('dentitek')}>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span>Dentitek</span>
+              </div>
+              <div className={`nav-item sub-item ${currentView === 'dentitek-settings' ? 'active' : ''}`} onClick={() => navigateTo('dentitek-settings')} style={{ paddingLeft: 42, fontSize: 13 }}>
+                Paramètres Dentitek
+              </div>
+            </>
           )}
 
           <div className={`nav-item ${currentView === 'help' ? 'active' : ''}`} onClick={() => navigateTo('help')}>
@@ -800,6 +806,9 @@ export default function Dashboard({ session }) {
                 <h2 style={{ margin: '0 0 24px', fontSize: 22, fontWeight: 700 }}>⚙️ Modules de l'application</h2>
                 <ModuleSettings session={session} userClinic={userClinic} />
               </div>
+            )}
+            {currentView === 'dentitek' && (
+              <DentitekDashboard userClinic={userClinic} />
             )}
             {currentView === 'dentitek-settings' && (
               <DentitekSettings userRole={userRole} />
