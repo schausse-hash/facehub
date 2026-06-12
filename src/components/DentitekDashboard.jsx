@@ -22,6 +22,7 @@ export default function DentitekDashboard({ userClinic }) {
   const [syncing, setSyncing] = useState(false)
   const [syncResults, setSyncResults] = useState(null)
   const [logs, setLogs] = useState([])
+  const [lastAutoSync, setLastAutoSync] = useState(null)
 
   // Recherche patient
   const [searchName, setSearchName] = useState('')
@@ -47,6 +48,16 @@ export default function DentitekDashboard({ userClinic }) {
     const appts = await getCachedAppointments({ from: new Date().toISOString() })
     setAppointments(appts)
     setLogs(await getSyncLogs(5))
+
+    // Dernière synchro nocturne automatique (Edge Function + pg_cron)
+    const { data: auto } = await supabase
+      .from('dentitek_sync_log')
+      .select('started_at, status')
+      .eq('endpoint', 'syncRdv (auto)')
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    setLastAutoSync(auto || null)
   }
 
   const handleSync = async () => {
@@ -141,6 +152,20 @@ export default function DentitekDashboard({ userClinic }) {
             ))}
           </select>
           <span style={{ fontSize: 13, opacity: 0.6 }}>{visibleAppts.length} rendez-vous à venir</span>
+        </div>
+
+        <div style={{ marginTop: 10, fontSize: 13, opacity: 0.7 }}>
+          🌙 Dernière synchro automatique :{' '}
+          {lastAutoSync ? (
+            <>
+              {new Date(lastAutoSync.started_at).toLocaleString('fr-CA', { dateStyle: 'medium', timeStyle: 'short' })}
+              <span style={{ marginLeft: 6, color: lastAutoSync.status === 'ok' ? '#34d399' : '#f87171' }}>
+                {lastAutoSync.status === 'ok' ? '✓' : '✗ erreur'}
+              </span>
+            </>
+          ) : (
+            'aucune encore — prévue chaque nuit à 3 h'
+          )}
         </div>
 
         {syncResults && (
