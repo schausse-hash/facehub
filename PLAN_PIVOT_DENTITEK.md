@@ -1,7 +1,8 @@
 # FaceHub 2.0 — Pivot vers la plateforme dentaire connectée à Dentitek
 
 **Date :** 12 juin 2026
-**Décision :** abandon du volet esthétique (FaceTec) en production; FaceHub devient la plateforme de gestion multi-cliniques connectée à l'API Group V2 de Dentitek, centrée sur l'implantologie et les flux Cabinet Dr Chaussé / Saint-Luc / Cité Rosemont.
+**Décision :** abandon du volet esthétique (FaceTec) en production; FaceHub devient la plateforme de gestion multi-cliniques connectée à l'API Group V2 de Dentitek pour les flux Cabinet Dr Chaussé / Saint-Luc / Cité Rosemont.
+**Vision (mise à jour 12 juin) :** FaceHub couvre **TOUTE la dentisterie**, pas seulement l'implantologie — Invisalign, couronnes et ponts sur dents naturelles, obturations, chirurgie, botox dentaire (bruxisme/ATM/esthétique), etc. L'implantologie reste le **module pilote** qui valide le patron des cas de traitement avant sa généralisation.
 
 ---
 
@@ -27,6 +28,11 @@
 - `PatientDetail_backup.jsx` (fichier mort)
 
 **Stratégie :** ne pas supprimer le code tout de suite — désactiver les modules via `clinic_module_settings`, puis archiver dans une branche `legacy-facetec`. Zéro risque, retour en arrière possible.
+
+**Nuance (12 juin) :** les sections botox/injections (consentement toxine botulinique,
+`InjectionTemplates`, zones d'injection) ne seront **pas archivées** — elles seront
+**réutilisées pour le botox dentaire** (bruxisme, ATM, esthétique péri-orale),
+qui fait partie de l'offre dentaire de FaceHub.
 
 ## 3. Ce qu'on AJOUTE (le cœur du pivot)
 
@@ -58,6 +64,32 @@ d'auto-inscription en ligne (lien unique + QR + formulaires) héritée de l'esth
 - Note : depuis le 12 juin, le badge « Complet/Incomplet » de la liste des patients
   utilise des critères minimaux (nom + naissance + contact) et les patients liés
   portent un badge ⚡ Dentitek. Ce chantier raffinera la notion de « dossier complet ».
+
+### Chantier — Généralisation des cas de traitement (cible documentée le 12 juin 2026)
+
+**Objectif :** transformer le patron `implant_cases` en **cas de traitement multi-types**,
+chaque type ayant son propre parcours de statuts. **On ne refactorise pas tout de suite** —
+l'implantologie reste le module pilote qui valide le patron; ce chantier documente la cible.
+
+Parcours par type (statuts propres à chacun) :
+
+| Type | Parcours |
+|---|---|
+| **Implantologie** (pilote, existant) | consultation_initiale → plan_traitement → en_attente_reponse → chirurgie_programmee → post_operatoire → fabrication_labo → prothese_finale → termine/annule |
+| **Invisalign** | scan → ClinCheck → aligneurs → suivis → contention |
+| **Prothèse fixe** (couronnes/ponts sur dents naturelles) | prépa → empreinte → labo → cimentation |
+| **Obturations** | diagnostic → traitement → suivi |
+| **Chirurgie** (extractions, greffes…) | consultation → chirurgie_programmee → post_operatoire → termine |
+| **Botox dentaire** (bruxisme/ATM/esthétique) | évaluation → consentement → injection → suivi (réutilise les sections botox esthétiques existantes) |
+
+Principes de conception :
+- Une table générique `treatment_cases` (ou extension d'`implant_cases`) avec
+  `type_traitement` et un statut validé contre le parcours du type
+- Les parcours de statuts définis en configuration (pas codés en dur par module)
+- La timeline dentaire de la fiche patient (Phase 2.5) affiche tous les types
+- Lien avec Dentitek : `idTypeTraitDentitek` des RDV permettra d'associer
+  automatiquement un RDV au bon type de cas
+- Pont Notion existant (bases implantologie ET Invisalign déjà gérées via claude.ai)
 
 ### Phase 3 — Rendez-vous et disponibilités
 - Tableau de bord multi-cliniques des rendez-vous (`syncRdv` + cache Supabase)

@@ -4,7 +4,9 @@
 
 FaceHub est en **pivot** : anciennement plateforme de médecine esthétique (FaceTec),
 il devient la **plateforme de gestion dentaire multi-cliniques connectée à l'API
-Dentitek Group V2** (Progitek), centrée sur l'implantologie.
+Dentitek Group V2** (Progitek), couvrant **TOUTE la dentisterie** : implantologie
+(module pilote), Invisalign, couronnes et ponts sur dents naturelles, obturations,
+chirurgie, botox dentaire (bruxisme/ATM/esthétique), etc.
 Propriétaire : Dr Serge Chaussé, chirurgien-dentiste (implantologie), Montréal.
 Trois cliniques : Cabinet Dr Chaussé, Centre Dentaire Saint-Luc (Saint-Jean-sur-Richelieu),
 Cité Rosemont (Montréal).
@@ -25,8 +27,10 @@ Voir `PLAN_PIVOT_DENTITEK.md` pour le plan complet (phases 1 à 5).
    Tout le travail du pivot se fait sur la branche **`pivot-dentitek`** (preview Vercel).
    Ne jamais merger dans `main` sans demande explicite de Serge.
 2. **Ne pas supprimer le code esthétique legacy** (InjectionTemplates, Portfolio,
-   PublicBooking, VisitDetail/VisitsList) — il sera archivé dans une branche
-   `legacy-facetec` plus tard. Pour l'instant on le désactive via les modules.
+   PublicBooking, VisitDetail/VisitsList) — désactivé via les modules pour l'instant.
+   Les sections botox/injections (consentements, templates, zones) seront
+   **réutilisées pour le botox dentaire** (bruxisme/ATM/esthétique) plutôt
+   qu'archivées; seul le reste partira dans une branche `legacy-facetec`.
 3. **Français partout** dans l'interface (Québec). Commits en français acceptés.
 4. La clé API Dentitek est en base (`dentitek_config.api_key`) — jamais en dur dans le code,
    jamais dans un fichier committé.
@@ -70,12 +74,18 @@ Voir `PLAN_PIVOT_DENTITEK.md` pour le plan complet (phases 1 à 5).
   Le rôle est dans **`user_roles.role`** (pas user_profiles).
 - Super admin : schausse@gmail.com
 
-## Module implantologie (cœur du pivot)
+## Module implantologie (module PILOTE des cas de traitement)
 
 `ImplantCases.jsx` / `ImplantCaseForm.jsx` / `ImplantCaseDetail.jsx` — table `implant_cases`.
 Statuts : consultation_initiale → plan_traitement → en_attente_reponse →
 chirurgie_programmee → post_operatoire → fabrication_labo → prothese_finale → termine/annule.
 Types : unitaire, multiple, all_on_4/6/8, zygomatique, ponts.
+
+À terme, ce patron sera **généralisé en cas de traitement multi-types**
+(Invisalign, prothèse fixe, obturations, chirurgie, botox dentaire), chaque
+type ayant son propre parcours de statuts — voir le chantier « Généralisation
+des cas de traitement » dans `PLAN_PIVOT_DENTITEK.md`. On ne refactorise pas
+encore : l'implantologie valide le patron d'abord.
 
 ## Commandes
 
