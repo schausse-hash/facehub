@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient'
 
 const MODULES = [
   { key: 'implantologie', label: '🦷 Implantologie',     desc: 'Gestion des cas implantaires' },
+  { key: 'esthetique',    label: '💉 Esthétique (fiche patient)', desc: 'Sections esthétiques du dossier : peau, soleil, consentements botox/filler — masquées par défaut' },
   { key: 'tarifs',        label: '💰 Tarifs',            desc: 'Grille tarifaire' },
   { key: 'agenda',        label: '📅 Agenda',            desc: 'Calendrier des rendez-vous' },
   { key: 'patients',      label: '👥 Patients (esthétique)', desc: 'Module patients médecine esthétique' },
@@ -30,7 +31,7 @@ export default function ModuleSettings({ session, userClinic }) {
       .eq('clinic_id', userClinic.id)
 
     const map = {}
-    MODULES.forEach(m => { map[m.key] = true }) // défaut tout visible
+    MODULES.forEach(m => { map[m.key] = m.key !== 'esthetique' }) // défaut tout visible, sauf esthétique (pivot dentaire)
     ;(data || []).forEach(r => { map[r.module_key] = r.is_visible })
     setSettings(map)
     setLoading(false)

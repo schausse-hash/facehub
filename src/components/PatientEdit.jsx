@@ -78,6 +78,14 @@ const MEDICAL_CONDITIONS = [
   'Shingles', 'Significant neurological disease', 'Skin pigmentation', 'Vitiligo', 'Other'
 ]
 
+// Conditions médicales dentaires (Phase 2.5) — stockées dans
+// patients.conditions_medicales (text[])
+const CONDITIONS_DENTAIRES = [
+  'Condition cardiaque', 'Hypertension', 'Diabète', 'Trouble de saignement',
+  'Immunosuppression', 'Ostéoporose', 'Épilepsie', 'Asthme',
+  'Prothèse valvulaire ou articulaire', 'Autre',
+]
+
 const REFERRAL_OPTIONS = [
   "Référence médicale", "Ami ou patient actuel", "Séminaire ou Salon",
   "Journal", "Site web ou Internet", "Promotion ou Coupon", "Pages Jaunes",
@@ -94,6 +102,9 @@ const INTEREST_OPTIONS = [
 export default function PatientEdit({ patient, onBack, onSave, session }) {
   const [registrationType, setRegistrationType] = useState('full')
   const [saving, setSaving] = useState(false)
+  // Modules actifs de la clinique du patient — les sections esthétiques
+  // ne s'affichent que si le module 'esthetique' est explicitement actif
+  const [showEsthetique, setShowEsthetique] = useState(false)
   const [form, setForm] = useState({
     firstName: '', lastName: '', genderIdentity: '', sexAtBirth: '', birthday: '', ethnicity: '',
     email: '', cellPhone: '', homePhone: '', workPhone: '',
@@ -104,6 +115,10 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
     chemicalPeel: false, laserTreatments: false, botoxDermal: false, waxDepilatory: false,
     sunExposure: '', tanning: false, sunscreen: false, sunscreenSPF: '',
     botoxConsent: '', fillerConsent: '', photoConsent: '',
+    // Historique médical dentaire (colonnes dédiées de `patients`)
+    medicaments: '', bisphosphonates: false, anticoagulants: false,
+    allergiesDentaires: '', conditionsDentaires: [], fumeur: false,
+    radiationTeteCou: false, maladiesChirurgies: '', medecinFamille: '',
   })
 
   // État pour la photo du patient
@@ -140,9 +155,26 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
         sunExposure: m.sunHistory?.exposure || '', tanning: m.sunHistory?.tanning || false,
         sunscreen: m.sunHistory?.sunscreen || false, sunscreenSPF: m.sunHistory?.spf || '',
         botoxConsent: m.consents?.botox || '', fillerConsent: m.consents?.filler || '', photoConsent: m.consents?.photo || '',
+        medicaments: patient.medicaments || '', bisphosphonates: patient.bisphosphonates || false,
+        anticoagulants: patient.anticoagulants || false, allergiesDentaires: patient.allergies_dentaires || '',
+        conditionsDentaires: patient.conditions_medicales || [], fumeur: patient.fumeur || false,
+        radiationTeteCou: patient.radiation_tete_cou || false, maladiesChirurgies: patient.maladies_chirurgies || '',
+        medecinFamille: patient.medecin_famille || '',
       })
     }
   }, [patient])
+
+  // Module esthétique actif pour la clinique du patient ?
+  useEffect(() => {
+    if (!patient?.clinic_id) { setShowEsthetique(false); return }
+    supabase
+      .from('clinic_module_settings')
+      .select('is_visible')
+      .eq('clinic_id', patient.clinic_id)
+      .eq('module_key', 'esthetique')
+      .maybeSingle()
+      .then(({ data }) => setShowEsthetique(data?.is_visible === true))
+  }, [patient?.clinic_id])
 
   const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }))
   const handleCheckboxArray = (field, value, checked) => setForm(prev => ({
@@ -228,6 +260,16 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
     const { error } = await supabase.from('patients').update({
       name: `${form.firstName} ${form.lastName}`, email: form.email, phone: form.cellPhone, birthdate: form.birthday, metadata,
       profile_photo_url: profilePhoto,
+      // Historique médical dentaire — colonnes dédiées
+      medicaments: form.medicaments || null,
+      bisphosphonates: form.bisphosphonates,
+      anticoagulants: form.anticoagulants,
+      allergies_dentaires: form.allergiesDentaires || null,
+      conditions_medicales: form.conditionsDentaires,
+      fumeur: form.fumeur,
+      radiation_tete_cou: form.radiationTeteCou,
+      maladies_chirurgies: form.maladiesChirurgies || null,
+      medecin_famille: form.medecinFamille || null,
     }).eq('id', patient.id)
     setSaving(false)
     if (!error) { alert('Patient enregistré avec succès!'); onSave && onSave() }
@@ -325,6 +367,8 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
     .pe-checkbox { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; }
     .pe-checkbox input { accent-color: var(--primary); width: 16px; height: 16px; }
     .pe-consent-box { max-height: 150px; overflow-y: auto; padding: 0.75rem; background: var(--bg-sidebar); border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; border: 1px solid var(--border); }
+    .pe-alert-chirurgie { display: flex; gap: 0.75rem; align-items: flex-start; background: rgba(244, 67, 54, 0.12); border: 1px solid var(--danger); border-radius: 10px; padding: 0.9rem 1rem; margin-bottom: 1.25rem; color: var(--danger); font-size: 0.9rem; }
+    .pe-alert-chirurgie svg { flex-shrink: 0; margin-top: 2px; }
     .pe-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
     .pe-required-note { font-size: 0.85rem; color: var(--danger); }
     .pe-save-btn { padding: 0.75rem 2rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: background 0.15s; }
@@ -510,7 +554,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
             </div>
           </div>
 
-          {registrationType === 'full' && (
+          {showEsthetique && registrationType === 'full' && (
             <div className="pe-card">
               <h3 className="pe-card-title">Référence et intérêts</h3>
               <div className="pe-form-group">
@@ -538,7 +582,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
             </div>
           )}
 
-          {registrationType === 'full' && (
+          {showEsthetique && registrationType === 'full' && (
             <div className="pe-card">
               <h3 className="pe-card-title">Historique de la peau</h3>
               <div className="pe-form-group">
@@ -557,7 +601,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
             </div>
           )}
 
-          {registrationType === 'full' && (
+          {showEsthetique && registrationType === 'full' && (
             <div className="pe-card">
               <h3 className="pe-card-title">Historique solaire</h3>
               <div className="pe-form-group">
@@ -581,9 +625,78 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
         </div>
 
         <div>
-          {registrationType === 'full' && (
+          <div className="pe-card">
+            <h3 className="pe-card-title">🦷 Historique médical dentaire</h3>
+
+            {(form.bisphosphonates || form.radiationTeteCou) && (
+              <div className="pe-alert-chirurgie">
+                <Icons.Warning />
+                <div>
+                  <b>Contre-indication chirurgicale potentielle</b>
+                  <div style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>
+                    {form.bisphosphonates && 'Bisphosphonates : risque d\'ostéonécrose des mâchoires. '}
+                    {form.radiationTeteCou && 'Radiothérapie tête/cou : risque d\'ostéoradionécrose. '}
+                    Évaluation requise avant toute chirurgie implantaire.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="pe-form-group">
+              <label className="pe-label">Médicaments actuels</label>
+              <textarea className="pe-textarea" value={form.medicaments} onChange={e => handleChange('medicaments', e.target.value)} placeholder="Listez les médicaments actuels (nom, dose, fréquence)..." />
+            </div>
+
+            <div className="pe-checkbox-grid" style={{ marginBottom: '1rem' }}>
+              <label className="pe-checkbox">
+                <input type="checkbox" checked={form.bisphosphonates} onChange={e => handleChange('bisphosphonates', e.target.checked)} />
+                Bisphosphonates (actuels ou passés)
+              </label>
+              <label className="pe-checkbox">
+                <input type="checkbox" checked={form.anticoagulants} onChange={e => handleChange('anticoagulants', e.target.checked)} />
+                Anticoagulants
+              </label>
+              <label className="pe-checkbox">
+                <input type="checkbox" checked={form.radiationTeteCou} onChange={e => handleChange('radiationTeteCou', e.target.checked)} />
+                Radiothérapie tête/cou
+              </label>
+              <label className="pe-checkbox">
+                <input type="checkbox" checked={form.fumeur} onChange={e => handleChange('fumeur', e.target.checked)} />
+                Fumeur
+              </label>
+            </div>
+
+            <div className="pe-form-group">
+              <label className="pe-label">Allergies</label>
+              <input className="pe-input" value={form.allergiesDentaires} onChange={e => handleChange('allergiesDentaires', e.target.value)} placeholder="Pénicilline, latex, anesthésiques locaux..." />
+            </div>
+
+            <div className="pe-form-group">
+              <label className="pe-label">Conditions médicales</label>
+              <div className="pe-checkbox-grid">
+                {CONDITIONS_DENTAIRES.map(cond => (
+                  <label key={cond} className="pe-checkbox">
+                    <input type="checkbox" checked={form.conditionsDentaires.includes(cond)} onChange={e => handleCheckboxArray('conditionsDentaires', cond, e.target.checked)} />
+                    {cond}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="pe-form-group">
+              <label className="pe-label">Maladies et chirurgies passées</label>
+              <textarea className="pe-textarea" value={form.maladiesChirurgies} onChange={e => handleChange('maladiesChirurgies', e.target.value)} placeholder="Maladies importantes, hospitalisations, chirurgies..." />
+            </div>
+
+            <div className="pe-form-group">
+              <label className="pe-label">Médecin de famille</label>
+              <input className="pe-input" value={form.medecinFamille} onChange={e => handleChange('medecinFamille', e.target.value)} placeholder="Nom du médecin de famille" />
+            </div>
+          </div>
+
+          {showEsthetique && registrationType === 'full' && (
             <div className="pe-card">
-              <h3 className="pe-card-title">Conditions médicales</h3>
+              <h3 className="pe-card-title">Conditions médicales (esthétique)</h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Avez-vous l'une des conditions médicales suivantes?</p>
               <div className="pe-checkbox-grid">
                 {MEDICAL_CONDITIONS.map(cond => (
@@ -602,9 +715,9 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
             </div>
           )}
 
-          {registrationType === 'full' && (
+          {showEsthetique && registrationType === 'full' && (
             <div className="pe-card">
-              <h3 className="pe-card-title">Antécédents médicaux</h3>
+              <h3 className="pe-card-title">Antécédents médicaux (esthétique)</h3>
               <div className="pe-form-row">
                 <div className="pe-form-group">
                   <label className="pe-label">Médecin de famille</label>
@@ -636,7 +749,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
             </div>
           )}
 
-          {registrationType === 'full' && (
+          {showEsthetique && registrationType === 'full' && (
             <div className="pe-card">
               <h3 className="pe-card-title">Consentement Toxine Botulinique</h3>
               <div className="pe-consent-box">
@@ -651,7 +764,7 @@ export default function PatientEdit({ patient, onBack, onSave, session }) {
             </div>
           )}
 
-          {registrationType === 'full' && (
+          {showEsthetique && registrationType === 'full' && (
             <div className="pe-card">
               <h3 className="pe-card-title">Consentement Filler Dermique</h3>
               <div className="pe-consent-box">

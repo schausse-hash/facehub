@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient'
 import PhotoGallery from './PhotoGallery'
 import PatientEdit from './PatientEdit'
 import DentitekPatientLink from './DentitekPatientLink'
+import DentalTimeline from './DentalTimeline'
 
 const Icons = {
   ArrowLeft: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
@@ -62,9 +63,23 @@ export default function PatientDetail({ patient, onBack, onRefresh, session, onE
   const [documents, setDocuments] = useState([])
   const [uploadingDoc, setUploadingDoc] = useState(false)
   const [docType, setDocType] = useState('consent')
+  // Pivot dentaire : les visites esthétiques ne s'affichent que si le
+  // module 'esthetique' de la clinique est actif — sinon timeline dentaire
+  const [showEsthetique, setShowEsthetique] = useState(false)
   const fileInputRef = useRef(null)
 
   useEffect(() => { fetchVisits(); fetchDocuments() }, [patient.id])
+
+  useEffect(() => {
+    if (!patient?.clinic_id) { setShowEsthetique(false); return }
+    supabase
+      .from('clinic_module_settings')
+      .select('is_visible')
+      .eq('clinic_id', patient.clinic_id)
+      .eq('module_key', 'esthetique')
+      .maybeSingle()
+      .then(({ data }) => setShowEsthetique(data?.is_visible === true))
+  }, [patient?.clinic_id])
 
   const fetchVisits = async () => {
     setLoading(true)
@@ -223,7 +238,9 @@ export default function PatientDetail({ patient, onBack, onRefresh, session, onE
             <span className={`pp-status ${patient.is_active !== false ? 'pp-status-active' : 'pp-status-inactive'}`}>{patient.is_active !== false ? 'ACTIF' : 'INACTIF'}</span>
             <div className="pp-name">{fullName}</div>
             <div className="pp-email">{m.contact?.email || patient.email || '-'}</div>
-            <button className="pp-btn pp-btn-primary" onClick={() => onViewVisits ? onViewVisits() : setCurrentView('visits')}><Icons.Clipboard /> Voir les visites</button>
+            <button className="pp-btn pp-btn-primary" onClick={() => onViewVisits ? onViewVisits() : setCurrentView('visits')}>
+              <Icons.Clipboard /> {showEsthetique ? 'Voir les visites' : 'Dossier dentaire'}
+            </button>
             <button className="pp-btn pp-btn-secondary" onClick={() => setCurrentView('edit')}><Icons.Edit /> Modifier le profil</button>
           </div>
 
@@ -362,18 +379,24 @@ export default function PatientDetail({ patient, onBack, onRefresh, session, onE
             <div className="pv-avatar">{getInitials()}</div>
             <div>
               <div className="pv-header-name">{fullName}</div>
-              <div className="pv-header-meta">{visits.length} visite(s)</div>
+              <div className="pv-header-meta">{showEsthetique ? `${visits.length} visite(s)` : 'Dossier dentaire'}</div>
             </div>
           </div>
-          <button className="pv-btn-primary" onClick={() => setShowVisitModal(true)}><Icons.Plus /> Nouvelle visite</button>
+          {showEsthetique && (
+            <button className="pv-btn-primary" onClick={() => setShowVisitModal(true)}><Icons.Plus /> Nouvelle visite</button>
+          )}
         </div>
 
-        <VisitsContent 
-          visits={visits} loading={loading} documents={documents} m={m}
-          formatDate={formatDate} setShowPhotoGallery={setShowPhotoGallery} setShowVisitModal={setShowVisitModal}
-          docType={docType} setDocType={setDocType} fileInputRef={fileInputRef}
-          uploadingDoc={uploadingDoc} handleFileUpload={handleFileUpload} handleDeleteDocument={handleDeleteDocument}
-        />
+        {showEsthetique ? (
+          <VisitsContent
+            visits={visits} loading={loading} documents={documents} m={m}
+            formatDate={formatDate} setShowPhotoGallery={setShowPhotoGallery} setShowVisitModal={setShowVisitModal}
+            docType={docType} setDocType={setDocType} fileInputRef={fileInputRef}
+            uploadingDoc={uploadingDoc} handleFileUpload={handleFileUpload} handleDeleteDocument={handleDeleteDocument}
+          />
+        ) : (
+          <DentalTimeline patient={patient} />
+        )}
 
         {showVisitModal && (
           <div className="modal-overlay" onClick={() => setShowVisitModal(false)}>
