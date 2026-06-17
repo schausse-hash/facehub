@@ -347,13 +347,17 @@ export default function PublicRegistration({ token }) {
       }
 
       // Liste des consentements RÉELLEMENT montrés au patient (texte exact + version).
+      // Ils ne sont affichés qu'en inscription complète : en inscription rapide,
+      // on n'enregistre aucun consentement (puisqu'aucun n'a été présenté).
       const consentsShown = []
-      if (linkData?.consents?.botox)
-        consentsShown.push({ type: 'botox', version: CONSENT_VERSION, text: CONSENT_TEXTS.botox, accepted: formData.botoxConsent === 'accept' })
-      if (linkData?.consents?.filler)
-        consentsShown.push({ type: 'filler', version: CONSENT_VERSION, text: CONSENT_TEXTS.filler, accepted: formData.fillerConsent === 'accept' })
-      if (linkData?.consents?.photo)
-        consentsShown.push({ type: 'photo', version: CONSENT_VERSION, text: CONSENT_TEXTS.photo, accepted: formData.photoConsent === 'accept' })
+      if (!quickRegister) {
+        if (linkData?.consents?.botox)
+          consentsShown.push({ type: 'botox', version: CONSENT_VERSION, text: CONSENT_TEXTS.botox, accepted: formData.botoxConsent === 'accept' })
+        if (linkData?.consents?.filler)
+          consentsShown.push({ type: 'filler', version: CONSENT_VERSION, text: CONSENT_TEXTS.filler, accepted: formData.fillerConsent === 'accept' })
+        if (linkData?.consents?.photo)
+          consentsShown.push({ type: 'photo', version: CONSENT_VERSION, text: CONSENT_TEXTS.photo, accepted: formData.photoConsent === 'accept' })
+      }
 
       // Enregistrement sécurisé côté serveur : crée le patient + les consentements
       // + marque le lien utilisé, sans exposer les tables aux visiteurs anonymes.
