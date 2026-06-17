@@ -126,6 +126,11 @@ const CONSENT_TEXTS = {
   photo: `<p>Consentez-vous à ce que vos photographies soient utilisées à des fins d'éducation des patients et de marketing ?</p>`
 }
 
+// Version des textes de consentement ci-dessus. À incrémenter quand le texte change
+// (le contenu légal sera validé par un professionnel ; ce mécanisme capture la
+// version exacte montrée au patient au moment de son inscription).
+const CONSENT_VERSION = '2026-06-17'
+
 export default function PublicRegistration({ token }) {
   // États
   const [loading, setLoading] = useState(true)
@@ -341,22 +346,33 @@ export default function PublicRegistration({ token }) {
         }
       }
 
-      const { data: patient, error: patientError } = await supabase
-        .from('patients')
-        .insert([patientData])
-        .select()
-        .single()
+      // Liste des consentements RÉELLEMENT montrés au patient (texte exact + version).
+      const consentsShown = []
+      if (linkData?.consents?.botox)
+        consentsShown.push({ type: 'botox', version: CONSENT_VERSION, text: CONSENT_TEXTS.botox, accepted: formData.botoxConsent === 'accept' })
+      if (linkData?.consents?.filler)
+        consentsShown.push({ type: 'filler', version: CONSENT_VERSION, text: CONSENT_TEXTS.filler, accepted: formData.fillerConsent === 'accept' })
+      if (linkData?.consents?.photo)
+        consentsShown.push({ type: 'photo', version: CONSENT_VERSION, text: CONSENT_TEXTS.photo, accepted: formData.photoConsent === 'accept' })
 
-      if (patientError) throw patientError
-
-      await supabase
-        .from('registration_links')
-        .update({
-          used: true,
-          used_at: new Date().toISOString(),
-          patient_id: patient.id
+      // Enregistrement sécurisé côté serveur : crée le patient + les consentements
+      // + marque le lien utilisé, sans exposer les tables aux visiteurs anonymes.
+      const { data: result, error: rpcError } = await supabase
+        .rpc('submit_registration', {
+          p_token: token,
+          p_patient: patientData,
+          p_consents: consentsShown,
         })
-        .eq('token', token)
+
+      if (rpcError) throw rpcError
+      if (result?.error) {
+        const messages = {
+          invalid: "Ce lien d'inscription est invalide.",
+          used: "Ce lien d'inscription a déjà été utilisé.",
+          expired: "Ce lien d'inscription a expiré.",
+        }
+        throw new Error(messages[result.error] || "L'inscription a échoué.")
+      }
 
       setSuccess(true)
 
