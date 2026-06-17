@@ -36,12 +36,19 @@ const DOC_TYPES_DENTAIRES = [
   { id: 'other', label: 'Autre' },
 ]
 
+// Types de documents qui ont un modèle de consentement signable EN LIGNE.
+// (Pilote : seul l'implant pour l'instant ; on ajoutera les autres ensuite.)
+const TEMPLATE_BY_DOCTYPE = {
+  consentement_implant: 'implant',
+}
+
 export default function DentalTimeline({ patient }) {
   const [events, setEvents] = useState([])
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
   const [docType, setDocType] = useState('consentement_implant')
   const [uploadingDoc, setUploadingDoc] = useState(false)
+  const [generatingSign, setGeneratingSign] = useState(false)
   const fileInputRef = useRef(null)
 
   useEffect(() => { load() }, [patient.id])
@@ -116,6 +123,40 @@ export default function DentalTimeline({ patient }) {
     }
     setUploadingDoc(false)
     if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  // Génère une demande de consentement pour ce patient et ouvre la page de
+  // signature (sur la tablette). Le personnel est connecté ; le patient signe.
+  const handleFaireSigner = async () => {
+    const templateKey = TEMPLATE_BY_DOCTYPE[docType]
+    if (!templateKey) {
+      alert("Aucun modèle de consentement en ligne pour ce type pour l'instant.")
+      return
+    }
+    setGeneratingSign(true)
+    try {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+      let token = ''
+      for (let i = 0; i < 32; i++) token += chars.charAt(Math.floor(Math.random() * chars.length))
+      const { data: { user } } = await supabase.auth.getUser()
+      const expires = new Date()
+      expires.setDate(expires.getDate() + 14)
+      const { error } = await supabase.from('consent_requests').insert([{
+        token,
+        patient_id: patient.id,
+        template_key: templateKey,
+        clinic_id: patient.clinic_id || null,
+        created_by: user?.id || null,
+        expires_at: expires.toISOString(),
+      }])
+      if (error) throw error
+      // Ouvre la page de signature (nouvel onglet → à présenter sur la tablette).
+      window.open(`/consent/${token}`, '_blank')
+    } catch (e) {
+      alert('Impossible de générer le consentement : ' + e.message)
+    } finally {
+      setGeneratingSign(false)
+    }
   }
 
   const handleDeleteDocument = async (doc) => {
@@ -204,6 +245,16 @@ export default function DentalTimeline({ patient }) {
               {uploadingDoc ? 'Téléversement…' : '+ Téléverser'}
             </button>
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
+            <button
+              className="dt-btn"
+              onClick={handleFaireSigner}
+              disabled={generatingSign || !TEMPLATE_BY_DOCTYPE[docType]}
+              title={TEMPLATE_BY_DOCTYPE[docType]
+                ? 'Ouvrir la page de signature (tablette)'
+                : 'Aucun modèle de signature en ligne pour ce type'}
+            >
+              {generatingSign ? 'Génération…' : '✍️ Faire signer en ligne'}
+            </button>
           </div>
         </div>
 
@@ -224,8 +275,9 @@ export default function DentalTimeline({ patient }) {
         ))}
 
         <div className="dt-note">
-          ✍️ Signature en ligne du consentement éclairé : à venir (Phase 2.5) —
-          le statut « chirurgie programmée » sera bloqué tant que le consentement n'est pas signé.
+          ✍️ Signature en ligne disponible pour le <strong>consentement d'implant</strong> (pilote) :
+          choisissez « Consentement chirurgie implantaire » puis cliquez « Faire signer en ligne »
+          pour ouvrir la page de signature sur la tablette. Mécanisme à valider juridiquement avant usage réel.
         </div>
       </div>
     </div>
