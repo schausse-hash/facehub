@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
+import { jsPDF } from 'jspdf'
 
 // ============================================================
 // FaceHub — Timeline dentaire de la fiche patient (Phase 2.5)
@@ -49,6 +50,7 @@ export default function DentalTimeline({ patient }) {
   const [docType, setDocType] = useState('consentement_implant')
   const [uploadingDoc, setUploadingDoc] = useState(false)
   const [generatingSign, setGeneratingSign] = useState(false)
+  const [signedConsents, setSignedConsents] = useState([])
   const fileInputRef = useRef(null)
 
   useEffect(() => { load() }, [patient.id])
@@ -106,6 +108,15 @@ export default function DentalTimeline({ patient }) {
       .order('uploaded_at', { ascending: false })
     setDocuments(docs || [])
 
+    // Consentements signés en ligne (table patient_consents)
+    const { data: consents } = await supabase
+      .from('patient_consents')
+      .select('*')
+      .eq('patient_id', patient.id)
+      .not('signature', 'is', null)
+      .order('created_at', { ascending: false })
+    setSignedConsents(consents || [])
+
     setLoading(false)
   }
 
@@ -157,6 +168,35 @@ export default function DentalTimeline({ patient }) {
     } finally {
       setGeneratingSign(false)
     }
+  }
+
+  // Génère un PDF du consentement signé (à importer ensuite au dossier Dentitek).
+  const telechargerPdf = (c) => {
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' })
+    const margin = 48
+    const maxW = doc.internal.pageSize.getWidth() - margin * 2
+    let y = margin
+    const titre = DOC_TYPES_DENTAIRES.find(t => TEMPLATE_BY_DOCTYPE[t.id] === c.template_key)?.label || 'Consentement signé'
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13)
+    doc.text(titre, margin, y); y += 22
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5)
+    doc.splitTextToSize(c.consent_text || '', maxW).forEach(l => {
+      if (y > 740) { doc.addPage(); y = margin }
+      doc.text(l, margin, y); y += 12.5
+    })
+    y += 12
+    if (c.signature) {
+      if (y > 660) { doc.addPage(); y = margin }
+      doc.setFont('helvetica', 'bold'); doc.text('Signature :', margin, y); y += 6
+      try { doc.addImage(c.signature, 'PNG', margin, y, 220, 80) } catch (e) { /* signature illisible */ }
+      y += 92
+    }
+    if (y > 760) { doc.addPage(); y = margin }
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
+    const dt = c.created_at ? new Date(c.created_at).toLocaleString('fr-CA') : '—'
+    doc.text(`Signé par : ${c.signer_name || '—'}     Date : ${dt}     Version du document : ${c.consent_version || '—'}`, margin, y)
+    const safe = (patient.name || 'patient').replace(/[^a-zA-Z0-9]+/g, '_')
+    doc.save(`consentement_${c.template_key || 'doc'}_${safe}.pdf`)
   }
 
   const handleDeleteDocument = async (doc) => {
@@ -274,10 +314,34 @@ export default function DentalTimeline({ patient }) {
           </div>
         ))}
 
+        {signedConsents.length > 0 && (
+          <div style={{ marginTop: '0.75rem' }}>
+            <div className="dt-doc-meta" style={{ fontWeight: 600, marginBottom: '0.4rem' }}>
+              Consentements signés en ligne
+            </div>
+            {signedConsents.map(c => (
+              <div key={c.id} className="dt-doc-row">
+                <div>
+                  <div className="dt-doc-name">
+                    ✍️ {DOC_TYPES_DENTAIRES.find(t => TEMPLATE_BY_DOCTYPE[t.id] === c.template_key)?.label || c.template_key || 'Consentement'}
+                  </div>
+                  <div className="dt-doc-meta">
+                    Signé par {c.signer_name || '—'} · {fmtDate(c.created_at)} · version {c.consent_version || '—'}
+                  </div>
+                </div>
+                <div className="dt-doc-actions">
+                  <button className="dt-link-btn" onClick={() => telechargerPdf(c)}>Télécharger PDF</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="dt-note">
           ✍️ Signature en ligne disponible pour le <strong>consentement d'implant</strong> (pilote) :
-          choisissez « Consentement chirurgie implantaire » puis cliquez « Faire signer en ligne »
-          pour ouvrir la page de signature sur la tablette. Mécanisme à valider juridiquement avant usage réel.
+          choisissez « Consentement chirurgie implantaire » puis « Faire signer en ligne » (signature sur tablette).
+          Une fois signé, cliquez <strong>« Télécharger PDF »</strong> pour l'importer au dossier Dentitek du patient.
+          Mécanisme à valider juridiquement avant usage réel.
         </div>
       </div>
     </div>
