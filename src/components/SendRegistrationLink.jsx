@@ -59,8 +59,9 @@ export default function SendRegistrationLink({ onBack, session, userClinic, onNa
         }])
       
       if (error) {
-        // Si la table n'existe pas, on continue quand même pour la démo
-        console.warn('Could not save to database:', error.message)
+        // Ne jamais présenter un lien qui n'a pas été réellement enregistré :
+        // sinon le patient obtiendrait « Lien invalide » à l'ouverture.
+        throw new Error("Le lien n'a pas pu être enregistré. " + error.message)
       }
       
       // Générer l'URL (en production, ce serait votre domaine)
@@ -76,7 +77,7 @@ export default function SendRegistrationLink({ onBack, session, userClinic, onNa
       
     } catch (error) {
       console.error('Error:', error)
-      alert('Error generating link: ' + error.message)
+      alert('Erreur lors de la génération du lien : ' + error.message)
     } finally {
       setGenerating(false)
     }

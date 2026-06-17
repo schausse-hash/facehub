@@ -177,11 +177,10 @@ export default function PublicRegistration({ token }) {
   const validateToken = async () => {
     setLoading(true)
     try {
+      // Lecture sécurisée par token : une fonction dédiée renvoie uniquement
+      // les champs nécessaires à l'inscription, sans exposer la table.
       const { data, error } = await supabase
-        .from('registration_links')
-        .select('*, clinics(*)')
-        .eq('token', token)
-        .single()
+        .rpc('get_registration_link', { p_token: token })
 
       if (error || !data) {
         setError('invalid')
