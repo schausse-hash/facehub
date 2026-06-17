@@ -4,6 +4,7 @@ import Auth from './components/Auth'
 import Dashboard from './components/Dashboard'
 import PublicRegistration from './components/PublicRegistration'
 import PublicBooking from './components/PublicBooking'
+import ConsentSigning from './components/ConsentSigning'
 
 function App() {
   const [session, setSession] = useState(null)
@@ -11,6 +12,7 @@ function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
   const [registrationToken, setRegistrationToken] = useState(null)
   const [bookingClinicId, setBookingClinicId] = useState(null)
+  const [consentToken, setConsentToken] = useState(null)
 
   useEffect(() => {
     // Vérifier si on est sur une page publique
@@ -29,6 +31,14 @@ function App() {
     const bookingMatch = path.match(/^\/booking\/([a-zA-Z0-9-]+)$/)
     if (bookingMatch) {
       setBookingClinicId(bookingMatch[1])
+      setLoading(false)
+      return // Ne pas charger la session pour les pages publiques
+    }
+
+    // Extraire le token si on est sur /consent/:token (signature de consentement)
+    const consentMatch = path.match(/^\/consent\/([a-zA-Z0-9]+)$/)
+    if (consentMatch) {
+      setConsentToken(consentMatch[1])
       setLoading(false)
       return // Ne pas charger la session pour les pages publiques
     }
@@ -66,6 +76,9 @@ function App() {
       } else {
         setBookingClinicId(null)
       }
+
+      const consentM = newPath.match(/^\/consent\/([a-zA-Z0-9]+)$/)
+      setConsentToken(consentM ? consentM[1] : null)
     }
 
     window.addEventListener('popstate', handlePopState)
@@ -88,6 +101,11 @@ function App() {
   // Page de réservation publique (pas besoin d'être connecté)
   if (bookingClinicId) {
     return <PublicBooking clinicId={bookingClinicId} />
+  }
+
+  // Page de signature de consentement (par token, pas besoin d'être connecté)
+  if (consentToken) {
+    return <ConsentSigning token={consentToken} />
   }
 
   // Pages authentifiées
