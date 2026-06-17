@@ -1,131 +1,129 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 
-// Options pour les selects
+// Options pour les listes déroulantes
 const GENDER_OPTIONS = [
-  { value: 'female', label: 'Female' },
-  { value: 'male', label: 'Male' },
-  { value: 'transgender_female', label: 'Transgender Female' },
-  { value: 'transgender_male', label: 'Transgender Male' },
-  { value: 'gender_queer', label: 'Gender Queer' },
-  { value: 'other', label: 'Other' },
+  { value: 'female', label: 'Femme' },
+  { value: 'male', label: 'Homme' },
+  { value: 'transgender_female', label: 'Femme transgenre' },
+  { value: 'transgender_male', label: 'Homme transgenre' },
+  { value: 'gender_queer', label: 'Non binaire' },
+  { value: 'other', label: 'Autre' },
 ]
 
 const SEX_OPTIONS = [
-  { value: 'female', label: 'Female' },
-  { value: 'male', label: 'Male' },
-  { value: 'other', label: 'Other' },
+  { value: 'female', label: 'Féminin' },
+  { value: 'male', label: 'Masculin' },
+  { value: 'other', label: 'Autre' },
 ]
 
 const ETHNICITY_OPTIONS = [
-  'Caucasian', 'African American/Black', 'Hispanic/Latino', 'Asian',
-  'Middle Eastern', 'Pacific Islander', 'Native American/Alaskan', 'Other'
+  'Caucasien', 'Afro-descendant / Noir', 'Hispanique / Latino', 'Asiatique',
+  'Moyen-Oriental', 'Insulaire du Pacifique', 'Autochtone', 'Autre'
 ]
 
 const PROVINCE_OPTIONS = [
   { group: 'Provinces', options: [
     { value: 'AB', label: 'Alberta' },
-    { value: 'BC', label: 'British Columbia' },
+    { value: 'BC', label: 'Colombie-Britannique' },
     { value: 'MB', label: 'Manitoba' },
-    { value: 'NB', label: 'New Brunswick' },
-    { value: 'NL', label: 'Newfoundland and Labrador' },
-    { value: 'NS', label: 'Nova Scotia' },
+    { value: 'NB', label: 'Nouveau-Brunswick' },
+    { value: 'NL', label: 'Terre-Neuve-et-Labrador' },
+    { value: 'NS', label: 'Nouvelle-Écosse' },
     { value: 'ON', label: 'Ontario' },
-    { value: 'PE', label: 'Prince Edward Island' },
-    { value: 'QC', label: 'Quebec' },
+    { value: 'PE', label: 'Île-du-Prince-Édouard' },
+    { value: 'QC', label: 'Québec' },
     { value: 'SK', label: 'Saskatchewan' },
-    { value: 'NT', label: 'Northwest Territories' },
+    { value: 'NT', label: 'Territoires du Nord-Ouest' },
     { value: 'NU', label: 'Nunavut' },
     { value: 'YT', label: 'Yukon' },
   ]},
-  { group: 'States', options: [
+  { group: 'États-Unis', options: [
     { value: 'AL', label: 'Alabama' }, { value: 'AK', label: 'Alaska' },
     { value: 'AZ', label: 'Arizona' }, { value: 'AR', label: 'Arkansas' },
-    { value: 'CA', label: 'California' }, { value: 'CO', label: 'Colorado' },
+    { value: 'CA', label: 'Californie' }, { value: 'CO', label: 'Colorado' },
     { value: 'CT', label: 'Connecticut' }, { value: 'DE', label: 'Delaware' },
-    { value: 'FL', label: 'Florida' }, { value: 'GA', label: 'Georgia' },
-    { value: 'HI', label: 'Hawaii' }, { value: 'ID', label: 'Idaho' },
+    { value: 'FL', label: 'Floride' }, { value: 'GA', label: 'Géorgie' },
+    { value: 'HI', label: 'Hawaï' }, { value: 'ID', label: 'Idaho' },
     { value: 'IL', label: 'Illinois' }, { value: 'IN', label: 'Indiana' },
     { value: 'IA', label: 'Iowa' }, { value: 'KS', label: 'Kansas' },
-    { value: 'KY', label: 'Kentucky' }, { value: 'LA', label: 'Louisiana' },
+    { value: 'KY', label: 'Kentucky' }, { value: 'LA', label: 'Louisiane' },
     { value: 'ME', label: 'Maine' }, { value: 'MD', label: 'Maryland' },
     { value: 'MA', label: 'Massachusetts' }, { value: 'MI', label: 'Michigan' },
     { value: 'MN', label: 'Minnesota' }, { value: 'MS', label: 'Mississippi' },
     { value: 'MO', label: 'Missouri' }, { value: 'MT', label: 'Montana' },
     { value: 'NE', label: 'Nebraska' }, { value: 'NV', label: 'Nevada' },
     { value: 'NH', label: 'New Hampshire' }, { value: 'NJ', label: 'New Jersey' },
-    { value: 'NM', label: 'New Mexico' }, { value: 'NY', label: 'New York' },
-    { value: 'NC', label: 'North Carolina' }, { value: 'ND', label: 'North Dakota' },
+    { value: 'NM', label: 'Nouveau-Mexique' }, { value: 'NY', label: 'New York' },
+    { value: 'NC', label: 'Caroline du Nord' }, { value: 'ND', label: 'Dakota du Nord' },
     { value: 'OH', label: 'Ohio' }, { value: 'OK', label: 'Oklahoma' },
-    { value: 'OR', label: 'Oregon' }, { value: 'PA', label: 'Pennsylvania' },
-    { value: 'RI', label: 'Rhode Island' }, { value: 'SC', label: 'South Carolina' },
-    { value: 'SD', label: 'South Dakota' }, { value: 'TN', label: 'Tennessee' },
+    { value: 'OR', label: 'Oregon' }, { value: 'PA', label: 'Pennsylvanie' },
+    { value: 'RI', label: 'Rhode Island' }, { value: 'SC', label: 'Caroline du Sud' },
+    { value: 'SD', label: 'Dakota du Sud' }, { value: 'TN', label: 'Tennessee' },
     { value: 'TX', label: 'Texas' }, { value: 'UT', label: 'Utah' },
-    { value: 'VT', label: 'Vermont' }, { value: 'VA', label: 'Virginia' },
-    { value: 'WA', label: 'Washington' }, { value: 'WV', label: 'West Virginia' },
+    { value: 'VT', label: 'Vermont' }, { value: 'VA', label: 'Virginie' },
+    { value: 'WA', label: 'Washington' }, { value: 'WV', label: 'Virginie-Occidentale' },
     { value: 'WI', label: 'Wisconsin' }, { value: 'WY', label: 'Wyoming' },
   ]},
 ]
 
 const REFERRAL_OPTIONS = [
-  "Doctor's referral", "Friend or current patient", "Seminar or Tradeshow",
-  "Newspaper", "Website or Internet", "Promotion or Coupon",
-  "Yellow Pages", "Magazine", "Walk by"
+  "Référence d'un professionnel", "Ami ou patient actuel", "Séminaire ou salon",
+  "Journal", "Site web ou Internet", "Promotion ou coupon",
+  "Pages Jaunes", "Magazine", "En passant devant la clinique"
 ]
 
 const INTEREST_OPTIONS = [
-  "Treating fine lines & wrinkles", "Treating facial volume loss",
-  "Treating gummy smiles", "Treating uneven lip position",
-  "Treating migraine/headaches", "Treating TMD/TMJ",
-  "Treatment of age spots", "Improving skin tone",
-  "Treating stubborn body fat", "Hair removal", "Smile makeover"
+  "Examen et nettoyage", "Obturations (plombages)", "Couronnes ou ponts",
+  "Traitement de canal", "Extraction", "Implants dentaires",
+  "Prothèses dentaires", "Orthodontie / Invisalign", "Blanchiment",
+  "Urgence dentaire", "Esthétique du sourire"
 ]
 
 const MEDICAL_CONDITIONS_LEFT = [
-  "Acne", "Allergies", "ALS", "Arthritis", "Asthma", "Autoimmune disorder",
-  "Blood disorder", "Cancer (or radiation therapy)", "Cow's milk protein allergy",
-  "Diabetes (or diabetic neuropathy)", "Epilepsy", "Guillain barre syndrome",
-  "Herpes (or cold sores)", "Hirsutism", "Hormonal imbalance"
+  "Allergies", "Arthrite", "Asthme", "Maladie auto-immune",
+  "Trouble sanguin (saignements)", "Cancer (ou radiothérapie)",
+  "Diabète", "Épilepsie", "Maladie cardiaque", "Hypertension artérielle",
+  "Hépatite", "Herpès (ou feux sauvages)", "VIH / SIDA", "Déséquilibre hormonal"
 ]
 
 const MEDICAL_CONDITIONS_RIGHT = [
-  "Keloid scars (or other scars)", "Kidney disease", "Local anesthetic sensitivity",
-  "Melanoma", "Myasthenia gravis", "Polycystic ovarian syndrome",
-  "Port wine stain", "Psoriasis", "Severe allergic reactions",
-  "Steroids (or hormonal therapy)", "Shingles", "Significant neurological disease",
-  "Skin pigmentation", "Vitiligo"
+  "Maladie rénale", "Sensibilité aux anesthésiques locaux",
+  "Prothèse articulaire ou valvulaire", "Ostéoporose (ou bisphosphonates)",
+  "Réactions allergiques sévères", "Stéroïdes (ou hormonothérapie)",
+  "Zona", "Maladie neurologique importante", "Trouble de la thyroïde",
+  "Grincement / serrement des dents (bruxisme)", "ATM / douleur à la mâchoire",
+  "Vertiges / évanouissements"
 ]
 
 const SUN_EXPOSURE_OPTIONS = [
-  "Always burn, never tan", "Usually burn, tan with difficulty",
-  "Almost never burn, tan very easily", "Sometimes burn, tan about average",
-  "Rarely burn, tan easily", "Never burn, always tan"
+  "Toujours, je brûle, je ne bronze jamais", "Habituellement, je brûle, je bronze difficilement",
+  "Presque jamais, je bronze très facilement", "Parfois, je brûle, je bronze modérément",
+  "Rarement, je bronze facilement", "Jamais, je bronze toujours"
 ]
 
-// Textes des consentements
+// Textes des consentements (esthétiques — à valider/adapter par un professionnel)
 const CONSENT_TEXTS = {
-  botox: `<p>1. I am aware that when small amounts of purified botulinum toxin are injected into a muscle, the muscle is weakened. This effect appears in 12 - 14 days and usually lasts approximately 3 - 4 months.</p>
-<p>2. I understand that this treatment will reduce or eliminate my ability to "frown" and/or produce "crow's feet" or forehead "worry lines" while the injection is effective, but that this will reverse itself after a period of months at which time re-treatment is appropriate.</p>
-<p>3. I understand that I must stay in the erect position and may not manipulate the area of injection or participate in strenuous activity for 4 hours after treatment. I also understand that I must exercise the treated muscles for 2 hours after treatment.</p>
-<p>4. I agree to return for a follow up visit 10 to 14 days from my treatment.</p>
-<p>5. I have been made aware of alternative methods of treatment.</p>
-<p>6. To my knowledge, I am not pregnant and do not have any significant neuralgic or muscular disease.</p>
-<p>7. I have had the opportunity to ask questions, and they have been answered to my satisfaction.</p>
-<p>8. I consent to photographs being taken to evaluate treatment effectiveness, for medical education, training, professional publications, or sales purposes. No photographs revealing my identity will be used without my written consent. If my identity is not revealed, these photographs may be used without my permission.</p>
-<p>9. I agree to being governed by the laws and statutes of British Columbia, Canada.</p>`,
-  
-  filler: `<p>I acknowledge that this treatment has been fully explained to me and that I have had the opportunity to ask questions that have been answered to my satisfaction.</p>
-<p>I have been specifically informed of the following:</p>
+  botox: `<p>1. Je comprends que lorsqu'une petite quantité de toxine botulinique purifiée est injectée dans un muscle, ce muscle est affaibli. Cet effet apparaît en 12 à 14 jours et dure généralement de 3 à 4 mois.</p>
+<p>2. Je comprends que ce traitement réduira ou éliminera ma capacité à « froncer les sourcils » pendant que l'injection est active, mais que cela s'inversera après quelques mois, moment où un nouveau traitement sera approprié.</p>
+<p>3. Je comprends que je dois rester en position droite et ne pas manipuler la zone d'injection ni faire d'activité intense durant les 4 heures suivant le traitement.</p>
+<p>4. J'accepte de revenir pour une visite de suivi 10 à 14 jours après mon traitement.</p>
+<p>5. J'ai été informé(e) des autres méthodes de traitement possibles.</p>
+<p>6. À ma connaissance, je ne suis pas enceinte et je n'ai aucune maladie neurologique ou musculaire importante.</p>
+<p>7. J'ai eu l'occasion de poser des questions et on y a répondu à ma satisfaction.</p>
+<p>8. Je consens à ce que des photographies soient prises pour évaluer l'efficacité du traitement.</p>`,
+
+  filler: `<p>Je reconnais que ce traitement m'a été pleinement expliqué et que j'ai eu l'occasion de poser des questions auxquelles on a répondu à ma satisfaction.</p>
+<p>J'ai été informé(e) de ce qui suit :</p>
 <ul>
-<li>Dermal Filler is a transparent, bio-resorbable gel consisting of non-animal cross-linked hyaluronic acid for injection into the skin to correct wrinkles and folds on the face and for lip enhancement.</li>
-<li>After the injection, some common injection-related reactions might occur, such as swelling, redness, pain, itching, discoloration, and tenderness at the injection site. They typically resolve within 1 to 2 days after injection into the skin and within a week after the injections into the lips.</li>
-<li>Very rarely, lumps, abscesses and indurations - sometimes associated with redness and swelling - have been reported after injection. Such reactions may develop days or weeks after injection. In all cases, these side effects disappear with treatment although, in some patients, they may last longer for a few months.</li>
+<li>L'agent de comblement dermique est un gel transparent et résorbable à base d'acide hyaluronique, injecté dans la peau pour corriger les rides et les plis.</li>
+<li>Après l'injection, des réactions courantes peuvent survenir : gonflement, rougeur, douleur, démangeaison, décoloration et sensibilité au site d'injection. Elles disparaissent généralement en 1 à 2 jours.</li>
+<li>Très rarement, des nodules, abcès ou indurations ont été rapportés après l'injection, parfois associés à des rougeurs et un gonflement.</li>
 </ul>
-<p>I have been informed that depending on the site of injection, skin type, the amount injected and the injection technique, dermal fillers can last for an average of 6 to 9 months (lips: up to 6 months). In some cases the duration of the effect can be shorter or even longer.</p>
-<p>I agree to being governed by the laws and statutes of British Columbia.</p>
-<p>I understand the procedure and accept the risks and request that this procedure be performed on me.</p>`,
-  
-  photo: `<p>Do you consent to having your photographs used for patient education and marketing purposes?</p>`
+<p>Je comprends que la durée de l'effet varie en moyenne de 6 à 9 mois selon le site, le type de peau, la quantité et la technique d'injection.</p>
+<p>Je comprends la procédure, j'en accepte les risques et je demande qu'elle soit réalisée sur moi.</p>`,
+
+  photo: `<p>Consentez-vous à ce que vos photographies soient utilisées à des fins d'éducation des patients et de marketing ?</p>`
 }
 
 export default function PublicRegistration({ token }) {
@@ -229,31 +227,31 @@ export default function PublicRegistration({ token }) {
 
   const validateForm = () => {
     const errs = []
-    
-    if (!formData.firstName.trim()) errs.push('First name is required')
-    if (!formData.lastName.trim()) errs.push('Last name is required')
-    if (!formData.birthday) errs.push('Birthday is required')
-    
+
+    if (!formData.firstName.trim()) errs.push('Le prénom est requis')
+    if (!formData.lastName.trim()) errs.push('Le nom de famille est requis')
+    if (!formData.birthday) errs.push('La date de naissance est requise')
+
     if (!quickRegister) {
-      if (!formData.genderIdentity) errs.push('Gender identity is required')
-      if (!formData.sexAtBirth) errs.push('Sex assigned at birth is required')
-      if (!formData.ethnicity) errs.push('Ethnicity is required')
-      if (!formData.email.trim()) errs.push('Email is required')
-      if (!formData.cellPhone.trim()) errs.push('Cell phone is required')
-      if (!formData.country) errs.push('Country is required')
-      if (!formData.province) errs.push('Province/State is required')
-      if (!formData.address.trim()) errs.push('Address is required')
-      if (!formData.city.trim()) errs.push('City is required')
-      if (!formData.postalCode.trim()) errs.push('Postal code is required')
-      
-      if (linkData?.consents?.botox && !formData.botoxConsent) 
-        errs.push('Please accept or decline Botulinum Toxin Consent')
-      if (linkData?.consents?.filler && !formData.fillerConsent) 
-        errs.push('Please accept or decline Dermal Filler Consent')
-      if (linkData?.consents?.photo && !formData.photoConsent) 
-        errs.push('Please accept or decline Photo Consent')
+      if (!formData.genderIdentity) errs.push("L'identité de genre est requise")
+      if (!formData.sexAtBirth) errs.push('Le sexe à la naissance est requis')
+      if (!formData.ethnicity) errs.push("L'origine ethnique est requise")
+      if (!formData.email.trim()) errs.push('Le courriel est requis')
+      if (!formData.cellPhone.trim()) errs.push('Le téléphone cellulaire est requis')
+      if (!formData.country) errs.push('Le pays est requis')
+      if (!formData.province) errs.push('La province ou l\'état est requis')
+      if (!formData.address.trim()) errs.push("L'adresse est requise")
+      if (!formData.city.trim()) errs.push('La ville est requise')
+      if (!formData.postalCode.trim()) errs.push('Le code postal est requis')
+
+      if (linkData?.consents?.botox && !formData.botoxConsent)
+        errs.push('Veuillez accepter ou refuser le consentement de toxine botulique')
+      if (linkData?.consents?.filler && !formData.fillerConsent)
+        errs.push('Veuillez accepter ou refuser le consentement des agents de comblement')
+      if (linkData?.consents?.photo && !formData.photoConsent)
+        errs.push('Veuillez accepter ou refuser le consentement photo')
     }
-    
+
     setErrors(errs)
     return errs.length === 0
   }
@@ -263,9 +261,9 @@ export default function PublicRegistration({ token }) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
-    
+
     setSaving(true)
-    
+
     try {
       const patientData = {
         name: `${formData.firstName} ${formData.lastName}`,
@@ -342,26 +340,26 @@ export default function PublicRegistration({ token }) {
           registrationToken: token,
         }
       }
-      
+
       const { data: patient, error: patientError } = await supabase
         .from('patients')
         .insert([patientData])
         .select()
         .single()
-      
+
       if (patientError) throw patientError
-      
+
       await supabase
         .from('registration_links')
-        .update({ 
-          used: true, 
+        .update({
+          used: true,
           used_at: new Date().toISOString(),
-          patient_id: patient.id 
+          patient_id: patient.id
         })
         .eq('token', token)
-      
+
       setSuccess(true)
-      
+
     } catch (error) {
       console.error('Error:', error)
       setErrors([error.message])
@@ -566,7 +564,7 @@ export default function PublicRegistration({ token }) {
   }
 
   // ===================== RENDER HELPERS =====================
-  
+
   const renderInput = (name, label, required = false, type = 'text', placeholder = '') => (
     <div style={styles.formGroup}>
       <label style={styles.label}>
@@ -578,7 +576,7 @@ export default function PublicRegistration({ token }) {
         style={styles.input}
         value={formData[name]}
         onChange={(e) => updateField(name, e.target.value)}
-        placeholder={placeholder || `Enter ${label.toLowerCase()}`}
+        placeholder={placeholder || `Saisir ${label.toLowerCase()}`}
       />
     </div>
   )
@@ -594,7 +592,7 @@ export default function PublicRegistration({ token }) {
         value={formData[name]}
         onChange={(e) => updateField(name, e.target.value)}
       >
-        <option value="">Select...</option>
+        <option value="">Sélectionner...</option>
         {Array.isArray(options) && options[0]?.group ? (
           options.map(group => (
             <optgroup key={group.group} label={group.group}>
@@ -605,7 +603,7 @@ export default function PublicRegistration({ token }) {
           ))
         ) : (
           options.map(opt => (
-            typeof opt === 'string' 
+            typeof opt === 'string'
               ? <option key={opt} value={opt}>{opt}</option>
               : <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))
@@ -630,13 +628,13 @@ export default function PublicRegistration({ token }) {
           style={{ ...styles.textarea, minHeight: '60px', marginTop: '0.5rem' }}
           value={formData[textName]}
           onChange={(e) => updateField(textName, e.target.value)}
-          placeholder="Please specify further"
+          placeholder="Veuillez préciser"
         />
       )}
     </div>
   )
 
-  // ===================== LOADING STATE =====================
+  // ===================== ÉTAT DE CHARGEMENT =====================
   if (loading) {
     return (
       <div style={styles.page}>
@@ -656,7 +654,7 @@ export default function PublicRegistration({ token }) {
     )
   }
 
-  // ===================== ERROR STATES =====================
+  // ===================== ÉTATS D'ERREUR =====================
   if (error) {
     const errorMessages = {
       invalid: { title: 'Lien invalide', message: 'Ce lien d\'inscription est invalide ou n\'existe pas.' },
@@ -676,7 +674,7 @@ export default function PublicRegistration({ token }) {
     )
   }
 
-  // ===================== SUCCESS STATE =====================
+  // ===================== ÉTAT DE SUCCÈS =====================
   if (success) {
     return (
       <div style={styles.page}>
@@ -687,25 +685,25 @@ export default function PublicRegistration({ token }) {
             Merci d'avoir pris le temps de vous inscrire. Nous avons reçu vos informations et les examinerons sous peu.
           </p>
           <p style={{ color: '#666', maxWidth: '500px' }}>
-            Si des informations supplémentaires sont nécessaires, un membre de notre équipe vous contactera. Nous sommes heureux de vous compter parmi nous !
+            Si des informations supplémentaires sont nécessaires, un membre de notre équipe vous contactera. Au plaisir de vous accueillir !
           </p>
         </div>
       </div>
     )
   }
 
-  // ===================== MAIN FORM =====================
+  // ===================== FORMULAIRE PRINCIPAL =====================
   return (
     <div style={styles.page}>
       <div style={styles.container}>
-        {/* Header */}
+        {/* En-tête */}
         <div style={styles.header}>
-          <h1 style={styles.title}>Patient Registration</h1>
+          <h1 style={styles.title}>Inscription du patient</h1>
         </div>
 
-        {/* Type Selector */}
+        {/* Sélecteur de type */}
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ marginRight: '1rem', fontWeight: '500', color: '#333' }}>Type:</label>
+          <label style={{ marginRight: '1rem', fontWeight: '500', color: '#333' }}>Type :</label>
           <div style={styles.typeSelector}>
             <label style={styles.radioLabel}>
               <input
@@ -714,7 +712,7 @@ export default function PublicRegistration({ token }) {
                 checked={!quickRegister}
                 onChange={() => setQuickRegister(false)}
               />
-              Full Register
+              Inscription complète
             </label>
             <label style={styles.radioLabel}>
               <input
@@ -723,117 +721,117 @@ export default function PublicRegistration({ token }) {
                 checked={quickRegister}
                 onChange={() => setQuickRegister(true)}
               />
-              Quick Register
+              Inscription rapide
             </label>
           </div>
         </div>
 
-        {/* Error Messages */}
+        {/* Messages d'erreur */}
         {errors.length > 0 && (
           <div style={styles.errorBox}>
-            <strong>Please correct the following errors:</strong>
+            <strong>Veuillez corriger les erreurs suivantes :</strong>
             <ul style={{ margin: '0.5rem 0 0 1rem', padding: 0 }}>
               {errors.map((err, i) => <li key={i}>{err}</li>)}
             </ul>
           </div>
         )}
 
-        {/* Two Column Layout */}
+        {/* Disposition en deux colonnes */}
         <div style={styles.twoColumn}>
-          {/* ============ LEFT COLUMN ============ */}
+          {/* ============ COLONNE GAUCHE ============ */}
           <div>
-            {/* Logo Card */}
+            {/* Carte logo */}
             <div style={styles.logoCard}>
               <div style={styles.logoTitle}>{clinicInfo?.name || 'FaceHub'}</div>
               <div style={{ color: '#5a9a9c', fontSize: '2rem', fontWeight: '700' }}>FaceHub</div>
             </div>
 
-            {/* Personal Details */}
+            {/* Renseignements personnels */}
             <div style={styles.card}>
               <div style={styles.cardBody}>
-                <h3 style={styles.sectionTitle}>Personal Details</h3>
+                <h3 style={styles.sectionTitle}>Renseignements personnels</h3>
                 <div style={styles.row}>
-                  {renderInput('firstName', 'First Name', true)}
-                  {renderInput('lastName', 'Last Name', true)}
+                  {renderInput('firstName', 'Prénom', true)}
+                  {renderInput('lastName', 'Nom de famille', true)}
                 </div>
                 {!quickRegister && (
                   <>
                     <div style={styles.row}>
-                      {renderSelect('genderIdentity', 'Gender Identity', GENDER_OPTIONS, true)}
-                      {renderSelect('sexAtBirth', 'Sex Assigned at Birth', SEX_OPTIONS, true)}
+                      {renderSelect('genderIdentity', 'Identité de genre', GENDER_OPTIONS, true)}
+                      {renderSelect('sexAtBirth', 'Sexe à la naissance', SEX_OPTIONS, true)}
                     </div>
                   </>
                 )}
                 <div style={styles.row}>
-                  {renderInput('birthday', 'Birthday', true, 'date')}
-                  {!quickRegister && renderSelect('ethnicity', 'Ethnicity', ETHNICITY_OPTIONS, true)}
+                  {renderInput('birthday', 'Date de naissance', true, 'date')}
+                  {!quickRegister && renderSelect('ethnicity', 'Origine ethnique', ETHNICITY_OPTIONS, true)}
                 </div>
-                <small style={{ color: '#999' }}>Date Format: (MM/DD/YYYY)</small>
+                <small style={{ color: '#999' }}>Format de date : (JJ/MM/AAAA)</small>
               </div>
             </div>
 
-            {/* Contact Information - Full Only */}
+            {/* Coordonnées - complète seulement */}
             {!quickRegister && (
               <div style={styles.card}>
                 <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>Contact Information</h3>
+                  <h3 style={styles.sectionTitle}>Coordonnées</h3>
                   <div style={styles.row}>
-                    {renderInput('email', 'Email', true, 'email')}
-                    {renderInput('cellPhone', 'Cell Phone Number', true, 'tel')}
+                    {renderInput('email', 'Courriel', true, 'email')}
+                    {renderInput('cellPhone', 'Téléphone cellulaire', true, 'tel')}
                   </div>
                   <div style={styles.row}>
-                    {renderInput('homePhone', 'Home Phone Number', false, 'tel')}
-                    {renderInput('workPhone', 'Work Phone Number', false, 'tel')}
+                    {renderInput('homePhone', 'Téléphone résidentiel', false, 'tel')}
+                    {renderInput('workPhone', 'Téléphone au travail', false, 'tel')}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Mailing Address - Full Only */}
+            {/* Adresse postale - complète seulement */}
             {!quickRegister && (
               <div style={styles.card}>
                 <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>Mailing Address</h3>
+                  <h3 style={styles.sectionTitle}>Adresse postale</h3>
                   <div style={styles.row}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Country<span style={styles.required}>*</span></label>
+                      <label style={styles.label}>Pays<span style={styles.required}>*</span></label>
                       <select
                         style={styles.select}
                         value={formData.country}
                         onChange={(e) => updateField('country', e.target.value)}
                       >
                         <option value="CA">Canada</option>
-                        <option value="US">United States</option>
+                        <option value="US">États-Unis</option>
                       </select>
                     </div>
-                    {renderSelect('province', formData.country === 'US' ? 'State' : 'Province', PROVINCE_OPTIONS, true)}
+                    {renderSelect('province', formData.country === 'US' ? 'État' : 'Province', PROVINCE_OPTIONS, true)}
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Address<span style={styles.required}>*</span></label>
+                    <label style={styles.label}>Adresse<span style={styles.required}>*</span></label>
                     <textarea
                       style={styles.textarea}
                       value={formData.address}
                       onChange={(e) => updateField('address', e.target.value)}
-                      placeholder="Enter mailing address"
+                      placeholder="Saisir l'adresse postale"
                       rows="3"
                     />
                   </div>
                   <div style={styles.row}>
-                    {renderInput('city', 'City', true)}
-                    {renderInput('postalCode', formData.country === 'US' ? 'Zip Code' : 'Postal Code', true)}
+                    {renderInput('city', 'Ville', true)}
+                    {renderInput('postalCode', formData.country === 'US' ? 'Code ZIP' : 'Code postal', true)}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* About Your Visit - Full Only */}
+            {/* À propos de votre visite - complète seulement */}
             {!quickRegister && (
               <div style={styles.card}>
                 <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>About Your Visit</h3>
+                  <h3 style={styles.sectionTitle}>À propos de votre visite</h3>
                   <div style={styles.row}>
                     <div>
-                      <label style={{ ...styles.label, marginBottom: '1rem' }}>How did you hear about us?</label>
+                      <label style={{ ...styles.label, marginBottom: '1rem' }}>Comment avez-vous entendu parler de nous ?</label>
                       {REFERRAL_OPTIONS.map(opt => (
                         <label key={opt} style={styles.checkbox}>
                           <input
@@ -852,7 +850,7 @@ export default function PublicRegistration({ token }) {
                           checked={formData.showReferralOther}
                           onChange={(e) => updateField('showReferralOther', e.target.checked)}
                         />
-                        <span>Other</span>
+                        <span>Autre</span>
                       </label>
                       {formData.showReferralOther && (
                         <input
@@ -860,12 +858,12 @@ export default function PublicRegistration({ token }) {
                           style={{ ...styles.input, marginTop: '0.5rem' }}
                           value={formData.referralOther}
                           onChange={(e) => updateField('referralOther', e.target.value)}
-                          placeholder="Please specify"
+                          placeholder="Veuillez préciser"
                         />
                       )}
                     </div>
                     <div>
-                      <label style={{ ...styles.label, marginBottom: '1rem' }}>What are you interested in?</label>
+                      <label style={{ ...styles.label, marginBottom: '1rem' }}>Qu'est-ce qui vous intéresse ?</label>
                       {INTEREST_OPTIONS.map(opt => (
                         <label key={opt} style={styles.checkbox}>
                           <input
@@ -883,71 +881,45 @@ export default function PublicRegistration({ token }) {
               </div>
             )}
 
-            {/* Skin History - Full Only */}
+            {/* Habitudes de vie - complète seulement */}
             {!quickRegister && (
               <div style={styles.card}>
                 <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>Skin History</h3>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>What products are you currently using on your skin:</label>
-                    <textarea
-                      style={styles.textarea}
-                      value={formData.skinProducts}
-                      onChange={(e) => updateField('skinProducts', e.target.value)}
-                      rows="3"
-                    />
-                  </div>
-                  {renderCheckboxWithText('skinSensitivities', 'Do you have any particular skin sensitivities?', 'skinSensitivitiesText')}
-                  {renderCheckboxWithText('vitaminA', 'Have you ever used (or are currently using) Vitamin A or glycolic acid?', 'vitaminAText')}
-                  {renderCheckboxWithText('accutane', 'Have you ever used (or are currently using) Accutane?', 'accutaneText')}
-                  {renderCheckboxWithText('chemicalPeel', 'Have you ever had a chemical peel?', 'chemicalPeelText')}
-                  {renderCheckboxWithText('laserTreatments', 'Have you had laser treatments in the past?', 'laserTreatmentsText')}
-                  {renderCheckboxWithText('botoxDermal', 'Have you ever had botulinum toxin or dermal fillers?', 'botoxDermalText')}
-                  {renderCheckboxWithText('waxDepilatory', 'Have you waxed or used a depilatory? If yes, specify treated areas.', 'waxDepilatoryText')}
-                </div>
-              </div>
-            )}
-
-            {/* Sun History - Full Only */}
-            {!quickRegister && (
-              <div style={styles.card}>
-                <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>Sun History</h3>
-                  {renderSelect('sunExposure', 'With sun exposure, how does your skin respond?', SUN_EXPOSURE_OPTIONS)}
-                  {renderCheckboxWithText('tanning', 'Do you sunbathe, use self-tanning lotions, sprays or use tanning beds?', 'tanningText')}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <h3 style={styles.sectionTitle}>Habitudes de vie</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
                     <label style={styles.checkbox}>
                       <input
                         type="checkbox"
                         style={styles.checkboxInput}
-                        checked={formData.sunscreen}
-                        onChange={(e) => updateField('sunscreen', e.target.checked)}
+                        checked={formData.smoker}
+                        onChange={(e) => updateField('smoker', e.target.checked)}
                       />
-                      <span>Do you use sunscreen?</span>
+                      <span>Fumez-vous ?</span>
                     </label>
-                    {formData.sunscreen && (
+                    {formData.smoker && (
                       <input
                         type="text"
-                        style={{ ...styles.input, width: '150px' }}
-                        value={formData.sunscreenSPF}
-                        onChange={(e) => updateField('sunscreenSPF', e.target.value)}
-                        placeholder="What SPF?"
+                        style={{ ...styles.input, width: '200px' }}
+                        value={formData.cigarettesPerDay}
+                        onChange={(e) => updateField('cigarettesPerDay', e.target.value)}
+                        placeholder="Cigarettes par jour"
                       />
                     )}
                   </div>
+                  {renderCheckboxWithText('pregnant', 'Êtes-vous enceinte ou allaitez-vous présentement ?', 'pregnantText')}
                 </div>
               </div>
             )}
           </div>
 
-          {/* ============ RIGHT COLUMN ============ */}
+          {/* ============ COLONNE DROITE ============ */}
           <div>
-            {/* Medical Conditions - Full Only */}
+            {/* Conditions médicales - complète seulement */}
             {!quickRegister && (
               <div style={styles.card}>
                 <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>Medical Conditions</h3>
-                  <label style={styles.label}>Do you have any of the following medical conditions?</label>
+                  <h3 style={styles.sectionTitle}>Conditions médicales</h3>
+                  <label style={styles.label}>Avez-vous l'une des conditions médicales suivantes ?</label>
                   <div style={styles.row}>
                     <div>
                       {MEDICAL_CONDITIONS_LEFT.map(condition => {
@@ -969,7 +941,7 @@ export default function PublicRegistration({ token }) {
                                   style={{ ...styles.input, marginBottom: '0.5rem' }}
                                   value={formData.allergiesDetail}
                                   onChange={(e) => updateField('allergiesDetail', e.target.value)}
-                                  placeholder="Please list any allergies"
+                                  placeholder="Veuillez préciser vos allergies"
                                 />
                               )}
                             </div>
@@ -990,7 +962,7 @@ export default function PublicRegistration({ token }) {
                     </div>
                     <div>
                       {MEDICAL_CONDITIONS_RIGHT.map(condition => {
-                        if (condition === 'Severe allergic reactions') {
+                        if (condition === 'Réactions allergiques sévères') {
                           return (
                             <div key={condition}>
                               <label style={styles.checkbox}>
@@ -1002,19 +974,19 @@ export default function PublicRegistration({ token }) {
                                 />
                                 <span>{condition}</span>
                               </label>
-                              {formData.medicalConditions.includes('Severe allergic reactions') && (
+                              {formData.medicalConditions.includes('Réactions allergiques sévères') && (
                                 <input
                                   type="text"
                                   style={{ ...styles.input, marginBottom: '0.5rem' }}
                                   value={formData.severeAllergicDetail}
                                   onChange={(e) => updateField('severeAllergicDetail', e.target.value)}
-                                  placeholder="Please specify"
+                                  placeholder="Veuillez préciser"
                                 />
                               )}
                             </div>
                           )
                         }
-                        if (condition === 'Significant neurological disease') {
+                        if (condition === 'Maladie neurologique importante') {
                           return (
                             <div key={condition}>
                               <label style={styles.checkbox}>
@@ -1026,13 +998,13 @@ export default function PublicRegistration({ token }) {
                                 />
                                 <span>{condition}</span>
                               </label>
-                              {formData.medicalConditions.includes('Significant neurological disease') && (
+                              {formData.medicalConditions.includes('Maladie neurologique importante') && (
                                 <input
                                   type="text"
                                   style={{ ...styles.input, marginBottom: '0.5rem' }}
                                   value={formData.neurologicalDetail}
                                   onChange={(e) => updateField('neurologicalDetail', e.target.value)}
-                                  placeholder="Please specify"
+                                  placeholder="Veuillez préciser"
                                 />
                               )}
                             </div>
@@ -1057,7 +1029,7 @@ export default function PublicRegistration({ token }) {
                           checked={formData.otherMedical}
                           onChange={(e) => updateField('otherMedical', e.target.checked)}
                         />
-                        <span>Other</span>
+                        <span>Autre</span>
                       </label>
                       {formData.otherMedical && (
                         <input
@@ -1065,7 +1037,7 @@ export default function PublicRegistration({ token }) {
                           style={styles.input}
                           value={formData.otherMedicalText}
                           onChange={(e) => updateField('otherMedicalText', e.target.value)}
-                          placeholder="Please specify"
+                          placeholder="Veuillez préciser"
                         />
                       )}
                     </div>
@@ -1074,89 +1046,68 @@ export default function PublicRegistration({ token }) {
               </div>
             )}
 
-            {/* Medical History - Full Only */}
+            {/* Antécédents médicaux - complète seulement */}
             {!quickRegister && (
               <div style={styles.card}>
                 <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>Medical History</h3>
+                  <h3 style={styles.sectionTitle}>Antécédents médicaux</h3>
                   <div style={styles.row}>
-                    {renderInput('familyPhysician', 'Family Physician')}
+                    {renderInput('familyPhysician', 'Médecin de famille')}
                     <div style={styles.row}>
-                      {renderInput('weight', 'Weight')}
-                      {renderInput('height', 'Height')}
+                      {renderInput('weight', 'Poids')}
+                      {renderInput('height', 'Taille')}
                     </div>
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Please list any past illnesses as well as all minor or major surgeries:</label>
+                    <label style={styles.label}>Veuillez indiquer vos maladies passées ainsi que toute chirurgie mineure ou majeure :</label>
                     <textarea
                       style={styles.textarea}
                       value={formData.pastIllnessSurgery}
                       onChange={(e) => updateField('pastIllnessSurgery', e.target.value)}
-                      placeholder="Specify any past illnesses or surgeries"
+                      placeholder="Précisez vos maladies ou chirurgies passées"
                       rows="3"
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Please list all current medications:</label>
+                    <label style={styles.label}>Veuillez indiquer tous vos médicaments actuels :</label>
                     <textarea
                       style={styles.textarea}
                       value={formData.medications}
                       onChange={(e) => updateField('medications', e.target.value)}
-                      placeholder="Specify any medications you are currently taking"
+                      placeholder="Précisez les médicaments que vous prenez actuellement"
                       rows="3"
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>If you are currently being treated for any conditions, please specify:</label>
+                    <label style={styles.label}>Si vous êtes présentement traité(e) pour une condition, veuillez préciser :</label>
                     <textarea
                       style={styles.textarea}
                       value={formData.currentConditions}
                       onChange={(e) => updateField('currentConditions', e.target.value)}
-                      placeholder="Specify any conditions you are being treated for"
+                      placeholder="Précisez les conditions pour lesquelles vous êtes traité(e)"
                       rows="3"
                     />
                   </div>
-                  {renderCheckboxWithText('specialistTreatment', 'Are you currently or have you ever received treatment from an endocrinologist, dermatologist or plastic surgeon?', 'specialistTreatmentText')}
-                  {renderCheckboxWithText('pregnant', 'Are you currently pregnant, breastfeeding or do you plan to become pregnant in the next year?', 'pregnantText')}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <label style={styles.checkbox}>
-                      <input
-                        type="checkbox"
-                        style={styles.checkboxInput}
-                        checked={formData.smoker}
-                        onChange={(e) => updateField('smoker', e.target.checked)}
-                      />
-                      <span>Do you smoke?</span>
-                    </label>
-                    {formData.smoker && (
-                      <input
-                        type="text"
-                        style={{ ...styles.input, width: '200px' }}
-                        value={formData.cigarettesPerDay}
-                        onChange={(e) => updateField('cigarettesPerDay', e.target.value)}
-                        placeholder="Cigarettes per day"
-                      />
-                    )}
-                  </div>
+                  {renderCheckboxWithText('specialistTreatment', 'Êtes-vous suivi(e), ou avez-vous déjà été suivi(e), par un spécialiste (cardiologue, endocrinologue, etc.) ?', 'specialistTreatmentText')}
                 </div>
               </div>
             )}
 
-            {/* Consent Forms - Full Only */}
+            {/* Consentement toxine botulique - complète seulement */}
             {!quickRegister && linkData?.consents?.botox && (
               <div style={styles.card}>
                 <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>Botulinum Toxin Consent</h3>
+                  <h3 style={styles.sectionTitle}>Consentement — Toxine botulique</h3>
                   <div style={styles.consentBox} dangerouslySetInnerHTML={{ __html: CONSENT_TEXTS.botox }} />
-                  <div style={{ maxWidth: '200px' }}>
+                  <div style={{ maxWidth: '220px' }}>
                     <select
                       style={styles.select}
                       value={formData.botoxConsent}
                       onChange={(e) => updateField('botoxConsent', e.target.value)}
                     >
-                      <option value="">Choose an option</option>
-                      <option value="accept">Accept</option>
-                      <option value="decline">Do not accept</option>
+                      <option value="">Choisir une option</option>
+                      <option value="accept">J'accepte</option>
+                      <option value="decline">Je refuse</option>
                     </select>
                   </div>
                 </div>
@@ -1166,17 +1117,17 @@ export default function PublicRegistration({ token }) {
             {!quickRegister && linkData?.consents?.filler && (
               <div style={styles.card}>
                 <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>Dermal Filler Consent</h3>
+                  <h3 style={styles.sectionTitle}>Consentement — Agents de comblement</h3>
                   <div style={styles.consentBox} dangerouslySetInnerHTML={{ __html: CONSENT_TEXTS.filler }} />
-                  <div style={{ maxWidth: '200px' }}>
+                  <div style={{ maxWidth: '220px' }}>
                     <select
                       style={styles.select}
                       value={formData.fillerConsent}
                       onChange={(e) => updateField('fillerConsent', e.target.value)}
                     >
-                      <option value="">Choose an option</option>
-                      <option value="accept">Accept</option>
-                      <option value="decline">Do not accept</option>
+                      <option value="">Choisir une option</option>
+                      <option value="accept">J'accepte</option>
+                      <option value="decline">Je refuse</option>
                     </select>
                   </div>
                 </div>
@@ -1186,17 +1137,17 @@ export default function PublicRegistration({ token }) {
             {!quickRegister && linkData?.consents?.photo && (
               <div style={styles.card}>
                 <div style={styles.cardBody}>
-                  <h3 style={styles.sectionTitle}>Photo Consent</h3>
+                  <h3 style={styles.sectionTitle}>Consentement — Photos</h3>
                   <div style={styles.consentBox} dangerouslySetInnerHTML={{ __html: CONSENT_TEXTS.photo }} />
-                  <div style={{ maxWidth: '200px' }}>
+                  <div style={{ maxWidth: '220px' }}>
                     <select
                       style={styles.select}
                       value={formData.photoConsent}
                       onChange={(e) => updateField('photoConsent', e.target.value)}
                     >
-                      <option value="">Choose an option</option>
-                      <option value="accept">Accept</option>
-                      <option value="decline">Do not accept</option>
+                      <option value="">Choisir une option</option>
+                      <option value="accept">J'accepte</option>
+                      <option value="decline">Je refuse</option>
                     </select>
                   </div>
                 </div>
@@ -1205,12 +1156,12 @@ export default function PublicRegistration({ token }) {
           </div>
         </div>
 
-        {/* Required Field Notice */}
+        {/* Mention champs requis */}
         <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-          <span style={{ color: '#dc3545' }}>*</span> indicates required field
+          <span style={{ color: '#dc3545' }}>*</span> indique un champ obligatoire
         </div>
 
-        {/* Submit Button */}
+        {/* Bouton d'envoi */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
           <button
             style={styles.submitBtn}
@@ -1228,9 +1179,9 @@ export default function PublicRegistration({ token }) {
                   animation: 'spin 1s linear infinite',
                   display: 'inline-block'
                 }} />
-                Registering...
+                Inscription en cours...
               </>
-            ) : 'Register'}
+            ) : "S'inscrire"}
           </button>
         </div>
       </div>
