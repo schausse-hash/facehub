@@ -42,15 +42,31 @@ async function logSync(clinicUuid, endpoint, fn) {
 
 const isoDate = (d) => d.toISOString().slice(0, 10)
 
+// Borne prudente sur la plage demandée à syncRdv : la limite exacte de ce
+// endpoint n'est pas documentée, on s'aligne sur celle de /schedules
+// (~3 mois depuis v2.0.21) plutôt que d'envoyer une plage arbitraire.
+const MAX_DAYS_AHEAD = 92
+
 // ============================================================
 // 1) Synchroniser les rendez-vous d'une clinique
 //    (par défaut : aujourd'hui → +30 jours)
 // ============================================================
 export async function syncAppointments(clinicUuid, { daysAhead = 30 } = {}) {
   return logSync(clinicUuid, 'syncRdv', async () => {
+    const requested = daysAhead == null ? 30 : Number(daysAhead)
+    const days = Math.min(
+      Math.max(1, Number.isFinite(requested) ? requested : 30),
+      MAX_DAYS_AHEAD,
+    )
+    if (days !== requested) {
+      console.warn(
+        `[dentitek] daysAhead=${daysAhead} ramené à ${days} jours (max ${MAX_DAYS_AHEAD})`,
+      )
+    }
+
     const from = new Date()
     const to = new Date()
-    to.setDate(to.getDate() + daysAhead)
+    to.setDate(to.getDate() + days)
 
     const rdvs = await dentitek.syncRdv(clinicUuid, isoDate(from), isoDate(to))
     const list = Array.isArray(rdvs) ? rdvs : (rdvs?.appointments || [])

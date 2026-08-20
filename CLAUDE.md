@@ -60,8 +60,16 @@ Voir `PLAN_PIVOT_DENTITEK.md` pour le plan complet (phases 1 à 5).
 ### Particularités API Dentitek à retenir
 
 - RDV créé avec `idPatientDentitek` = vrai rendez-vous; avec nom seulement = note de rendez-vous
-- `date_modified` : max 30 jours; `date_from`/`date_to` : écart max 365 jours; schedules : ~3 mois
-- Pagination : `limit` (défaut 2500), `offset`, `with_deleted`
+- ⚠️ Synchro incrémentale — le nom du paramètre change selon l'endpoint :
+  `/patients` attend **`modified`** (en jours), **tous les autres** attendent
+  **`date_modified`**. Envoyer `date_modified` à `/patients` n'est pas une erreur :
+  l'API ignore le filtre en silence et renvoie la base complète. Confirmé par la
+  collection Postman (« Practice Patients Recently changed » → `?modified=10`).
+- `modified` / `date_modified` : max 30 jours; `date_from`/`date_to` : écart max
+  365 jours; `/schedules` : ~3 mois (v2.0.21)
+- Pagination : `limit` (défaut ET max 2500), `offset`, `with_deleted` — exception :
+  `/patients` en mode `modified` est documenté à 5000/5000 dans la collection
+  (seul endpoint à déroger, comme pour `modified` vs `date_modified`)
 - La collection Postman fournie est **V2.0.17** — les endpoints v2.1+/v2.2
   (`treatment_plan`, `getOccupancyRate`, `getPriorityAppointments`) ont des signatures
   PROVISOIRES dans le client, à valider quand Progitek fournira la doc à jour.

@@ -118,6 +118,12 @@ Principes de conception :
 
 - Auth : en-tête `x-api-key`; base `https://[groupe].dentitek.info/v1`
 - Limites : 50 req/s, 4 requêtes simultanées (gérées par le client)
-- `date_modified` : max 30 jours; `date_from`/`date_to` : max 365 jours d'écart
-- Pagination : `limit` (défaut 2500), `offset`, `with_deleted`
+- Synchro incrémentale : `/patients` utilise `modified` (en jours), les autres
+  endpoints utilisent `date_modified`. Un `date_modified` envoyé à `/patients` est
+  ignoré en silence → toute la base est retournée sans erreur.
+- `modified` / `date_modified` : max 30 jours; `date_from`/`date_to` : max 365 jours
+  d'écart; `/schedules` : ~3 mois (v2.0.21)
+- Pagination : `limit` (défaut ET max 2500), `offset`, `with_deleted` — exception :
+  `/patients` en mode `modified` est documenté à 5000/5000 dans la collection
+  (seul endpoint à déroger, comme pour `modified` vs `date_modified`)
 - RDV avec `idPatientDentitek` = vrai rendez-vous; avec nom seulement = note de rendez-vous

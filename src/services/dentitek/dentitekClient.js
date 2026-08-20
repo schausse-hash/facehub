@@ -32,6 +32,10 @@ export function getDentitekConfig() {
 
 const baseUrl = () => `https://${config.subDomain}.dentitek.info/v1`
 
+// ---------- Limites de l'API (voir CLAUDE.md § Particularités) ----------
+const MODIFIED_MAX_DAYS = 30   // `modified` / `date_modified`
+const SCHEDULES_MAX_DAYS = 92  // /schedules : ~3 mois depuis v2.0.21
+
 // ---------- File d'attente : max 4 requêtes simultanées ----------
 const MAX_CONCURRENT = 4
 let activeCount = 0
@@ -119,9 +123,25 @@ export const dentitek = {
   providers: (clinicUuid) => call('GET', `/providers/${clinicUuid}`),
 
   /** Patients d'une clinique.
-   *  options: { modified: N (jours, <30), with_deleted, limit, offset } */
-  patients: (clinicUuid, options = {}) =>
-    call('GET', `/patients/${clinicUuid}`, { params: options }),
+   *  ⚠️ Ce endpoint attend 'modified' (en jours) pour la synchro incrémentale,
+   *  PAS 'date_modified' comme le reste de l'API. Un 'date_modified' est ignoré
+   *  en silence par Dentitek → la base complète est retournée sans erreur,
+   *  d'où le rejet explicite ci-dessous.
+   *  options: { modified: N (jours, <=30), date_from, date_to,
+   *             with_deleted, limit, offset } */
+  patients: (clinicUuid, options = {}) => {
+    if ('date_modified' in options) {
+      throw new DentitekError(400,
+        "/patients attend 'modified' (en jours), pas 'date_modified' — " +
+        "l'API ignorerait le filtre et renverrait toute la base.")
+    }
+    if (options.modified != null && Number(options.modified) > MODIFIED_MAX_DAYS) {
+      throw new DentitekError(400,
+        "/patients : 'modified' est limité à " + MODIFIED_MAX_DAYS +
+        " jours (reçu " + options.modified + ")")
+    }
+    return call('GET', `/patients/${clinicUuid}`, { params: options })
+  },
 
   /** Recherche d'un patient par nom */
   patientInfo: (clinicUuid, patientName) =>
@@ -208,8 +228,20 @@ export const dentitek = {
     call('POST', '/syncConfig', { body: { clinic_uuid: clinicUuid } }),
 
   /** Horaires d'une plage de dates (max ~3 mois depuis v2.0.21) */
-  schedules: (clinicUuid, date_from, date_to) =>
-    call('GET', `/schedules/${clinicUuid}`, { params: { date_from, date_to } }),
+  schedules: (clinicUuid, date_from, date_to) => {
+    const spanDays = (new Date(date_to) - new Date(date_from)) / 86400000
+    if (Number.isFinite(spanDays)) {
+      if (spanDays < 0) {
+        throw new DentitekError(400, '/schedules : date_to est antérieure à date_from')
+      }
+      if (spanDays > SCHEDULES_MAX_DAYS) {
+        throw new DentitekError(400,
+          '/schedules : plage de ' + Math.round(spanDays) + ' jours — le maximum ' +
+          'est ~3 mois (' + SCHEDULES_MAX_DAYS + ' jours) depuis v2.0.21')
+      }
+    }
+    return call('GET', `/schedules/${clinicUuid}`, { params: { date_from, date_to } })
+  },
 
   /** Postes / opératoires de la clinique */
   postes: (clinicUuid) => call('GET', `/postes/${clinicUuid}`),
